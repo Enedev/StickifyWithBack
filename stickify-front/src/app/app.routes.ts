@@ -8,6 +8,8 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { PlaylistComponent } from './pages/playlist/playlist.component';
 import { UploadComponent } from './pages/upload/upload.component';
 import { AuthorsComponent } from './pages/authors/authors.component';
+import { UserFollowsComponent } from './pages/user-follows/user-follows.component';
+
 
 export const routes: Routes = [
     {
@@ -42,6 +44,12 @@ export const routes: Routes = [
     {
         path: 'upload',
         component: UploadComponent,
+        canActivate: [authGuard]
+
+    },
+    {
+        path: 'user-follows',
+        component: UserFollowsComponent,
         canActivate: [authGuard]
 
     },

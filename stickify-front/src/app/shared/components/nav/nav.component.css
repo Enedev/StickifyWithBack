@@ -132,6 +132,10 @@ nav .nav-shortcuts {
   content: "Authors";
 }
 
+.nav-shortcuts a.link-user-follows::after {
+  content: "Follow";
+}
+
 .nav-shortcuts a#logoutBtn::after {
   content: "Logout";
 }

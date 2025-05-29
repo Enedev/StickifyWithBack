@@ -1,0 +1,48 @@
+<div class="container">
+  <app-nav></app-nav>
+
+  <main class="follows-main">
+    <div class="search-section">
+      <h2>Encuentra y Sigue Usuarios</h2>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (input)="applyFilter()"
+        placeholder="Buscar por nombre o correo electrónico"
+        class="search-input"
+      >
+    </div>
+
+    <div class="user-list">
+      <ng-container *ngIf="filteredUsers.length > 0; else noUsers">
+        <div *ngFor="let user of filteredUsers" class="user-card">
+          <div class="user-info">
+            <h3>{{ user.username }}</h3>
+            <p>{{ user.email }}</p>
+            <p class="premium-status" *ngIf="user.premium">
+              <i class="fa-solid fa-crown"></i> Premium
+            </p>
+            <p class="premium-status" *ngIf="!user.premium">
+                <i class="fa-regular fa-user"></i> No Premium
+            </p>
+          </div>
+          <button
+            class="follow-button"
+            [ngClass]="{'unfollow': isFollowing(user), 'follow': !isFollowing(user)}"
+            (click)="toggleFollow(user)"
+          >
+            <ng-container *ngIf="isFollowing(user)">
+              <i class="fa-solid fa-user-minus"></i> Dejar de Seguir
+            </ng-container>
+            <ng-container *ngIf="!isFollowing(user)">
+              <i class="fa-solid fa-user-plus"></i> Seguir
+            </ng-container>
+          </button>
+        </div>
+      </ng-container>
+      <ng-template #noUsers>
+        <p class="no-users-message">No se encontraron otros usuarios.</p>
+      </ng-template>
+    </div>
+  </main>
+</div>

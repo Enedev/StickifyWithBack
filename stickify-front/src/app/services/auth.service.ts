@@ -52,7 +52,7 @@ export class AuthService {
       return false;
     }
 
-    const newUser = { username, email, password, premium: userData.premium || false  };
+    const newUser = { username, email, password, premium: userData.premium || false,followers: [],following: []  };
     this.users = [...users, newUser];
     return true;
   }
@@ -116,6 +116,75 @@ export class AuthService {
       return true;
     }
     return false; // User not found
+  }
+
+  getAllOtherUsers(currentUserId: string): User[] {
+    const allUsers = this.users; // Use the getter to ensure initialization of followers/following
+    return allUsers.filter(user => user.email !== currentUserId);
+  }
+
+  /**
+   * Updates a user's data within the main 'users' array in local storage.
+   * This is a utility to ensure any changes to a User object are saved.
+   * @param updatedUser The User object with updated properties.
+   */
+  updateUserInStorage(updatedUser: User): void {
+    const allUsers = this.users; // Use the getter to ensure all users are loaded correctly
+    const index = allUsers.findIndex(u => u.email === updatedUser.email);
+    if (index > -1) {
+      allUsers[index] = updatedUser;
+      this.users = allUsers; // Save the entire updated array
+
+      // If the updated user is the current user, refresh currentUser state
+      if (this.currentUser && this.currentUser.email === updatedUser.email) {
+        this.currentUser = updatedUser; // Use the setter to update localStorage and the current state
+      }
+    }
+  }
+
+  toggleFollow(targetUserEmail: string, shouldFollow: boolean): boolean {
+    if (!this.currentUser) {
+      console.error('No user logged in to perform follow action.');
+      return false;
+    }
+
+    const currentUserEmail = this.currentUser.email; // Use email as the identifier
+    const allUsers = this.users; // Get current state of all users
+
+    // Find the actual User objects for current and target users from the `allUsers` array
+    const currentUserObj = allUsers.find(u => u.email === currentUserEmail);
+    const targetUserObj = allUsers.find(u => u.email === targetUserEmail);
+
+    if (!currentUserObj || !targetUserObj) {
+      console.error('Current user or target user not found in all users data.');
+      return false;
+    }
+
+    // Ensure followers/following arrays exist (should be guaranteed by getter, but good for safety)
+    currentUserObj.following = currentUserObj.following || [];
+    targetUserObj.followers = targetUserObj.followers || [];
+
+    if (shouldFollow) { // Action is to FOLLOW
+      // Add target to current user's following list if not already there
+      if (!currentUserObj.following.includes(targetUserEmail)) {
+        currentUserObj.following.push(targetUserEmail);
+      }
+      // Add current user to target user's followers list if not already there
+      if (!targetUserObj.followers.includes(currentUserEmail)) {
+        targetUserObj.followers.push(currentUserEmail);
+      }
+    } else { // Action is to UNFOLLOW
+      // Remove target from current user's following list
+      currentUserObj.following = currentUserObj.following.filter(id => id !== targetUserEmail);
+      // Remove current user from target user's followers list
+      targetUserObj.followers = targetUserObj.followers.filter(id => id !== currentUserEmail);
+    }
+
+    // Update both users in local storage
+    this.updateUserInStorage(currentUserObj); // This also updates `this.currentUser` if it's the logged-in user
+    this.updateUserInStorage(targetUserObj);
+
+    return true;
   }
 
 }

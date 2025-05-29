@@ -197,6 +197,31 @@ pre {
   font-size: 0.8rem;
 }
 
+.data-row .follow-info {
+  flex-grow: 1; /* Allows the info section to take up available space */
+  display: flex;
+  flex-direction: column; /* Stacks the count and the list of names vertically */
+  gap: 8px; /* Adds a bit of space between the count and the names list */
+  color: var(--text-secondary); /* Inherit or explicitly set text color */
+}
+
+.follow-info span {
+  font-size: 1em;
+  font-weight: 500;
+  color: var(--text-primary); /* Make the count stand out a bit more */
+}
+
+.follow-info ul {
+  list-style: none; /* Remove default list bullets */
+  padding: 0;
+  margin: 0;
+  font-size: 0.9em; /* Slightly smaller font for the list of names */
+  color: var(--quantum-glow); /* Use an accent color for names */
+  display: flex;
+  flex-wrap: wrap; /* Allow names to wrap to the next line if needed */
+  gap: 5px; /* Space between the listed names */
+}
+
 @media (max-width: 768px) {
   .profile-container {
     margin: 1rem;

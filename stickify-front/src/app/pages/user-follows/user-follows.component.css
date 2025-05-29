@@ -1,0 +1,212 @@
+.container {
+  display: grid;
+  grid-template-columns: 1fr 5fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "nav main";
+  gap: 5px;
+  background: var(--deep-space);
+  margin-top: -30px;
+  margin-right: -10px;
+  margin-bottom: -30px;
+  margin-left: -17px;
+}
+
+main {
+  grid-area: main;
+  padding: 2rem; /* Using rem for scalable sizing */
+  width: 90%; /* Responsive width */
+  min-height: calc(100vh - 60px);
+  margin: 20px auto; /* Center the content */
+  background: var(--void); /* Uses your global --void for background */
+  border-radius: 20px; /* Consistent border-radius */
+  box-shadow: 0 10px 30px rgba(92, 24, 154, 0.3); /* Matches your profile's shadow */
+  color: var(--text-primary); /* Uses your global --text-primary */
+  border: 1px solid var(--cyber-lavender); /* Uses your global --cyber-lavender for border */
+  overflow: hidden; /* Ensures content stays within bounds */
+}
+
+/* Search section styling */
+.search-section {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.search-section h2 {
+  font-size: 2.2rem;
+  color: var(--hologram); /* Uses your global --hologram for titles */
+  margin-bottom: 1.5rem;
+  text-shadow: var(--text-glow); /* Uses your global --text-glow for text effects */
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.9rem 1.2rem;
+  border: 1px solid var(--cyber-lavender); /* Consistent border color */
+  border-radius: 10px;
+  background: var(--deep-space); /* Uses your global --deep-space for input background */
+  color: var(--text-primary);
+  font-size: 1.1em;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: var(--quantum-glow); /* Uses your global --quantum-glow for focus border */
+  box-shadow: 0 0 0 4px rgba(199, 125, 255, 0.3); /* Accent shadow on focus, adjusted to your quantum-glow */
+}
+
+.search-input::placeholder {
+  color: var(--text-secondary); /* Uses your global --text-secondary for placeholder */
+  opacity: 0.8;
+}
+
+/* User list grid */
+.user-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* User card styling, similar to your data-row or playlist-card */
+.user-card {
+  background: var(--deep-space); /* Consistent background */
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(90, 24, 154, 0.3); /* Shadow similar to your profile elements */
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  border: 1px solid var(--cyber-lavender); /* Consistent border */
+}
+
+.user-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(90, 24, 154, 0.45); /* Enhanced hover shadow */
+  border-color: var(--quantum-glow); /* Glow effect on border during hover */
+}
+
+.user-info {
+    margin-bottom: 1rem;
+}
+
+.user-info h3 {
+  margin-top: 0;
+  color: var(--hologram); /* Uses your global --hologram for names */
+  font-size: 1.5rem;
+  margin-bottom: 0.4rem;
+  text-shadow: var(--text-glow);
+}
+
+.user-info p {
+  margin: 0;
+  color: var(--text-secondary); /* Uses your global --text-secondary for email */
+  font-size: 1em;
+}
+
+.premium-status {
+  margin-top: 0.8rem;
+  font-weight: 600;
+  font-size: 0.95em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.premium-status .fa-crown {
+  color: #FFD700; /* Standard gold for premium, as you don't have a specific gold variable */
+  font-size: 1.1em;
+}
+
+.premium-status .fa-user {
+    color: var(--text-secondary); /* Uses text-secondary for regular user icon */
+    font-size: 1.1em;
+}
+
+/* Follow/Unfollow buttons, styled to match your general .btn look */
+.follow-button {
+  padding: 0.8rem 1.5rem;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  transition: all 0.3s ease;
+  border: none;
+  width: 100%;
+  justify-content: center;
+  font-weight: 500;
+  font-family: var(--font-primary); /* Uses your global font */
+}
+
+.follow-button:active {
+  transform: translateY(1px);
+}
+
+.follow-button.follow {
+  background: var(--neon-purple); /* Uses your global --neon-purple */
+  color: var(--text-primary);
+}
+
+.follow-button.follow:hover {
+  background: var(--electric-violet); /* Uses your global --electric-violet */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(90, 24, 154, 0.3); /* Consistent shadow on hover */
+}
+
+.follow-button.unfollow {
+  background-color: #DC3545; /* Red for unfollow (can be adjusted to a variable if you add one for danger) */
+  color: white;
+}
+
+.follow-button.unfollow:hover {
+  background-color: #C82333; /* Darker red for unfollow hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); /* Shadow for unfollow hover */
+}
+
+.no-users-message {
+  text-align: center;
+  grid-column: 1 / -1;
+  color: var(--text-secondary);
+  font-size: 1.2em;
+  padding: 2rem;
+  background: var(--deep-space); /* Consistent background */
+  border-radius: 12px;
+  margin-top: 20px;
+  border: 1px solid var(--cyber-lavender);
+  box-shadow: 0 4px 15px rgba(90, 24, 154, 0.3);
+}
+  
+/* Media Queries for responsiveness */
+@media (max-width: 768px) {
+
+  .container  {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+        "nav"
+        "main"
+        ".";
+    min-height: 100vh;
+  }
+  
+  .follows-main {
+    padding: 1.5rem;
+    margin: 1rem auto;
+  }
+
+  .user-list {
+    grid-template-columns: 1fr; /* Single column on smaller screens */
+  }
+
+  .user-card {
+    padding: 1.2rem;
+  }
+}

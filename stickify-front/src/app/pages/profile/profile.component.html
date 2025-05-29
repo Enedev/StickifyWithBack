@@ -19,6 +19,24 @@
           <span>{{ currentUser.email }}</span>
         </div>
 
+        <div class="data-row">
+            <label><i class="fa-solid fa-users"></i> Seguidores:</label>
+            <div class="follow-info">
+                <span>{{ followersCount }} personas te siguen.</span>
+                <ul *ngIf="latestFollowersNames.length > 0"> <li>Últimos 3 seguidores: {{ latestFollowersNames.join(', ') }}</li>
+                </ul>
+                <span *ngIf="latestFollowersNames.length === 0">Aún no tienes seguidores.</span> </div>
+        </div>
+
+        <div class="data-row">
+            <label><i class="fa-solid fa-user-group"></i> Siguiendo:</label>
+            <div class="follow-info">
+                <span>Sigues a {{ followingCount }} personas.</span>
+                <ul *ngIf="latestFollowingNames.length > 0"> <li>Últimos 3 seguidos: {{ latestFollowingNames.join(', ') }}</li>
+                </ul>
+                <span *ngIf="latestFollowingNames.length === 0">Aún no sigues a nadie.</span> </div>
+        </div>
+
         <div class="data-row" *ngIf="userRatings.length > 0">
           <label><i class="fa-solid fa-star"></i> Mis calificaciones:</label>
           <ul>

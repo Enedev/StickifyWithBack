@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe  } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Song } from '../../shared/interfaces/song.interface';
 import { SongRatings } from '../../shared/interfaces/song-ratings.interface';
@@ -16,7 +16,7 @@ import { PremiumPaymentComponent } from '../../shared/components/premium-payment
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, PremiumPaymentComponent],
+  imports: [CommonModule, RouterLink, PremiumPaymentComponent, DatePipe],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
@@ -29,6 +29,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
   userComments: UserComment[] = [];
   allSongs: Song[] = [];
   showPremiumModal: boolean = false; // New property to control modal visibility
+  private allUsersMap: Map<string, string> = new Map(); // Maps email (ID) to username
+  followersCount: number = 0;
+  followingCount: number = 0;
+  latestFollowersNames: string[] = [];
+  latestFollowingNames: string[] = []
 
   // Local storage data cache
   private storedUserRatings: { [trackId: number]: SongRatings } = {};
@@ -42,6 +47,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.loadSavedPlaylists();
     this.loadRatingsAndComments();
     this.subscribeToSongs();
+    this.updateFollowData(); // Call this to populate counts and latest lists
   }
 
   ngOnDestroy(): void {
@@ -57,6 +63,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private loadUserData(): void {
     const storedUser = localStorage.getItem('currentUser');
     this.currentUser = storedUser ? JSON.parse(storedUser) : {};
+  }
+
+  private loadAllUsersForMapping(): void {
+    const allRegisteredUsers = this.authService.users; // Get all users including the current one
+    allRegisteredUsers.forEach(user => {
+      if (user.email && user.username) {
+        this.allUsersMap.set(user.email, user.username);
+      }
+    });
   }
 
   private loadSavedPlaylists(): void {
@@ -144,6 +159,42 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   logout(): void {
     this.authService.logOut();
+  }
+
+  private updateFollowData(): void {
+    // Get the *latest* current user data from AuthService
+    this.loadUserData()
+
+    if (this.currentUser) {
+      const followers = this.currentUser.followers || [];
+      const following = this.currentUser.following || [];
+
+      this.followersCount = followers.length;
+      this.followingCount = following.length;
+
+      // Get latest 3 followers, mapped to usernames
+      this.latestFollowersNames = followers
+                               .slice(-3) // Take the last 3 (most recent)
+                               .reverse() // Reverse to show most recent first
+                               .map(email => this.getUsernameByEmail(email));
+
+      // Get latest 3 following, mapped to usernames
+      this.latestFollowingNames = following
+                               .slice(-3) // Take the last 3 (most recent)
+                               .reverse() // Reverse to show most recent first
+                               .map(email => this.getUsernameByEmail(email));
+    } else {
+      // Clear data if no user is logged in
+      this.followersCount = 0;
+      this.followingCount = 0;
+      this.latestFollowersNames = [];
+      this.latestFollowingNames = [];
+    }
+  }
+
+  // NEW: Helper to get username from email using the pre-built map
+  private getUsernameByEmail(email: string): string {
+    return this.allUsersMap.get(email) || email; // Return username if found, otherwise the email itself
   }
 
   async togglePremiumStatus(): Promise<void> {
