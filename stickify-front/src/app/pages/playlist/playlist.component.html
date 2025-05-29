@@ -1,0 +1,101 @@
+<div class="container">
+  <app-nav></app-nav>
+
+  <main class="playlist-main">
+    <button (click)="openModal()" class="create-playlist-button">
+      <span class="plus"></span> Crear Playlist
+    </button>
+
+    <div *ngIf="showModal" class="modal">
+      <div class="modal-content">
+        <span class="close" (click)="closeModal()">&times;</span>
+        <h2>Crear Nueva Playlist</h2>
+        <input [(ngModel)]="newPlaylistName" 
+               type="text" 
+               placeholder="Nombre de la Playlist"
+               class="playlist-name-input">
+
+        <div class="songs-grid">
+          <div *ngFor="let song of allSongs" 
+               class="song-card" 
+               (click)="toggleSongSelection(song)"
+               [class.selected]="selectedSongs.includes(song)">
+            <img [src]="song.artworkUrl100" class="song-thumbnail">
+            <div class="song-info">
+              <p class="song-title">{{ song.trackName }}</p>
+              <p class="song-artist">{{ song.artistName }}</p>
+            </div>
+            <input type="checkbox" 
+                   [checked]="selectedSongs.includes(song)"
+                   class="song-checkbox">
+          </div>
+        </div>
+
+        <button (click)="createPlaylist()" 
+                class="save-playlist">
+          Guardar Playlist
+        </button>
+      </div>
+    </div>
+
+    <h1 class="playlist-title">Playlists creadas por usuarios</h1>
+    <div class="playlist-grid">
+      <div *ngFor="let playlist of userPlaylists" class="playlist-card">
+        <div class="playlist-header">
+          <img [src]="getPlaylistCover(playlist)" class="playlist-cover">
+            <div class="playlist-info">
+              <h3>{{ playlist.name }}</h3>
+              <p>{{ getPlaylistSongs(playlist).length }} canciones</p>
+              <p class="playlist-creator">Creador: {{ playlist.createdBy || 'Automática' }}</p>
+              <button class="save-playlist-profile" (click)="savePlaylistToProfile(playlist)">
+                <i class="fas fa-save"></i> Guardar
+              </button>
+          </div>
+        </div>
+        <div class="playlist-tracks-container">
+          <div class="playlist-tracks">
+            <div *ngFor="let song of getPlaylistSongs(playlist); let idx = index" 
+                 class="track">
+              <span class="track-number">{{ idx + 1 }}.</span>
+              <img [src]="song.artworkUrl100" class="track-artwork">
+              <div class="track-info">
+                <p class="track-title">{{ song.trackName }}</p>
+                <p class="track-artist">{{ song.artistName }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h1 class="playlist-title">Playlists Automáticas Por Géneros</h1>
+    <div class="playlist-grid">
+      <div *ngFor="let playlist of autoPlaylists" class="playlist-card">
+        <div class="playlist-header">
+          <img [src]="getPlaylistCover(playlist)" class="playlist-cover">
+          <div class="playlist-info">
+            <h3>{{ playlist.name }}</h3>
+            <p>{{ getPlaylistSongs(playlist).length }} canciones</p>
+            <p class="playlist-creator">Creador: {{ playlist.createdBy || 'Automática' }}</p>
+            <button class="save-playlist-profile" (click)="savePlaylistToProfile(playlist)">
+              <i class="fas fa-save"></i> Guardar
+            </button>
+          </div>
+        </div>
+        <div class="playlist-tracks-container">
+          <div class="playlist-tracks">
+            <div *ngFor="let song of getPlaylistSongs(playlist); let idx = index" 
+                 class="track">
+              <span class="track-number">{{ idx + 1 }}.</span>
+              <img [src]="song.artworkUrl100" class="track-artwork">
+              <div class="track-info">
+                <p class="track-title">{{ song.trackName }}</p>
+                <p class="track-artist">{{ song.artistName }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

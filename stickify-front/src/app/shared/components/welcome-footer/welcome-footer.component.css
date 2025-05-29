@@ -1,0 +1,12 @@
+footer {
+    background: var(--void);
+    padding: 2rem;
+    text-align: center;
+    border-top: 3px solid var(--galaxy-core);
+    margin-top: 4rem;
+}
+
+footer p {
+    color: var(--cyber-lavender);
+    font-size: 0.9rem;
+}

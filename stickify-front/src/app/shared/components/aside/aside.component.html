@@ -1,0 +1,24 @@
+<aside>
+  <h2>Canciones mejor calificadas</h2>
+  <ol id="topRatedList">
+    @for (ratedSong of topRatedSongs; track ratedSong.song.trackId) {
+      <li>
+        <img [src]="ratedSong.song.artworkUrl100" [alt]="ratedSong.song.trackName">
+        <div>
+          <span class="artist-track">{{ ratedSong.song.artistName }} - {{ ratedSong.song.trackName }}</span>
+          @if (ratedSong.averageRating > 0) {
+            <span class="rating">
+              @for (star of getStarArray(ratedSong.averageRating); track $index) {
+                <span>{{ star }}</span>
+              }
+            </span>
+          } @else {
+            <span class="rating">Sin calificaciones</span>
+          }
+        </div>
+      </li>
+    } @empty {
+      <li>No hay canciones calificadas aún</li>
+    }
+  </ol>
+</aside>

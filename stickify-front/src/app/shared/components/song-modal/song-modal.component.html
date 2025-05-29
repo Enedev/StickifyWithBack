@@ -1,0 +1,55 @@
+@if (song) {
+    <div class="modal-content">
+      <span class="close" (click)="onClose()">&times;</span>
+      
+      <div class="song-details">
+        <img [src]="song.artworkUrl100" [alt]="song.trackName">
+        <div class="song-info">
+          <h3>{{ song.artistName }} - {{ song.trackName }}</h3>
+          <p><strong>Género:</strong> {{ song.primaryGenreName }}</p>
+          <p><strong>Álbum:</strong> {{ song.collectionName }}</p>
+        </div>
+      </div>
+  
+      <div class="rating-comments-section">
+        <h3>Valoraciones y Comentarios</h3>
+        
+        @if (currentUser) {
+          <div class="rating-section">
+            <h4>Tu valoración:</h4>
+            <div class="rating-stars">
+              @for (star of [1,2,3,4,5]; track star) {
+                <span 
+                  (click)="onRate(star)"
+                  [style.color]="star <= userRating ? '#FFD700' : '#ccc'"
+                >
+                  ★
+                </span>
+              }
+            </div>
+          </div>
+        }
+  
+        <div class="comments-section">
+          <h4>Comentarios:</h4>
+          @for (comment of comments; track comment.date) {
+            <div class="comment">
+              <p>{{ comment.text }}</p>
+              <small>{{ comment.user }} - {{ comment.date | date:'shortDate' }}</small>
+            </div>
+          }
+          
+          @if (currentUser) {
+            <div class="comment-input">
+              <input 
+                type="text" 
+                placeholder="Escribe tu comentario..." 
+                [(ngModel)]="newCommentText"
+              >
+              <button (click)="onSubmitComment()">Enviar</button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }

@@ -1,0 +1,23 @@
+<div class="song-container" (click)="onSongClick()">
+    <div class="song-details">
+      <div class="img-container">
+        <img [src]="song.artworkUrl100" [alt]="song.trackName" />
+      </div>
+      <div class="song-info">
+        <h3>{{ song.artistName }}</h3>
+        <p><strong>Canción</strong> {{ song.trackName }}</p>
+        <p><strong>Género</strong> {{ song.primaryGenreName }}</p>
+        <p><strong>Álbum</strong> {{ song.collectionName }}</p>
+        @if (song.releaseDate) {
+          <p><strong>Lanzamiento</strong> {{ song.releaseDate | date: 'yyyy-MM-dd' }}</p>
+        }
+        @if (averageRating > 0) {
+          <div class="rating-stars">
+            @for (star of getStarArray(); track $index) {
+              <span>{{ star }}</span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>

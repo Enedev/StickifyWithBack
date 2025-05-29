@@ -1,0 +1,13 @@
+<nav>
+    <div class="nav-shortcuts">
+        <a class="link-home" [routerLink]="['/home']"><i class="fa-solid fa-home"></i></a>
+        <a class="link-profile" [routerLink]="['/profile']"><i class="fa-solid fa-gear"></i></a>
+        <a class="link-playlist" [routerLink]="['/playlist']"><i class="fa-solid fa-list-check"></i></a>
+        <a class="link-upload" [routerLink]="['/upload']"><i class="fa-solid fa-music"></i></a>
+        <a class="link-authors" [routerLink]="['/authors']"><i class="fa-solid fa-user-group"></i></a>
+        <a (click)="logout()" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+    </div>
+
+    <app-filter *ngIf="isHomePage" (filterChanged)="onFilterChange($event)"></app-filter>
+
+</nav>

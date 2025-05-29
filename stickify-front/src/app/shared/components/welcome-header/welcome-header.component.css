@@ -1,0 +1,42 @@
+header {
+    background: var(--void);
+    padding: 1.5rem 2rem;
+    border-bottom: 3px solid var(--galaxy-core);
+    box-shadow: 0 4px 20px rgba(16, 0, 43, 0.6);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--hologram);
+    font-size: 2.2rem;
+    font-weight: 700;
+    text-shadow: var(--text-glow);
+    letter-spacing: -0.5px;
+}
+
+.logo-img {
+    width: 100px;
+    height: auto;
+    max-height: 100px;
+    filter: drop-shadow(0 0 15px var(--quantum-glow));
+}
+
+@media (max-width: 768px) {
+    header {
+
+        padding: 1.5rem 0.2rem;
+    }
+    
+    .logo {
+        margin-right: 10px;
+        gap: 1px;
+        font-size: 1.5em;
+        font-weight: 700;
+    }
+    
+}

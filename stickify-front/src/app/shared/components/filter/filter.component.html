@@ -1,0 +1,32 @@
+<div class="filter" id="allFiltersContainer">
+    <button id="genreToggle" (click)="toggleFilter('genre')">Filtrar por géneros</button>
+    <div id="genreFilters">
+        <span class="close-filter" (click)="toggleFilter('genre')">&times;</span>
+        <div class="checkbox-container">
+            <div *ngFor="let genre of genres">
+                <input type="checkbox" [id]="genre" (change)="onGenreChange(genre, $event)">
+                <label [for]="genre">{{genre}}</label>
+            </div>
+        </div>
+    </div>
+  
+    <button id="dateToggle" (click)="toggleFilter('date')">Filtrar por fecha</button>
+    <div id="dateFilters">
+        <span class="close-filter" (click)="toggleFilter('date')">&times;</span>
+        <input type="text" id="dateInput" 
+               placeholder="YYYY" 
+               (input)="onYearChange($event)"
+               maxlength="4">
+    </div>
+  
+    <button id="artistToggle" (click)="toggleFilter('artist')">Filtrar por artista</button>
+    <div id="artistFilters">
+        <span class="close-filter" (click)="toggleFilter('artist')">&times;</span>
+        <div class="artist-checkbox-container">
+            <div *ngFor="let artist of artists">
+                <input type="checkbox" [id]="artist" (change)="onArtistChange(artist, $event)">
+                <label [for]="artist">{{artist}}</label>
+            </div>
+        </div>
+    </div>
+  </div>

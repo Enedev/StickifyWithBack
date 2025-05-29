@@ -1,0 +1,81 @@
+<body>
+  <div class="profile-container">
+    <div class="profile-header">
+      <h1><i class="fa-solid fa-user-shield"></i> Mi Perfil</h1>
+      <div class="security-badge">
+        <i class="fa-solid fa-lock"></i>
+        <span>Cuenta verificada</span>
+      </div>
+    </div>
+
+    <div class="profile-content">
+      <div class="user-data" id="userData">
+        <div class="data-row" *ngIf="currentUser.username">
+          <label><i class="fa-solid fa-user"></i> Nombre de usuario:</label>
+          <span>{{ currentUser.username }}</span>
+        </div>
+        <div class="data-row" *ngIf="currentUser.email">
+          <label><i class="fa-solid fa-envelope"></i> Correo electrónico:</label>
+          <span>{{ currentUser.email }}</span>
+        </div>
+
+        <div class="data-row" *ngIf="userRatings.length > 0">
+          <label><i class="fa-solid fa-star"></i> Mis calificaciones:</label>
+          <ul>
+            <li *ngFor="let rating of userRatings">
+              <strong>Canción: {{ rating.songName }}</strong>: {{ rating.rating }} estrellas
+            </li>
+          </ul>
+        </div>
+        <div class="data-row" *ngIf="userRatings.length === 0 && currentUser.email">
+          <label><i class="fa-solid fa-star"></i> Mis calificaciones:</label>
+          <span>Aún no has calificado ninguna canción.</span>
+        </div>
+
+        <div class="data-row" *ngIf="userComments.length > 0">
+          <label><i class="fa-solid fa-comments"></i> Mis comentarios:</label>
+          <ul>
+            <li *ngFor="let comment of userComments">
+              <strong>Canción: {{ comment.songName }}</strong>
+              <p>{{ comment.text }}</p>
+              <small>{{ comment.date | date }}</small>
+            </li>
+          </ul>
+        </div>
+        <div class="data-row" *ngIf="userComments.length === 0 && currentUser.email">
+          <label><i class="fa-solid fa-comments"></i> Mis comentarios:</label>
+          <span>Aún no has dejado ningún comentario.</span>
+        </div>
+
+        <div class="data-row" *ngIf="savedPlaylists.length > 0">
+          <label><i class="fas fa-music"></i> Playlists Guardadas:</label>
+          <div class="playlist-grid">
+            <div *ngFor="let playlist of savedPlaylists" class="playlist-card">
+              <img [src]="getPlaylistCoverForProfile(playlist)" alt="{{ playlist.name }}" class="playlist-cover-sm">
+              <div class="playlist-info">
+                <h4>{{ playlist.name }}</h4>
+                <p>{{ playlist.trackIds.length }} canciones</p>
+                <p class="playlist-type">Tipo: {{ playlist.type === 'user' ? 'Usuario' : 'Automática' }}</p>
+                <p class="playlist-date">Guardada: {{ playlist.createdAt | date:'dd/MM/yyyy' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="data-row" *ngIf="savedPlaylists.length === 0">
+          <label><i class="fas fa-music"></i> Playlists Guardadas:</label>
+          <span>Aún no has guardado ninguna playlist.</span>
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <a [routerLink]="['/home']" class="btn home-btn">
+          <i class="fa-solid fa-house"></i> Volver al Inicio
+        </a>
+        <button id="logoutBtn" (click)="logout()" class="btn logout-btn">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </div>
+</body>

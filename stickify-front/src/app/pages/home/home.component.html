@@ -1,0 +1,34 @@
+<div class="container">
+  <app-nav (filterChanged)="onFilterChange($event)"></app-nav>
+  <app-header (searchInputChanged)="onSearchTermChanged($event)"></app-header>
+
+  <main>
+    <app-pagination
+      [totalItems]="totalFilteredSongs"
+      [itemsPerPage]="itemsPerPage"
+      (pageChanged)="onPageChange($event)"
+    ></app-pagination>
+
+    <div id="musicResults">
+      @for (song of getPaginatedSongs(); track song.trackId) {
+        <app-song-card
+          [song]="song"
+          [averageRating]="getAverageRatingForSong(song.trackId)"
+          (songSelected)="openModal($event)"
+        ></app-song-card>
+      }
+    </div>
+  </main>
+
+  <app-aside></app-aside>
+
+  <app-song-modal
+    *ngIf="showModal"
+    [song]="selectedSong"
+    [currentUser]="currentUser"
+    [comments]="getCommentsForSelectedSong()"
+    (closeModal)="closeModal()"
+    (rateSong)="onRateSong($event)"
+    (submitComment)="onSubmitComment($event)"
+  ></app-song-modal>
+</div>

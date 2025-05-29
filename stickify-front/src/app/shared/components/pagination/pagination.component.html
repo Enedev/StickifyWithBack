@@ -1,0 +1,11 @@
+<div id="pagination">
+    @for (pageNumber of totalPagesArray; track pageNumber) {
+      <button
+        class="page-button"
+        [class.active]="pageNumber === currentPage"
+        (click)="changePage(pageNumber)"
+      >
+        {{ pageNumber }}
+      </button>
+    }
+  </div>

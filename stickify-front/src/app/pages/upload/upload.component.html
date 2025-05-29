@@ -1,0 +1,22 @@
+<div class="container">
+  <app-nav></app-nav>
+
+  <main>
+    <div class="upload-form">
+      <h2>Subir Nueva Canción</h2>
+      <input type="text" id="artistName" #artistName placeholder="Nombre del Artista">
+      <input type="text" id="trackName" #trackName placeholder="Nombre de la Canción">
+      <input type="text" id="collectionName" #collectionName placeholder="Nombre del Álbum">
+      <input type="text" id="primaryGenreName" #primaryGenreName placeholder="Género">
+      <label for="artworkFile" class="file-upload-label">
+        <div class="preview-container">
+          <span *ngIf="!previewImage">Seleccionar Portada</span>
+          <img *ngIf="previewImage" [src]="previewImage" class="image-preview">
+        </div>
+      </label>
+      <input type="file" id="artworkFile" #artworkFile accept="image/*" class="file-upload-input" 
+             (change)="onFileSelected($event)">
+      <button id="uploadButton" (click)="uploadSong()">Subir Canción</button>
+    </div>
+  </main>
+</div>
