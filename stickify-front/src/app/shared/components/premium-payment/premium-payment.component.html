@@ -1,0 +1,58 @@
+<div class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Actualizar a Premium</h2>
+            <button class="close-button" (click)="cancelPayment()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="payment-features">
+                <div class="feature">
+                    <span class="feature-icon">✧</span>
+                    <span>Crear canciones!</span>
+                </div>
+                <div class="feature">
+                    <span class="feature-icon">✧</span>
+                    <span>Crear playlists!</span>
+                </div>
+            </div>
+
+            <form (ngSubmit)="submitPayment()" class="payment-form">
+                <div class="form-group">
+                    <label>Número de tarjeta</label>
+                    <input type="text" [(ngModel)]="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456">
+                </div>
+                
+                <div class="form-group">
+                    <label>Nombre en la tarjeta</label>
+                    <input type="text" [(ngModel)]="cardHolder" name="cardHolder" placeholder="Juan Pérez">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fecha de expiración</label>
+                        <input type="text" [(ngModel)]="expiryDate" name="expiryDate" placeholder="MM/AA">
+                    </div>
+                    <div class="form-group">
+                        <label>CVV</label>
+                        <input type="text" [(ngModel)]="cvv" name="cvv" placeholder="123">
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="button secondary" (click)="cancelPayment()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="button premium">
+                        <span class="icon">✧</span> Hacerme Premium
+                    </button>
+                </div>
+            </form>
+            
+            <div class="payment-security">
+                <span class="security-icon">🔒</span>
+                <span>Pago seguro - 256-bit SSL</span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -52,7 +52,7 @@ export class AuthService {
       return false;
     }
 
-    const newUser = { username, email, password };
+    const newUser = { username, email, password, premium: userData.premium || false  };
     this.users = [...users, newUser];
     return true;
   }
@@ -97,4 +97,25 @@ export class AuthService {
     });
 
   }
+
+  updateUserPremiumStatus(email: string, isPremium: boolean): boolean {
+    const allUsers = this.users; // Get all users
+    const userIndex = allUsers.findIndex(u => u.email === email);
+
+    if (userIndex !== -1) {
+      // Update the premium status for the user in the allUsers array
+      allUsers[userIndex].premium = isPremium;
+      this.users = allUsers; // Save the updated allUsers array to localStorage
+
+      // If the updated user is the currently logged-in user, update currentUser too
+      const currentLoggedInUser = this.currentUser;
+      if (currentLoggedInUser && currentLoggedInUser.email === email) {
+        currentLoggedInUser.premium = isPremium;
+        this.currentUser = currentLoggedInUser; // Save updated currentUser to localStorage
+      }
+      return true;
+    }
+    return false; // User not found
+  }
+
 }

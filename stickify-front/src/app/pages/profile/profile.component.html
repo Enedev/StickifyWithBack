@@ -69,6 +69,14 @@
       </div>
 
       <div class="profile-actions">
+        <button
+          *ngIf="currentUser.email"
+          id="premiumBtn"
+          (click)="togglePremiumStatus()"
+          class="btn logout-btn" >
+          <i class="fa-solid" [ngClass]="{'fa-crown': !currentUser.premium, 'fa-ban': currentUser.premium}"></i>
+          {{ currentUser.premium ? 'Cancelar Premium' : 'Ser Premium' }}
+        </button>
         <a [routerLink]="['/home']" class="btn home-btn">
           <i class="fa-solid fa-house"></i> Volver al Inicio
         </a>
@@ -78,4 +86,9 @@
       </div>
     </div>
   </div>
+
+  <app-premium-payment
+    *ngIf="showPremiumModal"
+    (closeModal)="handlePremiumModalClose($event)"
+  ></app-premium-payment>
 </body>

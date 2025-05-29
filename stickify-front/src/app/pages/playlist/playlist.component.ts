@@ -7,6 +7,8 @@ import { Playlist } from '../../shared/interfaces/playlist.interface';
 import { NgFor, NgIf, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { AuthService } from '../../services/auth.service';
+import { User } from '../../shared/interfaces/user.interface';
 
 @Component({
   selector: 'app-playlist',
@@ -18,6 +20,7 @@ import Swal from 'sweetalert2';
 export class PlaylistComponent implements OnInit {
   private musicService = inject(MusicService);
   private playlistService = inject(PlaylistService);
+  private authService = inject(AuthService);
 
   userPlaylists: Playlist[] = [];
   autoPlaylists: Playlist[] = [];
@@ -25,8 +28,10 @@ export class PlaylistComponent implements OnInit {
   showModal = false;
   newPlaylistName = '';
   selectedSongs: Song[] = [];
+  currentUser: User | null = null; 
 
   ngOnInit() {
+    this.currentUser = this.authService.currentUser;
     this.loadPlaylists();
     this.musicService.songs$.subscribe(songs => {
       this.allSongs = songs;
@@ -43,11 +48,29 @@ export class PlaylistComponent implements OnInit {
   }
 
   toggleSongSelection(song: Song) {
+    if (!this.currentUser?.premium) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Acceso Restringido',
+        text: 'Necesitas ser usuario Premium para seleccionar canciones para una playlist.',
+        confirmButtonText: 'Entendido'
+      });
+      return;
+    }
     const index = this.selectedSongs.findIndex(s => s.trackId === song.trackId);
     index > -1 ? this.selectedSongs.splice(index, 1) : this.selectedSongs.push(song);
   }
 
   createPlaylist() {
+    if (!this.currentUser?.premium) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Acceso Restringido',
+        text: 'Necesitas ser usuario Premium para crear playlists.',
+        confirmButtonText: 'Entendido'
+      });
+      return; 
+    }
     if (!this.newPlaylistName || this.newPlaylistName.trim() === '') {
       Swal.fire({
         icon: 'warning',
@@ -84,6 +107,16 @@ export class PlaylistComponent implements OnInit {
 
 
   openModal() {
+    if (!this.currentUser?.premium) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Acceso Restringido',
+        text: 'Necesitas ser usuario Premium para crear playlists.',
+        confirmButtonText: 'Entendido'
+      });
+      return; // Prevent modal from opening
+    }
+    
     this.showModal = true;
     this.selectedSongs = [];
     this.newPlaylistName = '';

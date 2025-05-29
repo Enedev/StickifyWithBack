@@ -1,14 +1,24 @@
 <body>
-    <div class="signin-container">
+    <div class="signup-container">
         <h1>Regístrate en Stickify</h1>
-        <form class="signin-form" id="signInForm" [formGroup]="registryForm" (ngSubmit)="onRegistry()">
+        <form class="signup-form" id="signUpForm" [formGroup]="registryForm" (ngSubmit)="onRegistry()">
             <input type="text" placeholder="Nombre de Usuario" formControlName="username" required>
             <input type="email" placeholder="Correo Electrónico" formControlName="email" required>
             <input type="password" placeholder="Contraseña" formControlName="password" required>
             <input type="password" placeholder="Repetir Contraseña" formControlName="repeatPassword" required>
+            <div class="premium-option">
+                <button type="button" class="button" (click)="openPremiumModal()">
+                    {{ isPremium ? '✔ Premium Activado' : 'Vuelvete Premium Aquí (opcional)' }}
+                </button>
+            </div>
             <button type="submit" class="button primary">Regístrate</button>
         </form>
         <p>¿Ya tienes una cuenta? <a [routerLink]="['/log-in']">Iniciar Sesión</a></p>
         <a [routerLink]="['/']" class="button secondary">Volver </a>
     </div>
+
+    <app-premium-payment 
+        *ngIf="showPremiumModal"
+        (closeModal)="closePremiumModal($event)">
+    </app-premium-payment>
 </body>

@@ -11,11 +11,12 @@ import { Playlist } from '../../shared/interfaces/playlist.interface';
 import { UserProfile } from '../../shared/interfaces/user-profile.interface';
 import { UserRating } from '../../shared/interfaces/user-rating.interface';
 import { UserComment } from '../../shared/interfaces/user-comment.interface';
-
+import Swal from 'sweetalert2'; 
+import { PremiumPaymentComponent } from '../../shared/components/premium-payment/premium-payment.component';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, PremiumPaymentComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
@@ -27,6 +28,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   userRatings: UserRating[] = [];
   userComments: UserComment[] = [];
   allSongs: Song[] = [];
+  showPremiumModal: boolean = false; // New property to control modal visibility
 
   // Local storage data cache
   private storedUserRatings: { [trackId: number]: SongRatings } = {};
@@ -142,5 +144,98 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   logout(): void {
     this.authService.logOut();
+  }
+
+  async togglePremiumStatus(): Promise<void> {
+    if (!this.currentUser || !this.currentUser.email) {
+      return;
+    }
+
+    const currentPremiumStatus = this.currentUser.premium || false;
+
+    if (currentPremiumStatus) {
+      // User is premium, ask to cancel
+      const result = await Swal.fire({
+        title: '¿Cancelar Premium?',
+        text: 'Al cancelar tu suscripción Premium, perderás el acceso a funciones exclusivas. ¿Estás seguro?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, cancelar Premium',
+        cancelButtonText: 'No, mantener Premium',
+        color: "#716add",
+        backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+      });
+
+      if (result.isConfirmed) {
+        // Proceed with cancellation
+        const success = this.authService.updateUserPremiumStatus(this.currentUser.email, false);
+        if (success) {
+          this.currentUser.premium = false; // Update local state
+          await Swal.fire({
+            title: "¡Suscripción cancelada!",
+            text: "Tu suscripción Premium ha sido cancelada correctamente.",
+            icon: "success",
+            color: "#716add",
+            backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+          });
+        } else {
+          await Swal.fire({
+            title: "Error",
+            text: "No se pudo cancelar el estado Premium. Intenta de nuevo.",
+            icon: "error",
+            color: "#716add",
+            backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+          });
+        }
+      }
+    } else {
+      // User is not premium, open the payment modal
+      this.showPremiumModal = true;
+    }
+  }
+
+  /**
+   * Handles the output from the PremiumPaymentComponent modal.
+   * @param isConfirmed True if payment was successful, false if cancelled.
+   */
+  async handlePremiumModalClose(isConfirmed: boolean): Promise<void> {
+    this.showPremiumModal = false; // Close the modal regardless of outcome
+
+    if (!this.currentUser || !this.currentUser.email) {
+      console.error('No current user or user email found after modal closure.');
+      return;
+    }
+
+    if (isConfirmed) {
+      // Payment was successful, update user to premium
+      const success = this.authService.updateUserPremiumStatus(this.currentUser.email, true);
+      if (success) {
+        this.currentUser.premium = true; // Update local state
+        await Swal.fire({
+          title: "¡Premium activado!",
+          text: "¡Ahora eres usuario Premium y tienes acceso a todas las funciones!",
+          icon: "success",
+          color: "#716add",
+          backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+        });
+      } else {
+        await Swal.fire({
+          title: "Error",
+          text: "Hubo un problema al activar tu suscripción Premium. Intenta de nuevo.",
+          icon: "error",
+          color: "#716add",
+          backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+        });
+      }
+    } else {
+      // Payment was cancelled or failed from the modal
+      await Swal.fire({
+        title: "Pago cancelado",
+        text: "Puedes intentar activar Premium en cualquier momento.",
+        icon: "info",
+        color: "#716add",
+        backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+      });
+    }
   }
 }
