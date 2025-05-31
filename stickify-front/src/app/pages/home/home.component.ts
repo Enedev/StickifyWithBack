@@ -32,7 +32,6 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
 export class HomeComponent implements OnInit {
   allSongs: Song[] = [];
   filteredSongs: Song[] = [];
-  currentSearchTerm: string = 'music';
   selectedSong: Song | null = null;
   showModal: boolean = false;
   songComments: { [trackId: number]: Comment[] } = {};
@@ -49,18 +48,17 @@ export class HomeComponent implements OnInit {
   private authService = inject(AuthService);
 
   ngOnInit(): void {
-    this.loadInitialData();
+    this.loadSongs();
     this.getCurrentUser();
     this.loadComments();
   }
 
-  // Load initial data from MusicService
-  private loadInitialData(): void {
+  private loadSongs(): void {
     this.musicService.songs$.subscribe({
       next: (songs) => {
         this.allSongs = songs;
         this.filteredSongs = [...this.allSongs];
-        this.totalFilteredSongs = this.filteredSongs.length; // Set total count
+        this.totalFilteredSongs = this.filteredSongs.length;
         this.ratingService.updateTopRatedSongs(this.allSongs);
       },
       error: (err) => console.error('Error loading songs:', err)
@@ -82,7 +80,6 @@ export class HomeComponent implements OnInit {
     localStorage.setItem('songComments', JSON.stringify(this.songComments));
   }
 
-  // Handle filter changes
   onFilterChange(filters: any): void {
     let filtered = this.allSongs.filter(song => {
       const yearMatch = !filters.year ||
@@ -96,7 +93,7 @@ export class HomeComponent implements OnInit {
     });
 
     this.filteredSongs = filtered;
-    this.currentPage = 1;  // Reset to first page on filter change
+    this.currentPage = 1;
     this.totalFilteredSongs = this.filteredSongs.length;
   }
 
@@ -123,21 +120,19 @@ export class HomeComponent implements OnInit {
     this.selectedSong = null;
     this.showModal = false;
   }
-  // Handle song rating
+
   onRateSong(rating: number): void {
     if (this.selectedSong && this.currentUser) {
       const currentRatings = {...this.ratingService.currentRatings};
-      // If there are no ratings for this song yet, initialize an empty object
       if (!currentRatings[this.selectedSong.trackId]) {
         currentRatings[this.selectedSong.trackId] = {};
       }
-      // Store the user's rating for the song
       currentRatings[this.selectedSong.trackId][this.currentUser] = rating;
       this.ratingService.saveRatings(currentRatings);
       this.ratingService.updateTopRatedSongs(this.allSongs);
     }
   }
-  // Handle comment submission
+
   onSubmitComment(commentText: string): void {
     if (this.selectedSong && commentText.trim() && this.currentUser) {
       const newComment: Comment = {
@@ -151,7 +146,7 @@ export class HomeComponent implements OnInit {
       }
 
       this.songComments[this.selectedSong.trackId].push(newComment);
-      this.saveComments(); // Persist comments to localStorage
+      this.saveComments();
     }
   }
 
@@ -168,5 +163,25 @@ export class HomeComponent implements OnInit {
 
   onPageChange(newPage: number): void {
     this.currentPage = newPage;
+  }
+
+  addNewSong(newSongData: any): void {
+    const newSong: Song = {
+      trackId: this.musicService.generateUniqueId(),
+      artistName: newSongData.artist,
+      trackName: newSongData.title,
+      primaryGenreName: newSongData.genre,
+      collectionName: newSongData.album,
+      artworkUrl100: newSongData.imageUrl || 'assets/default-album.png',
+      releaseDate: newSongData.releaseDate,
+      isUserUpload: true,
+      collectionId: this.musicService.generateUniqueId(),
+      artistId: this.musicService.generateUniqueId()
+    };
+
+    this.musicService.addSong(newSong).subscribe({
+      next: () => console.log('Canción añadida con éxito'),
+      error: (err) => console.error('Error al añadir canción:', err)
+    });
   }
 }

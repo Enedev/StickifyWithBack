@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Song } from '../../../shared/interfaces/song.interface';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser'; // Importación corregida
 
 @Component({
   selector: 'app-song-card',
@@ -13,7 +14,9 @@ export class SongCardComponent {
   @Input() song!: Song;
   @Input() averageRating: number = 0;
   @Output() songSelected = new EventEmitter<Song>();
-  // Convert numeric rating to visual star representation
+
+  constructor(private sanitizer: DomSanitizer) {}
+
   getStarArray(): string[] {
     const fullStars = Math.floor(this.averageRating);
     const hasHalfStar = this.averageRating % 1 !== 0;
@@ -37,5 +40,9 @@ export class SongCardComponent {
 
   onSongClick(): void {
     this.songSelected.emit(this.song);
+  }
+
+  sanitizeUrl(url: string): SafeUrl {
+    return this.sanitizer.bypassSecurityTrustUrl(url);
   }
 }
