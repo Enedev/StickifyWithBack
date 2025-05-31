@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
+import { User } from '../../shared/interfaces/user.interface'; // Import User interface
 
 @Component({
   selector: 'app-log-in',
@@ -14,8 +15,7 @@ export class LogInComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
-  
-  // Form definition with validation rules
+
   loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]]
@@ -33,41 +33,52 @@ export class LogInComponent {
       return;
     }
 
-    const credentials = {
+    const credentials: Pick<User, 'email' | 'password'> = {
       email: this.loginForm.value.email!,
       password: this.loginForm.value.password!
     };
 
-    const success = this.authService.logIn(credentials);
-    
-    if (success) {
-      await Swal.fire({
-        title: "Éxito",
-        text: "Inicio de sesión exitoso!",
-        icon: "success",
-        color: "#716add",
-        backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-      });
-      this.router.navigate(['/home']);
-    } else {
-      const user = this.authService.users.find(u => u.email === credentials.email);
-      if (!user) {
+    this.authService.logIn(credentials).subscribe({
+      next: async (success) => {
+        if (success) {
+          await Swal.fire({
+            title: "Éxito",
+            text: "Inicio de sesión exitoso!",
+            icon: "success",
+            color: "#716add",
+            backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+          });
+          this.router.navigate(['/home']);
+        } else {
+          // This else block might be hit if the service's catchError emits 'false'
+          await Swal.fire({
+            title: "Error",
+            text: "Credenciales inválidas. Por favor verifique su correo y contraseña.",
+            icon: "error",
+            color: "#716add",
+            backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+          });
+        }
+      },
+      error: async (err) => {
+        // Handle specific HTTP errors from the backend
+        console.error('Login component error:', err);
+        let errorMessage = "Error en el inicio de sesión. Por favor intente nuevamente.";
+
+        if (err.status === 404 && err.error && err.error.detail === 'Invalid credentials') {
+            errorMessage = "Correo electrónico o contraseña incorrectos.";
+        } else if (err.message) {
+            errorMessage = err.message;
+        }
+
         await Swal.fire({
           title: "Error",
-          text: "Usuario no encontrado",
-          icon: "error",
-          color: "#716add",
-          backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-        });
-      } else {
-        await Swal.fire({
-          title: "Error",
-          text: "Contraseña incorrecta",
+          text: errorMessage,
           icon: "error",
           color: "#716add",
           backdrop: `rgba(0,0,123,0.4) left top no-repeat`
         });
       }
-    }
+    });
   }
 }

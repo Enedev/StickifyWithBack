@@ -6,7 +6,7 @@
 
   bootstrapApplication(AppComponent, {
     providers: [
-      provideHttpClient(withInterceptorsFromDi()),
+      provideHttpClient(withInterceptorsFromDi()),  
       provideRouter(routes)
     ]
   }).catch(err => console.error(err));

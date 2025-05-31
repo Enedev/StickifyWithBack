@@ -2,30 +2,24 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { User } from '../shared/interfaces/user.interface';
+import { HttpClient } from '@angular/common/http'; // Import HttpClient
+import { environment } from '../../environments/environment'; // Import environment for backend URL
+import { Observable, tap, catchError, of, map } from 'rxjs'; // Import RxJS operators
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  // LocalStorage keys for user data
-  private readonly USERS_KEY = 'users';
   private readonly CURRENT_USER_KEY = 'currentUser';
+  private readonly TOKEN_KEY = 'authToken';
 
-  constructor(private router: Router) {
-    this.currentUser = localStorage.getItem('currentUser')
-      ? JSON.parse(localStorage.getItem('currentUser')!)
+  constructor(private router: Router, private http: HttpClient) {
+    // Initialize currentUser from localStorage on service load
+    this.currentUser = localStorage.getItem(this.CURRENT_USER_KEY)
+      ? JSON.parse(localStorage.getItem(this.CURRENT_USER_KEY)!)
       : null;
   }
-  // Getter/setter for all registered users
-  get users(): User[] {
-    const usersString = localStorage.getItem(this.USERS_KEY);
-    return usersString ? JSON.parse(usersString) : [];
-  }
 
-  set users(users: User[]) {
-    localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
-  }
-  // Getter/setter for currently logged in user
   get currentUser(): User | null {
     const currentUserString = localStorage.getItem(this.CURRENT_USER_KEY);
     return currentUserString ? JSON.parse(currentUserString) : null;
@@ -39,53 +33,91 @@ export class AuthService {
     }
   }
 
-  signUp(userData: User): boolean {
+  get authToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  set authToken(token: string | null) {
+    if (token) {
+      localStorage.setItem(this.TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(this.TOKEN_KEY);
+    }
+  }
+
+  signUp(userData: User): Observable<boolean> {
     const { username, email, password } = userData;
     if (!username || !email || !password) {
       console.warn('Validación fallida: Campos vacíos');
-      return false;
+      return of(false);
     }
 
-    const users = this.users;
-    if (users.some(user => user.email === email)) {
-      console.warn(`Intento de registro con email existente: ${email}`);
-      return false;
-    }
+    // Pass all necessary fields to the backend for sign-up
+    const signUpDto = {
+      username: userData.username,
+      email: userData.email,
+      password: userData.password,
+      premium: userData.premium || false // Ensure premium is always a boolean
+    };
 
-    const newUser = { username, email, password, premium: userData.premium || false,followers: [],following: []  };
-    this.users = [...users, newUser];
-    return true;
+    return this.http.post<any>(`${environment.backendUrl}/auth/sign-up`, signUpDto).pipe(
+      tap(response => {
+        if (response.success && response.token) {
+          this.authToken = response.token;
+          // The backend's signUp (create) also returns a token.
+          // You might need an additional call or modify backend to return user data here.
+          // For now, let's assume we can set a basic currentUser if signUp returns success.
+          // A better approach would be to receive the user object in the signUp response.
+          // Given your backend's `create` method returns `{ success: true, token: this.getToken(userDB) }`,
+          // it implicitly says the user is created and logged in.
+          // To get the full user, we'll need to call a `getUserByEmail` or `getUserById` endpoint.
+          // Let's call `findByEmail` to fetch the complete user object after successful signup.
+          this.findByEmail(email).subscribe(user => {
+            if (user) {
+              this.currentUser = user; // Set the full user data
+            }
+          });
+        }
+      }),
+      map(response => response.success), // Map response to boolean success
+      catchError(error => {
+        console.error('Error during sign-up:', error);
+        // You can inspect error.status and error.error for specific backend messages
+        throw error; // Re-throw to be handled by the component for Swal messages
+      })
+    );
   }
 
-  logIn(credentials: Pick<User, 'email' | 'password'>): boolean {
+  logIn(credentials: Pick<User, 'email' | 'password'>): Observable<boolean> {
     const { email, password } = credentials;
     if (!email || !password) {
       console.warn('Validación fallida: Campos vacíos en login');
-      return false;
+      return of(false);
     }
 
-    const user = this.users.find(user => user.email === email);
-
-    if (!user) {
-      console.warn(`Intento de login con email no registrado: ${email}`);
-      return false;
-    }
-
-    if (user.password !== password) {
-      console.warn('Contraseña incorrecta para:', email);
-      return false;
-    }
-
-    this.currentUser = user;
-    return true;
+    return this.http.post<any>(`${environment.backendUrl}/auth/login`, credentials).pipe(
+      tap(response => {
+        // Backend's login method in auth.service.ts should return 'user' object now
+        if (response.success && response.token && response.user) {
+          this.authToken = response.token;
+          this.currentUser = response.user; // Set currentUser directly from backend response
+        }
+      }),
+      map(response => response.success), // Map response to boolean success
+      catchError(error => {
+        console.error('Error during login:', error);
+        throw error; // Re-throw to be handled by the component for Swal messages
+      })
+    );
   }
 
   isAuthenticated(): boolean {
-    return !!this.currentUser;
+    return !!this.currentUser && !!this.authToken;
   }
 
   logOut(): void {
-    localStorage.removeItem('currentUser');
+    localStorage.removeItem(this.CURRENT_USER_KEY);
+    localStorage.removeItem(this.TOKEN_KEY);
     this.currentUser = null;
     this.router.navigate(['/log-in']);
 
@@ -95,96 +127,97 @@ export class AuthService {
       text: 'Has cerrado sesión correctamente.',
       confirmButtonText: 'Aceptar'
     });
-
   }
 
-  updateUserPremiumStatus(email: string, isPremium: boolean): boolean {
-    const allUsers = this.users; // Get all users
-    const userIndex = allUsers.findIndex(u => u.email === email);
+  // --- Methods to interact with backend for user data ---
 
-    if (userIndex !== -1) {
-      // Update the premium status for the user in the allUsers array
-      allUsers[userIndex].premium = isPremium;
-      this.users = allUsers; // Save the updated allUsers array to localStorage
-
-      // If the updated user is the currently logged-in user, update currentUser too
-      const currentLoggedInUser = this.currentUser;
-      if (currentLoggedInUser && currentLoggedInUser.email === email) {
-        currentLoggedInUser.premium = isPremium;
-        this.currentUser = currentLoggedInUser; // Save updated currentUser to localStorage
-      }
-      return true;
-    }
-    return false; // User not found
+  // Fetches a single user by their ID
+  findOne(id: string): Observable<User | null> {
+    return this.http.get<User>(`${environment.backendUrl}/users/${id}`).pipe(
+      catchError(error => {
+        console.error(`Error fetching user with ID ${id}:`, error);
+        return of(null);
+      })
+    );
   }
 
-  getAllOtherUsers(currentUserId: string): User[] {
-    const allUsers = this.users; // Use the getter to ensure initialization of followers/following
-    return allUsers.filter(user => user.email !== currentUserId);
+  // Fetches a single user by their email (useful after signup if backend doesn't return full user)
+  findByEmail(email: string): Observable<User | null> {
+    // You need to add a findByEmail endpoint to your UsersController in NestJS
+    // Example: @Get('by-email/:email') async findByEmail(@Param('email') email: string) { return this.usersService.findByEmail(email); }
+    return this.http.get<User>(`${environment.backendUrl}/users/by-email/${email}`).pipe(
+      catchError(error => {
+        console.error(`Error fetching user with email ${email}:`, error);
+        return of(null);
+      })
+    );
   }
 
-  /**
-   * Updates a user's data within the main 'users' array in local storage.
-   * This is a utility to ensure any changes to a User object are saved.
-   * @param updatedUser The User object with updated properties.
-   */
-  updateUserInStorage(updatedUser: User): void {
-    const allUsers = this.users; // Use the getter to ensure all users are loaded correctly
-    const index = allUsers.findIndex(u => u.email === updatedUser.email);
-    if (index > -1) {
-      allUsers[index] = updatedUser;
-      this.users = allUsers; // Save the entire updated array
-
-      // If the updated user is the current user, refresh currentUser state
-      if (this.currentUser && this.currentUser.email === updatedUser.email) {
-        this.currentUser = updatedUser; // Use the setter to update localStorage and the current state
-      }
-    }
+  // Updates a user's data (e.g., premium status)
+  updateUser(id: string, updateUserDto: Partial<User>): Observable<User | null> {
+    return this.http.put<User>(`${environment.backendUrl}/users/${id}`, updateUserDto).pipe(
+      tap(updatedUser => {
+        // If the updated user is the current logged-in user, refresh currentUser
+        if (this.currentUser && this.currentUser.id === updatedUser.id) {
+          this.currentUser = updatedUser;
+        }
+      }),
+      catchError(error => {
+        console.error(`Error updating user with ID ${id}:`, error);
+        return of(null);
+      })
+    );
   }
 
-  toggleFollow(targetUserEmail: string, shouldFollow: boolean): boolean {
-    if (!this.currentUser) {
-      console.error('No user logged in to perform follow action.');
-      return false;
+  // Helper for updating premium status, uses the general updateUser method
+  updateUserPremiumStatus(email: string, isPremium: boolean): Observable<boolean> {
+    const currentUser = this.currentUser;
+    if (!currentUser || !currentUser.id) {
+      console.error('No current user or user ID available to update premium status.');
+      return of(false);
     }
-
-    const currentUserEmail = this.currentUser.email; // Use email as the identifier
-    const allUsers = this.users; // Get current state of all users
-
-    // Find the actual User objects for current and target users from the `allUsers` array
-    const currentUserObj = allUsers.find(u => u.email === currentUserEmail);
-    const targetUserObj = allUsers.find(u => u.email === targetUserEmail);
-
-    if (!currentUserObj || !targetUserObj) {
-      console.error('Current user or target user not found in all users data.');
-      return false;
-    }
-
-    // Ensure followers/following arrays exist (should be guaranteed by getter, but good for safety)
-    currentUserObj.following = currentUserObj.following || [];
-    targetUserObj.followers = targetUserObj.followers || [];
-
-    if (shouldFollow) { // Action is to FOLLOW
-      // Add target to current user's following list if not already there
-      if (!currentUserObj.following.includes(targetUserEmail)) {
-        currentUserObj.following.push(targetUserEmail);
-      }
-      // Add current user to target user's followers list if not already there
-      if (!targetUserObj.followers.includes(currentUserEmail)) {
-        targetUserObj.followers.push(currentUserEmail);
-      }
-    } else { // Action is to UNFOLLOW
-      // Remove target from current user's following list
-      currentUserObj.following = currentUserObj.following.filter(id => id !== targetUserEmail);
-      // Remove current user from target user's followers list
-      targetUserObj.followers = targetUserObj.followers.filter(id => id !== currentUserEmail);
-    }
-
-    // Update both users in local storage
-    this.updateUserInStorage(currentUserObj); // This also updates `this.currentUser` if it's the logged-in user
-    this.updateUserInStorage(targetUserObj);
-
-    return true;
+    // Call the generic updateUser method
+    return this.updateUser(currentUser.id, { premium: isPremium }).pipe(
+      map(user => !!user), // Map to true if update was successful (user returned), false otherwise
+      catchError(error => {
+        console.error('Error updating premium status:', error);
+        return of(false);
+      })
+    );
   }
 
+  // Fetches all users *except* the current user
+  getAllOtherUsers(currentUserId: string): Observable<User[]> {
+  // Change '/user' to '/users'
+    return this.http.get<User[]>(`${environment.backendUrl}/users`).pipe(
+      map(users => users.filter(user => user.id !== currentUserId)),
+      catchError(error => {
+        console.error('Error fetching all other users:', error);
+        return of([]);
+      })
+    );
+  }
+
+  // Toggles follow status via backend
+  toggleFollow(targetUserEmail: string, shouldFollow: boolean): Observable<boolean> {
+    if (!this.currentUser || !this.currentUser.id) {
+      console.error('No user logged in or user ID to perform follow action.');
+      return of(false);
+    }
+
+    return this.http.put<User>(`${environment.backendUrl}/users/${this.currentUser.id}/follow`, {
+      targetEmail: targetUserEmail,
+      follow: shouldFollow
+    }).pipe(
+      tap(updatedUser => {
+        // Update the current user's following list in local storage
+        this.currentUser = updatedUser;
+      }),
+      map(user => !!user), // Map to true if API call was successful
+      catchError(error => {
+        console.error('Error toggling follow status:', error);
+        throw error; // Re-throw to be handled by components
+      })
+    );
+  }
 }

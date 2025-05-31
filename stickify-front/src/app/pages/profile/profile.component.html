@@ -10,31 +10,35 @@
 
     <div class="profile-content">
       <div class="user-data" id="userData">
-        <div class="data-row" *ngIf="currentUser.username">
+        <div class="data-row" *ngIf="currentUser?.username">
           <label><i class="fa-solid fa-user"></i> Nombre de usuario:</label>
-          <span>{{ currentUser.username }}</span>
+          <span>{{ currentUser?.username }}</span>
         </div>
-        <div class="data-row" *ngIf="currentUser.email">
+        <div class="data-row" *ngIf="currentUser?.email">
           <label><i class="fa-solid fa-envelope"></i> Correo electrónico:</label>
-          <span>{{ currentUser.email }}</span>
+          <span>{{ currentUser?.email }}</span>
         </div>
 
         <div class="data-row">
-            <label><i class="fa-solid fa-users"></i> Seguidores:</label>
-            <div class="follow-info">
-                <span>{{ followersCount }} personas te siguen.</span>
-                <ul *ngIf="latestFollowersNames.length > 0"> <li>Últimos 3 seguidores: {{ latestFollowersNames.join(', ') }}</li>
-                </ul>
-                <span *ngIf="latestFollowersNames.length === 0">Aún no tienes seguidores.</span> </div>
+          <label><i class="fa-solid fa-users"></i> Seguidores:</label>
+          <div class="follow-info">
+            <span>{{ followersCount }} personas te siguen.</span>
+            <ul *ngIf="latestFollowersNames.length > 0">
+              <li>Últimos 3 seguidores: {{ latestFollowersNames.join(', ') }}</li>
+            </ul>
+            <span *ngIf="latestFollowersNames.length === 0">Aún no tienes seguidores.</span>
+          </div>
         </div>
 
         <div class="data-row">
-            <label><i class="fa-solid fa-user-group"></i> Siguiendo:</label>
-            <div class="follow-info">
-                <span>Sigues a {{ followingCount }} personas.</span>
-                <ul *ngIf="latestFollowingNames.length > 0"> <li>Últimos 3 seguidos: {{ latestFollowingNames.join(', ') }}</li>
-                </ul>
-                <span *ngIf="latestFollowingNames.length === 0">Aún no sigues a nadie.</span> </div>
+          <label><i class="fa-solid fa-user-group"></i> Siguiendo:</label>
+          <div class="follow-info">
+            <span>Sigues a {{ followingCount }} personas.</span>
+            <ul *ngIf="latestFollowingNames.length > 0">
+              <li>Últimos 3 seguidos: {{ latestFollowingNames.join(', ') }}</li>
+            </ul>
+            <span *ngIf="latestFollowingNames.length === 0">Aún no sigues a nadie.</span>
+          </div>
         </div>
 
         <div class="data-row" *ngIf="userRatings.length > 0">
@@ -45,7 +49,7 @@
             </li>
           </ul>
         </div>
-        <div class="data-row" *ngIf="userRatings.length === 0 && currentUser.email">
+        <div class="data-row" *ngIf="userRatings.length === 0 && currentUser?.email">
           <label><i class="fa-solid fa-star"></i> Mis calificaciones:</label>
           <span>Aún no has calificado ninguna canción.</span>
         </div>
@@ -60,7 +64,7 @@
             </li>
           </ul>
         </div>
-        <div class="data-row" *ngIf="userComments.length === 0 && currentUser.email">
+        <div class="data-row" *ngIf="userComments.length === 0 && currentUser?.email">
           <label><i class="fa-solid fa-comments"></i> Mis comentarios:</label>
           <span>Aún no has dejado ningún comentario.</span>
         </div>
@@ -88,12 +92,12 @@
 
       <div class="profile-actions">
         <button
-          *ngIf="currentUser.email"
+          *ngIf="currentUser?.email"
           id="premiumBtn"
           (click)="togglePremiumStatus()"
           class="btn logout-btn" >
-          <i class="fa-solid" [ngClass]="{'fa-crown': !currentUser.premium, 'fa-ban': currentUser.premium}"></i>
-          {{ currentUser.premium ? 'Cancelar Premium' : 'Ser Premium' }}
+          <i class="fa-solid" [ngClass]="{'fa-crown': !currentUser?.premium, 'fa-ban': currentUser?.premium}"></i>
+          {{ currentUser?.premium ? 'Cancelar Premium' : 'Ser Premium' }}
         </button>
         <a [routerLink]="['/home']" class="btn home-btn">
           <i class="fa-solid fa-house"></i> Volver al Inicio

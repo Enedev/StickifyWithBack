@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
 import { PremiumPaymentComponent } from '../../shared/components/premium-payment/premium-payment.component';
 import { CommonModule } from '@angular/common';
+import { User } from '../../shared/interfaces/user.interface'; // Import User interface
 
 @Component({
   selector: 'app-sign-up',
@@ -102,7 +103,6 @@ export class SignUpComponent {
       return;
     }
 
-    // New logic: Warn if not premium
     if (!this.isPremium) {
       const result = await Swal.fire({
         title: "¿Estás seguro?",
@@ -116,48 +116,64 @@ export class SignUpComponent {
       });
 
       if (!result.isConfirmed) {
-        // User cancelled, so do not proceed with registration
         return;
       }
     }
 
-    const userData = {
+    const userData: User = {
       username,
       email,
       password,
-      premium: this.isPremium || undefined
+      premium: this.isPremium
     };
 
-    const success = this.authService.signUp(userData);
+    this.authService.signUp(userData).subscribe({
+      next: async (success) => {
+        if (success) {
+          await Swal.fire({
+            title: "Éxito",
+            text: `Registro exitoso! ${this.isPremium ? 'Eres usuario Premium.' : ''} Redirigiendo...`,
+            icon: "success",
+            color: "#716add",
+            backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+          });
+          this.router.navigate(['/log-in']);
+        } else {
+          // This else block might be hit if the service's catchError emits 'false'
+          // This generic message covers cases not specifically caught by HTTP error.
+          await Swal.fire({
+            title: "Error",
+            text: "Error en el registro. Por favor intente nuevamente.",
+            icon: "error",
+            color: "#716add",
+            backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+          });
+        }
+      },
+      error: async (err) => {
+        // Handle specific HTTP errors from the backend
+        console.error('Sign-up component error:', err);
+        let errorMessage = "Error en el registro. Por favor intente nuevamente.";
 
-    if (success) {
-      await Swal.fire({
-        title: "Éxito",
-        text: `Registro exitoso! ${this.isPremium ? 'Eres usuario Premium.' : ''} Redirigiendo...`,
-        icon: "success",
-        color: "#716add",
-        backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-      });
-      this.router.navigate(['/log-in']);
-    } else {
-      const users = this.authService.users;
-      if (users.some(user => user.email === email)) {
+        // Check if the error object has a detail property (from BadRequestException)
+        if (err.error && err.error.detail) {
+          errorMessage = err.error.detail;
+          // You can add more specific error checks if your backend sends specific codes
+          if (err.status === 400 && err.error.code === '23505') { // Example: PostgreSQL unique violation code
+            errorMessage = "Este correo electrónico ya está registrado.";
+          }
+        } else if (err.message) {
+            errorMessage = err.message;
+        }
+
         await Swal.fire({
           title: "Error",
-          text: "Este correo electrónico ya está registrado",
-          icon: "error",
-          color: "#716add",
-          backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-        });
-      } else {
-        await Swal.fire({
-          title: "Error",
-          text: "Error en el registro. Por favor intente nuevamente.",
+          text: errorMessage,
           icon: "error",
           color: "#716add",
           backdrop: `rgba(0,0,123,0.4) left top no-repeat`
         });
       }
-    }
+    });
   }
 }

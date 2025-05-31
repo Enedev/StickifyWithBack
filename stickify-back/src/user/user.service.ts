@@ -40,7 +40,7 @@ export class UsersService {
   async findOne(id: string): Promise<User | null> {
     return this.userRepository.findOne({
       where: { id },
-      select: ['id', 'username', 'name', 'email', 'premium', 'followers', 'following']
+      select: ['id', 'username', 'email', 'premium', 'followers', 'following']
     });
   }
 
@@ -56,6 +56,41 @@ export class UsersService {
 
   async remove(id: string): Promise<void> {
     await this.userRepository.delete(id);
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { email } });
+  }
+
+  async toggleFollow(userId: string, targetEmail: string, follow: boolean): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const targetUser = await this.userRepository.findOne({ where: { email: targetEmail } });
+
+    if (!user || !targetUser) {
+      throw new BadRequestException('Usuario no encontrado');
+    }
+
+    if (follow) {
+      // Agregar a seguidores/siguiendo
+      if (!user.following.includes(targetUser.email)) {
+        user.following.push(targetUser.email);
+      }
+      if (!targetUser.followers.includes(user.email)) {
+        targetUser.followers.push(user.email);
+      }
+    } else {
+      // Remover de seguidores/siguiendo
+      user.following = user.following.filter(email => email !== targetUser.email);
+      targetUser.followers = targetUser.followers.filter(email => email !== user.email);
+    }
+
+    await this.userRepository.save([user, targetUser]);
+    return user;
+  }
+  async findAll(): Promise<User[]> {
+    return this.userRepository.find({
+      select: ['id', 'username', 'email', 'premium', 'followers', 'following']
+    });
   }
 
   getToken(user: User): string {
