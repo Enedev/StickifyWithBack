@@ -12,6 +12,7 @@ import { SongModalComponent } from '../../shared/components/song-modal/song-moda
 import { SongCardComponent } from '../../shared/components/song-card/song-card.component';
 import { RatingService } from '../../services/rating.service';
 import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
+import { CommentService } from '../../services/comment.service';
 
 @Component({
   selector: 'app-home',
@@ -43,14 +44,17 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private musicService: MusicService,
-    private ratingService: RatingService
+    private ratingService: RatingService,
+    private commentService: CommentService
   ) {}
   private authService = inject(AuthService);
 
   ngOnInit(): void {
     this.loadSongs();
     this.getCurrentUser();
-    this.loadComments();
+    this.commentService.commentsMap$.subscribe(map => {
+      this.songComments = map;
+    });
   }
 
   private loadSongs(): void {
@@ -69,12 +73,12 @@ export class HomeComponent implements OnInit {
     this.currentUser = this.authService.currentUser?.username || this.authService.currentUser?.email || null;
   }
 
-  private loadComments(): void {
+  /*private loadComments(): void {
     const storedComments = localStorage.getItem('songComments');
     if (storedComments) {
       this.songComments = JSON.parse(storedComments);
     }
-  }
+  }*/
 
   private saveComments(): void {
     localStorage.setItem('songComments', JSON.stringify(this.songComments));
@@ -128,27 +132,30 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  onSubmitComment(commentText: string): void {
+  async onSubmitComment(commentText: string): Promise<void> {
     if (this.selectedSong && commentText.trim() && this.currentUser) {
       const newComment: Comment = {
         user: this.currentUser,
         text: commentText.trim(),
-        date: Date.now()
+        date: Date.now(),
+        trackId: this.selectedSong.trackId
       };
 
-      if (!this.songComments[this.selectedSong.trackId]) {
-        this.songComments[this.selectedSong.trackId] = [];
+      try {
+        await this.commentService.postComment(this.selectedSong.trackId, newComment);
+      } catch (err) {
+        console.error('Error al enviar comentario:', err);
       }
-
-      this.songComments[this.selectedSong.trackId].push(newComment);
-      this.saveComments();
     }
   }
 
+
   getCommentsForSelectedSong(): Comment[] {
-    return this.selectedSong ?
-      this.songComments[this.selectedSong.trackId] || [] : [];
+    return this.selectedSong
+      ? this.commentService.getCommentsForTrack(this.selectedSong.trackId)
+      : [];
   }
+
 
   getPaginatedSongs(): Song[] {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;

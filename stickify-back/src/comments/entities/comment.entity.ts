@@ -13,4 +13,8 @@ export class Comment {
 
   @Column('bigint')
   date: number;
+
+  @Column('int')
+  trackId: number;
+
 }
