@@ -8,6 +8,8 @@ import { Song } from '../../shared/interfaces/song.interface';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../services/auth.service'; // Import AuthService
 import { User } from '../../shared/interfaces/user.interface'; // Import User interface
+import { SongApiService } from '../../services/song-api.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
   selector: 'app-upload',
@@ -26,6 +28,7 @@ export class UploadComponent implements OnInit { // Implement OnInit
   private musicService = inject(MusicService);
   private router = inject(Router);
   private authService = inject(AuthService); // Inject AuthService
+  private songApiService = inject(SongApiService);
   private currentSwal: any;
   private readonly MAX_IMAGE_SIZE_MB = 3;
   previewImage: string | ArrayBuffer | null = null;
@@ -70,37 +73,56 @@ export class UploadComponent implements OnInit { // Implement OnInit
       // Process image and create song
       const artworkUrl = await this.processImage(formData.artworkFile!);
 
-      const song = this.createSong(
-        formData.artistName!,
-        formData.trackName!,
-        formData.collectionName!,
-        formData.primaryGenreName!,
-        artworkUrl
-      );
+      const generateSmallIntId = (): number => {
+        const uuidHex = uuidv4().replace(/-/g, '');
+        const startIndex = Math.floor(Math.random() * (uuidHex.length - 7));
+        const limitedHex = uuidHex.substring(startIndex, startIndex + 7);
+        return parseInt(limitedHex, 16);
+      };
 
-      this.musicService.addSong(song);
+      const songToUpload: Song = {
+        artistName: formData.artistName!,
+        trackName: formData.trackName!,
+        collectionName: formData.collectionName!,
+        primaryGenreName: formData.primaryGenreName!,
+        artworkUrl100: artworkUrl,
+        releaseDate: new Date().toISOString(),
+        trackId: generateSmallIntId(), 
+        collectionId: generateSmallIntId(), 
+        artistId: generateSmallIntId(), 
+        isUserUpload: true
+      };
 
-      await this.showAlert(
-        'success',
-        'Éxito',
-        `Canción "${formData.trackName}" subida correctamente`
-      );
+      this.songApiService.createSong(songToUpload).subscribe({
+        next: async (responseSong) => { 
 
-      this.router.navigate(['/home']);
+          await this.showAlert(
+            'success',
+            'Éxito',
+            `Canción "${responseSong.trackName}" subida y guardada correctamente`
+          );
+          this.router.navigate(['/home']);
+        },
+        error: async (err) => {
+          console.error('Error al subir canción al backend:', err);
+          const errorMsg = err.error?.message || 'Ocurrió un error al guardar la canción en el servidor.';
+          await this.showAlert('error', 'Error', errorMsg);
+        },
+        complete: () => {
+          this.closeCurrentAlert();
+        }
+      });
 
     } catch (error) {
-      console.error('Error en uploadSong:', error);
-
+      console.error('Error en uploadSong (antes de enviar al backend):', error);
       const errorMsg = this.getErrorMessage(error);
       await this.showAlert('error', 'Error', errorMsg);
-
-    } finally {
-      this.closeCurrentAlert();
+      this.closeCurrentAlert(); 
     }
   }
 
   onFileSelected(event: Event): void {
-    // --- NEW: Premium check for file selection as well ---
+  
     if (!this.currentUser?.premium) {
       this.showAlert(
         'info',
@@ -113,7 +135,7 @@ export class UploadComponent implements OnInit { // Implement OnInit
       this.previewImage = null; // Clear any existing preview
       return;
     }
-    // --- END NEW ---
+
 
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -182,27 +204,6 @@ export class UploadComponent implements OnInit { // Implement OnInit
       reader.onerror = (error) => reject(new Error('Error procesando imagen'));
       reader.readAsDataURL(file);
     });
-  }
-
-  private createSong(
-    artistName: string,
-    trackName: string,
-    collectionName: string,
-    primaryGenreName: string,
-    artworkUrl: string
-  ): Song {
-    return {
-      artistName,
-      trackName,
-      collectionName,
-      primaryGenreName,
-      artworkUrl100: artworkUrl,
-      releaseDate: new Date().toISOString(),
-      trackId: Date.now(),
-      collectionId: Date.now() + 1,
-      artistId: Date.now() + 2,
-      isUserUpload: true
-    };
   }
 
   private async showLoader(): Promise<void> {
