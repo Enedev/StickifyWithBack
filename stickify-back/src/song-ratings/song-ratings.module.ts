@@ -1,12 +1,13 @@
+// ratings.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SongRatingsService } from './song-ratings.service';
-import { SongRatingsController } from './song-ratings.controller';
 import { SongRating } from './entities/song-rating.entity';
+import { RatingsService } from './song-ratings.service';
+import { RatingsController } from './song-ratings.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([SongRating])],
-  controllers: [SongRatingsController],
-  providers: [SongRatingsService],
+  providers: [RatingsService],
+  controllers: [RatingsController],
 })
-export class SongRatingsModule {}
+export class RatingsModule {}

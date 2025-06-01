@@ -14,6 +14,8 @@ import { UserRating } from '../../shared/interfaces/user-rating.interface';
 import { UserComment } from '../../shared/interfaces/user-comment.interface';
 import Swal from 'sweetalert2';
 import { PremiumPaymentComponent } from '../../shared/components/premium-payment/premium-payment.component';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-profile',
@@ -42,7 +44,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private songsSubscription: Subscription | undefined;
   private usersSubscription: Subscription | undefined; // New subscription for users data
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
     this.loadUserData(); // This will load currentUser from localStorage (updated by authService)
@@ -103,11 +105,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   private loadRatingsAndComments(): void {
-    const storedRatings = localStorage.getItem('songRatings');
-    if (storedRatings) {
-      this.storedUserRatings = JSON.parse(storedRatings);
-      this.populateUserRatings();
-    }
+    this.loadUserRatingsFromBackend();
 
     const storedComments = localStorage.getItem('songComments');
     if (storedComments) {
@@ -119,6 +117,34 @@ export class ProfileComponent implements OnInit, OnDestroy {
     if (storedAllSongs) {
       this.allSongs = JSON.parse(storedAllSongs);
     }
+  }
+
+  private loadUserRatingsFromBackend(): void {
+    if (!this.currentUser?.email) return;
+
+    this.http.get<any[]>(`${environment.backendUrl}/ratings`).subscribe({
+      next: (ratings) => {
+        // Filtrar solo las calificaciones del usuario actual
+        const userRatings = ratings.filter(rating => rating.userId === this.currentUser?.email);
+        this.processUserRatings(userRatings);
+      },
+      error: (err) => {
+        console.error('Error loading ratings from backend:', err);
+        // Puedes mostrar un mensaje al usuario si lo deseas
+      }
+    });
+  }
+
+  private processUserRatings(ratings: any[]): void {
+    this.userRatings = []; // Limpiar array existente
+
+    ratings.forEach(rating => {
+      const song = this.allSongs.find(s => s.trackId === rating.trackId);
+      this.userRatings.push({
+        songName: song?.trackName || `Canción ID: ${rating.trackId}`,
+        rating: rating.rating
+      });
+    });
   }
 
   private populateUserRatings(): void {

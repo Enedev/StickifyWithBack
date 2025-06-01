@@ -2,40 +2,44 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SongRating } from './entities/song-rating.entity';
+import { CreateRatingDto } from './dto/create-song-rating.dto';
 
 @Injectable()
-export class SongRatingsService {
+export class RatingsService {
   constructor(
     @InjectRepository(SongRating)
     private ratingsRepository: Repository<SongRating>,
   ) {}
 
-  async rateSong(userId: string, trackId: number, rating: number): Promise<SongRating> {
-    const existing = await this.ratingsRepository.findOne({ where: { userId, trackId } });
-    
+  async upsert(createRatingDto: CreateRatingDto): Promise<SongRating> {
+    const existing = await this.ratingsRepository.findOne({
+      where: {
+        userId: createRatingDto.userId,
+        trackId: createRatingDto.trackId,
+      },
+    });
+
     if (existing) {
-      existing.rating = rating;
+      existing.rating = createRatingDto.rating;
       return this.ratingsRepository.save(existing);
     }
-    
-    return this.ratingsRepository.save({ userId, trackId, rating });
+
+    const newRating = this.ratingsRepository.create(createRatingDto);
+    return this.ratingsRepository.save(newRating);
   }
 
-  async getSongRatings(trackId: number): Promise<{ [userId: string]: number }> {
-    const ratings = await this.ratingsRepository.find({ where: { trackId } });
-    return ratings.reduce((acc, curr) => {
-      acc[curr.userId] = curr.rating;
-      return acc;
-    }, {});
+  async findAll(): Promise<SongRating[]> {
+    return this.ratingsRepository.find();
+  }
+
+  async findByTrackId(trackId: number): Promise<SongRating[]> {
+    return this.ratingsRepository.find({ where: { trackId } });
   }
 
   async getAverageRating(trackId: number): Promise<number> {
-    const result = await this.ratingsRepository
-      .createQueryBuilder('r')
-      .select('AVG(r.rating)', 'avg')
-      .where('r.trackId = :trackId', { trackId })
-      .getRawOne();
-
-    return parseFloat(result.avg) || 0;
+    const ratings = await this.findByTrackId(trackId);
+    if (!ratings.length) return 0;
+    const total = ratings.reduce((sum, r) => sum + r.rating, 0);
+    return total / ratings.length;
   }
 }

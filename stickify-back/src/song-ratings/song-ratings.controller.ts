@@ -1,26 +1,24 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
-import { SongRatingsService } from './song-ratings.service';
+import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import { RatingsService } from './song-ratings.service';
+import { CreateRatingDto } from './dto/create-song-rating.dto';
 
-@Controller('song-ratings')
-export class SongRatingsController {
-  constructor(private readonly ratingsService: SongRatingsService) {}
+@Controller('ratings')
+export class RatingsController {
+  constructor(private readonly ratingsService: RatingsService) {}
 
   @Post()
-  rateSong(
-    @Body('userId') userId: string,
-    @Body('trackId') trackId: number,
-    @Body('rating') rating: number
-  ) {
-    return this.ratingsService.rateSong(userId, trackId, rating);
+  async upsertRating(@Body() dto: CreateRatingDto) {
+    return this.ratingsService.upsert(dto);
   }
 
-  @Get(':trackId')
-  getRatings(@Param('trackId') trackId: number) {
-    return this.ratingsService.getSongRatings(trackId);
+  @Get()
+  async getAllRatings() {
+    return this.ratingsService.findAll();
   }
 
-  @Get('average/:trackId')
-  getAverage(@Param('trackId') trackId: number) {
-    return this.ratingsService.getAverageRating(trackId);
+  @Get('average')
+  async getAverageRating(@Query('trackId') trackId: string) {
+    const avg = await this.ratingsService.getAverageRating(+trackId);
+    return { trackId, average: avg };
   }
 }

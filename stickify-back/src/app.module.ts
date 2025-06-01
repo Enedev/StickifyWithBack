@@ -8,7 +8,7 @@ import { UsersModule } from './user/user.module';
 import { SongsModule } from './songs/songs.module';
 import { PlaylistsModule } from './playlists/playlists.module';
 import { CommentsModule } from './comments/comments.module';
-import { SongRatingsModule } from './song-ratings/song-ratings.module';
+import { RatingsModule } from './song-ratings/song-ratings.module';
 import { UserCommentsModule } from './user-comments/user-comments.module';
 import { User } from './user/entities/user.entity';
 import { Song } from './songs/entities/song.entity';
@@ -48,7 +48,7 @@ import { UserComment } from './user-comments/entities/user-comment.entity';
     SongsModule,
     PlaylistsModule,
     CommentsModule,
-    SongRatingsModule,
+    RatingsModule,
     UserCommentsModule,
   ],
   controllers: [AppController],

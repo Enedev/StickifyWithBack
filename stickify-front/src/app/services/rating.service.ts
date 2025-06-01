@@ -1,40 +1,62 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Song } from '../shared/interfaces/song.interface';
-import { SongRatings } from '../shared/interfaces/song-ratings.interface';
 import { RatedSong } from '../shared/interfaces/rated-song.interface';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
+import { createClient } from '@supabase/supabase-js';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RatingService {
-  private userRatingsSubject = new BehaviorSubject<{[trackId: number]: SongRatings}>({});
+  private userRatingsSubject = new BehaviorSubject<{ [trackId: number]: { [userId: string]: number } }>({});
   private topRatedSongsSubject = new BehaviorSubject<RatedSong[]>([]);
-  
+
   public userRatings$ = this.userRatingsSubject.asObservable();
   public topRatedSongs$ = this.topRatedSongsSubject.asObservable();
+
+  private apiUrl = environment.backendUrl; // ej: http://localhost:3000
+
+  constructor(private http: HttpClient) {
+    this.loadRatings();
+  }
 
   get currentRatings() {
     return this.userRatingsSubject.value;
   }
 
-  constructor() {
-    this.loadRatings();
+  private loadRatings(): void {
+    this.http.get<any[]>(`${this.apiUrl}/ratings`).subscribe({
+      next: (data) => {
+        const ratingsMap: { [trackId: number]: { [userId: string]: number } } = {};
+        data.forEach(rating => {
+          if (!ratingsMap[rating.trackId]) {
+            ratingsMap[rating.trackId] = {};
+          }
+          ratingsMap[rating.trackId][rating.userId] = rating.rating;
+        });
+        this.userRatingsSubject.next(ratingsMap);
+      },
+      error: (err) => console.error('Error loading ratings:', err)
+    });
   }
 
-  private loadRatings(): void {
-    const storedRatings = localStorage.getItem('songRatings');
-    if (storedRatings) {
-      const ratings = JSON.parse(storedRatings);
-      this.userRatingsSubject.next(ratings);
-    }
+  rateSong(userId: string, trackId: number, rating: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.http.post(`${this.apiUrl}/ratings`, { userId, trackId, rating }).subscribe({
+        next: () => {
+          this.loadRatings();
+          resolve();
+        },
+        error: (err) => {
+          console.error('Error rating song:', err);
+          reject(err);
+        }
+      });
+    });
   }
-  
-  saveRatings(ratings: {[trackId: number]: SongRatings}): void {
-    this.userRatingsSubject.next(ratings);
-    localStorage.setItem('songRatings', JSON.stringify(ratings));
-  }
-  
+
   getAverageRatingForSong(trackId: number): number {
     const ratings = this.currentRatings[trackId];
     if (ratings) {
@@ -46,7 +68,7 @@ export class RatingService {
     }
     return 0;
   }
-  // Update top rated songs list
+
   updateTopRatedSongs(allSongs: Song[]): void {
     const ratedSongs = Object.keys(this.currentRatings)
       .map(trackIdStr => {
@@ -57,7 +79,7 @@ export class RatingService {
       })
       .filter((ratedSong): ratedSong is RatedSong => ratedSong !== null)
       .sort((a, b) => b.averageRating - a.averageRating)
-      .slice(0, 5); // Get top 5 rated songs
+      .slice(0, 5);
 
     this.topRatedSongsSubject.next(ratedSongs);
   }

@@ -121,14 +121,9 @@ export class HomeComponent implements OnInit {
     this.showModal = false;
   }
 
-  onRateSong(rating: number): void {
+  async onRateSong(rating: number): Promise<void> {
     if (this.selectedSong && this.currentUser) {
-      const currentRatings = {...this.ratingService.currentRatings};
-      if (!currentRatings[this.selectedSong.trackId]) {
-        currentRatings[this.selectedSong.trackId] = {};
-      }
-      currentRatings[this.selectedSong.trackId][this.currentUser] = rating;
-      this.ratingService.saveRatings(currentRatings);
+      await this.ratingService.rateSong(this.currentUser, this.selectedSong.trackId, rating);
       this.ratingService.updateTopRatedSongs(this.allSongs);
     }
   }
