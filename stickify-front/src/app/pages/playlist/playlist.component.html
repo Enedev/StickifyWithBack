@@ -47,9 +47,9 @@
               <h3>{{ playlist.name }}</h3>
               <p>{{ getPlaylistSongs(playlist).length }} canciones</p>
               <p class="playlist-creator">Creador: {{ playlist.createdBy || 'Automática' }}</p>
-              <button class="save-playlist-profile" (click)="savePlaylistToProfile(playlist)">
+              <!--<button class="save-playlist-profile" (click)="saveAutoPlaylistAsUserPlaylist(playlist)">
                 <i class="fas fa-save"></i> Guardar
-              </button>
+              </button>-->
           </div>
         </div>
         <div class="playlist-tracks-container">
@@ -77,7 +77,7 @@
             <h3>{{ playlist.name }}</h3>
             <p>{{ getPlaylistSongs(playlist).length }} canciones</p>
             <p class="playlist-creator">Creador: {{ playlist.createdBy || 'Automática' }}</p>
-            <button class="save-playlist-profile" (click)="savePlaylistToProfile(playlist)">
+            <button class="save-playlist-profile" (click)="saveAutoPlaylistAsUserPlaylist(playlist)">
               <i class="fas fa-save"></i> Guardar
             </button>
           </div>

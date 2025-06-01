@@ -21,6 +21,12 @@ export class PlaylistsService {
     return this.playlistsRepository.find();
   }
 
+  // Nuevo método para encontrar playlists por usuario
+  findAllPlaylistsByUserId(userId: string): Promise<Playlist[]> {
+    return this.playlistsRepository.find({ where: { createdBy: userId } });
+  }
+
+
   findOne(id: string): Promise<Playlist| null> {
     return this.playlistsRepository.findOne({ where: { id } });
   }
@@ -32,4 +38,6 @@ export class PlaylistsService {
   async remove(id: string): Promise<void> {
     await this.playlistsRepository.delete(id);
   }
+
+  
 }

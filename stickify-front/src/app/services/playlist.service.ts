@@ -1,34 +1,53 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Song } from '../shared/interfaces/song.interface';
 import { Playlist } from '../shared/interfaces/playlist.interface';
+import { AuthService } from './auth.service';
+import { PlaylistApiService } from './playlist-api.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlaylistService {
-  // Key for storing playlists in localStorage
-  private userPlaylistsKey = 'userPlaylists';
+  private authService = inject(AuthService);
+  private playlistApiService = inject(PlaylistApiService);
   
   getUserPlaylists(): Playlist[] {
-    const stored = localStorage.getItem(this.userPlaylistsKey);
-    return stored ? JSON.parse(stored) : [];
+    const currentUser = this.authService.currentUser;
+    const userId = currentUser?.email || currentUser?.username;
+
+    if (userId) {
+      this.playlistApiService.getUserPlaylists(userId).subscribe({
+        next: (playlists) => {
+          console.log('Playlists cargadas desde el backend:', playlists);
+        },
+        error: (err) => {
+          console.error('Error al cargar las playlists del usuario desde el backend:', err);
+        }
+      });
+    } else {
+      console.warn('No hay usuario logueado para cargar playlists.');
+    }
+    return []; 
   }
+  
   createUserPlaylist(name: string, songs: Song[]): Playlist {
-    const currentUser = localStorage.getItem('currentUser');
-    const createdBy = currentUser ? JSON.parse(currentUser)?.username || JSON.parse(currentUser)?.email : 'Desconocido';
+    const currentUser = this.authService.currentUser;
+    const userId = currentUser?.email || currentUser?.username;
+
+    if (!userId) {
+      console.error('No se pudo obtener el ID del usuario actual.');
+      throw new Error('Usuario no identificado.');
+    }
 
     const newPlaylist: Playlist = {
-      id: `pl-${Date.now()}`,
-      name,
-      trackIds: songs.map(s => s.trackId.toString()),
+      id: uuidv4(),
+      name: name,
+      trackIds: songs.map(song => song.trackId.toString()),
       type: 'user',
       createdAt: new Date(),
-      createdBy: createdBy
+      createdBy: userId, 
     };
-    // Save to localStorage
-    const playlists = this.getUserPlaylists();
-    playlists.push(newPlaylist);
-    localStorage.setItem(this.userPlaylistsKey, JSON.stringify(playlists));
     return newPlaylist;
   }
   // Generate automatic playlists by genre

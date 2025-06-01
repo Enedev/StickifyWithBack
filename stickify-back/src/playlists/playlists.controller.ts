@@ -17,6 +17,12 @@ export class PlaylistsController {
     return this.playlistsService.findAll();
   }
 
+  // Nuevo endpoint para obtener playlists por userId
+  @Get('user/:userId') // Endpoint: /playlists/user/:userId
+  findUserPlaylists(@Param('userId') userId: string) {
+    return this.playlistsService.findAllPlaylistsByUserId(userId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.playlistsService.findOne(id);

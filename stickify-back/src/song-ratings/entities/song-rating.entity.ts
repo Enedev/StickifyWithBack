@@ -2,7 +2,7 @@ import { Entity, PrimaryColumn, Column } from 'typeorm';
 
 @Entity('song_ratings')
 export class SongRating {
-  @PrimaryColumn('uuid')
+  @PrimaryColumn('text')
   userId: string;
 
   @PrimaryColumn()
