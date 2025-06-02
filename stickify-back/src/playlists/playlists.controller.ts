@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common'
 import { PlaylistsService } from './playlists.service';
 import { CreatePlaylistDto } from './dto/create-playlist.dto';
 import { UpdatePlaylistDto } from './dto/update-playlist.dto';
-
+import { Playlist } from './entities/playlist.entity';
 @Controller('playlists')
 export class PlaylistsController {
   constructor(private readonly playlistsService: PlaylistsService) {}
@@ -39,5 +39,11 @@ export class PlaylistsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.playlistsService.remove(id);
+  }
+
+  @Get('by-name/:name')
+  async findByName(@Param('name') name: string): Promise<Playlist | null> {
+    const decodedName = decodeURIComponent(name);
+    return this.playlistsService.findByName(decodedName);
   }
 }

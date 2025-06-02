@@ -1,21 +1,22 @@
+// src/app/pages/profile/profile.component.ts
 import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Song } from '../../shared/interfaces/song.interface';
-import { SongRatings } from '../../shared/interfaces/song-ratings.interface';
-import { Comment } from '../../shared/interfaces/comment.interface';
+import { BackendComment } from '../../shared/interfaces/backend-comment.interface';
 import { MusicService } from '../../services/music.service';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 import { Playlist } from '../../shared/interfaces/playlist.interface';
-// import { UserProfile } from '../../shared/interfaces/user-profile.interface'; // Remove this if it's just an alias for User
-import { User } from '../../shared/interfaces/user.interface'; // Use the User interface directly
+import { User } from '../../shared/interfaces/user.interface';
 import { UserRating } from '../../shared/interfaces/user-rating.interface';
 import { UserComment } from '../../shared/interfaces/user-comment.interface';
 import Swal from 'sweetalert2';
 import { PremiumPaymentComponent } from '../../shared/components/premium-payment/premium-payment.component';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { BackendSongRating } from '../../shared/interfaces/backend-song-rating.interface';
+import { PlaylistApiService } from '../../services/playlist-api.service';
 
 @Component({
   selector: 'app-profile',
@@ -27,8 +28,9 @@ import { environment } from '../../../environments/environment';
 export class ProfileComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private musicService = inject(MusicService);
-  currentUser: User | null = null; // Use User interface and allow null
-  savedPlaylists: Playlist[] = [];
+  private playlistApiService = inject(PlaylistApiService);
+  currentUser: User | null = null;
+  savedPlaylists: Playlist[] = []; // This will directly receive the full Playlist objects
   userRatings: UserRating[] = [];
   userComments: UserComment[] = [];
   allSongs: Song[] = [];
@@ -37,54 +39,47 @@ export class ProfileComponent implements OnInit, OnDestroy {
   followersCount: number = 0;
   followingCount: number = 0;
   latestFollowersNames: string[] = [];
-  latestFollowingNames: string[] = []
+  latestFollowingNames: string[] = [];
 
-  private storedUserRatings: { [trackId: number]: SongRatings } = {};
-  private storedSongComments: { [trackId: number]: Comment[] } = {};
   private songsSubscription: Subscription | undefined;
-  private usersSubscription: Subscription | undefined; // New subscription for users data
+  private usersSubscription: Subscription | undefined;
 
   constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
-    this.loadUserData(); // This will load currentUser from localStorage (updated by authService)
-    this.loadAllUsersForMapping(); // Load all users from backend to build the map
-    this.loadSavedPlaylists();
-    this.loadRatingsAndComments();
-    this.subscribeToSongs();
-    this.updateFollowData(); // This will use the currentUser loaded in loadUserData
+    this.loadUserData();
+    this.loadAllUsersForMapping();
+
+    if (this.currentUser) {
+      this.songsSubscription = this.musicService.songs$.subscribe(songs => {
+        this.allSongs = songs;
+        this.loadAllProfileData();
+      });
+    } else {
+      console.warn('No current user found on profile initialization. User might not be logged in.');
+    }
   }
 
   ngOnDestroy(): void {
     this.songsSubscription?.unsubscribe();
-    this.usersSubscription?.unsubscribe(); // Unsubscribe from users observable
-  }
-
-  private subscribeToSongs(): void {
-    this.songsSubscription = this.musicService.songs$.subscribe(songs => {
-      this.allSongs = songs;
-    });
+    this.usersSubscription?.unsubscribe();
   }
 
   private loadUserData(): void {
-    // currentUser is now managed by AuthService. We just read it from the service.
     this.currentUser = this.authService.currentUser;
   }
 
   private loadAllUsersForMapping(): void {
-    // Fetch all users from the backend to build the map
-    this.usersSubscription = this.authService.getAllOtherUsers('dummyId').subscribe({ // 'dummyId' as it's filtered on frontend
+    this.usersSubscription = this.authService.getAllOtherUsers('dummyId').subscribe({
       next: (users) => {
-        // Include current user in the map if they exist
         if (this.currentUser) {
-            this.allUsersMap.set(this.currentUser.email, this.currentUser.username);
+          this.allUsersMap.set(this.currentUser.email, this.currentUser.username);
         }
         users.forEach(user => {
           if (user.email && user.username) {
             this.allUsersMap.set(user.email, user.username);
           }
         });
-        // After loading users, update follow data as it depends on this map
         this.updateFollowData();
       },
       error: (err) => {
@@ -93,111 +88,73 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-  private loadSavedPlaylists(): void {
-    const userId = this.currentUser?.id; // Use currentUser.id from backend
-    if (userId) {
-      const savedPlaylistsKey = `savedPlaylists_${userId}`;
-      const storedPlaylistsString = localStorage.getItem(savedPlaylistsKey);
-      this.savedPlaylists = storedPlaylistsString ? JSON.parse(storedPlaylistsString) : [];
-    } else {
-      this.savedPlaylists = [];
-    }
-  }
-
-  private loadRatingsAndComments(): void {
-    this.loadUserRatingsFromBackend();
-
-    const storedComments = localStorage.getItem('songComments');
-    if (storedComments) {
-      this.storedSongComments = JSON.parse(storedComments);
-      this.populateUserComments();
+  private loadAllProfileData(): void {
+    if (!this.currentUser?.email) {
+      console.error('Cannot load profile data: Current user email is missing.');
+      return;
     }
 
-    const storedAllSongs = localStorage.getItem('allSongs');
-    if (storedAllSongs) {
-      this.allSongs = JSON.parse(storedAllSongs);
-    }
-  }
+    const userId = this.currentUser.email;
+    const userName = this.currentUser.username;
 
-  private loadUserRatingsFromBackend(): void {
-    if (!this.currentUser?.email) return;
+    forkJoin({
+      // MODIFIED: Directly fetch full Playlist objects from the backend's /user/:userId/full endpoint
+      playlists: this.playlistApiService.getUserSavedPlaylists(userId!),
+      ratings: this.http.get<BackendSongRating[]>(`${environment.backendUrl}/ratings/user/${userName}`),
+      comments: this.http.get<BackendComment[]>(`${environment.backendUrl}/comments/user/${userName}`)
+    }).subscribe({
+      next: ({ playlists, ratings, comments }) => {
+        this.savedPlaylists = playlists; // Assign directly as backend returns full Playlist objects
+        console.log('Fetched Saved Playlists:', this.savedPlaylists);
 
-    this.http.get<any[]>(`${environment.backendUrl}/ratings`).subscribe({
-      next: (ratings) => {
-        // Filtrar solo las calificaciones del usuario actual
-        const userRatings = ratings.filter(rating => rating.userId === this.currentUser?.email);
-        this.processUserRatings(userRatings);
+        this.userRatings = this.processFetchedRatings(ratings);
+        console.log('Processed User Ratings:', this.userRatings);
+
+        this.userComments = this.processFetchedComments(comments);
+        console.log('Processed User Comments:', this.userComments);
       },
       error: (err) => {
-        console.error('Error loading ratings from backend:', err);
-        // Puedes mostrar un mensaje al usuario si lo deseas
+        console.error('Error loading all profile data:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de Carga',
+          text: 'No se pudieron cargar tus datos de perfil. Inténtalo de nuevo más tarde.',
+          confirmButtonText: 'Entendido'
+        });
       }
     });
   }
 
-  private processUserRatings(ratings: any[]): void {
-    this.userRatings = []; // Limpiar array existente
-
-    ratings.forEach(rating => {
+  private processFetchedRatings(ratings: BackendSongRating[]): UserRating[] {
+    return ratings.map(rating => {
       const song = this.allSongs.find(s => s.trackId === rating.trackId);
-      this.userRatings.push({
+      return {
         songName: song?.trackName || `Canción ID: ${rating.trackId}`,
         rating: rating.rating
-      });
+      };
     });
   }
 
-  private populateUserRatings(): void {
-    if (this.currentUser?.email) { // Use optional chaining for currentUser
-      const userId = this.currentUser.email; // Still using email for existing local storage logic
-      for (const trackIdStr in this.storedUserRatings) {
-        if (this.storedUserRatings.hasOwnProperty(trackIdStr)) {
-          const trackId = parseInt(trackIdStr, 10);
-          const ratingsForTrack = this.storedUserRatings[trackId];
-          if (ratingsForTrack && (ratingsForTrack[this.currentUser.email])) { // Check against current user's email
-            const rating = ratingsForTrack[this.currentUser.email];
-            let songName: string | undefined;
-            const song = this.allSongs.find(s => s.trackId === trackId);
-            if (song) {
-              songName = song.trackName;
-            }
-            this.userRatings.push({ songName: songName || trackId.toString(), rating });
-          }
-        }
-      }
-    }
-  }
-
-  private populateUserComments(): void {
-    if (this.currentUser?.email) { // Use optional chaining for currentUser
-      for (const trackId in this.storedSongComments) {
-        if (this.storedSongComments.hasOwnProperty(trackId)) {
-          const commentsForTrack = this.storedSongComments[parseInt(trackId, 10)];
-          if (commentsForTrack) {
-            commentsForTrack.forEach(comment => {
-              if (comment.user === this.currentUser!.email) { // Use non-null assertion as we checked above
-                let songName: string | undefined;
-                const song = this.allSongs.find(s => s.trackId === parseInt(trackId, 10));
-                if (song) {
-                  songName = song.trackName;
-                }
-                this.userComments.push({ songName: songName || trackId, text: comment.text, date: comment.date });
-              }
-            });
-          }
-        }
-      }
-    }
+  private processFetchedComments(comments: BackendComment[]): UserComment[] {
+    console.log('--- DEBUG: Incoming comments to processFetchedComments:', comments);
+    return comments.map(comment => {
+      const song = this.allSongs.find(s => s.trackId === Number(comment.trackId));
+      return {
+        songName: song?.trackName || `Canción ID: ${comment.trackId}`,
+        text: comment.text,
+        date: comment.date
+      };
+    });
   }
 
   getPlaylistCoverForProfile(playlist: Playlist): string {
-    if (this.allSongs.length > 0 && playlist.trackIds.length > 0) {
-      const firstSong = this.allSongs.find(song => String(song.trackId) === playlist.trackIds[0]);
+    if (this.allSongs.length > 0 && playlist.trackIds && playlist.trackIds.length > 0) {
+      const firstSong = this.allSongs.find(song => song.trackId === parseInt(playlist.trackIds[0], 10));
       if (firstSong?.artworkUrl100) {
         return firstSong.artworkUrl100;
       }
     }
-    return '/assets/banner.jpg'; // Corrected path to assets folder
+    return '/assets/banner.jpg';
   }
 
   logout(): void {
@@ -205,8 +162,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   private updateFollowData(): void {
-    // Get the *latest* current user data from AuthService
-    this.currentUser = this.authService.currentUser; // Ensure currentUser is fresh
+    this.currentUser = this.authService.currentUser;
 
     if (this.currentUser) {
       const followers = this.currentUser.followers || [];
@@ -215,13 +171,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.followersCount = followers.length;
       this.followingCount = following.length;
 
-      // Get latest 3 followers, mapped to usernames
       this.latestFollowersNames = followers
         .slice(-3)
         .reverse()
         .map(email => this.getUsernameByEmail(email));
 
-      // Get latest 3 following, mapped to usernames
       this.latestFollowingNames = following
         .slice(-3)
         .reverse()
@@ -261,7 +215,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.authService.updateUserPremiumStatus(this.currentUser.email, false).subscribe({
           next: async (success) => {
             if (success) {
-              this.currentUser!.premium = false; // Update local state
+              this.currentUser!.premium = false;
               await Swal.fire({
                 title: "¡Suscripción cancelada!",
                 text: "Tu suscripción Premium ha sido cancelada correctamente.",
@@ -308,7 +262,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.authService.updateUserPremiumStatus(this.currentUser.email, true).subscribe({
         next: async (success) => {
           if (success) {
-            this.currentUser!.premium = true; // Update local state
+            this.currentUser!.premium = true;
             await Swal.fire({
               title: "¡Premium activado!",
               text: "¡Ahora eres usuario Premium y tienes acceso a todas las funciones!",

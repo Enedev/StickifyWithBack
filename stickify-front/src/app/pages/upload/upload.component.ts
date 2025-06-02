@@ -87,20 +87,22 @@ export class UploadComponent implements OnInit { // Implement OnInit
         primaryGenreName: formData.primaryGenreName!,
         artworkUrl100: artworkUrl,
         releaseDate: new Date().toISOString(),
-        trackId: generateSmallIntId(), 
-        collectionId: generateSmallIntId(), 
-        artistId: generateSmallIntId(), 
+        trackId: generateSmallIntId(),
+        collectionId: generateSmallIntId(),
+        artistId: generateSmallIntId(),
         isUserUpload: true
       };
 
-      this.songApiService.createSong(songToUpload).subscribe({
-        next: async (responseSong) => { 
-
+      // MODIFIED: Use musicService.addSong instead of songApiService.createSong
+      this.musicService.addSong(songToUpload).subscribe({
+        next: async (responseSong) => {
           await this.showAlert(
             'success',
             'Éxito',
             `Canción "${responseSong.trackName}" subida y guardada correctamente`
           );
+          // The MusicService.addSong already triggers a re-fetch of all songs,
+          // so navigating to home will show the updated, sorted list.
           this.router.navigate(['/home']);
         },
         error: async (err) => {
@@ -117,9 +119,10 @@ export class UploadComponent implements OnInit { // Implement OnInit
       console.error('Error en uploadSong (antes de enviar al backend):', error);
       const errorMsg = this.getErrorMessage(error);
       await this.showAlert('error', 'Error', errorMsg);
-      this.closeCurrentAlert(); 
+      this.closeCurrentAlert();
     }
   }
+
 
   onFileSelected(event: Event): void {
   

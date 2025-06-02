@@ -1,3 +1,4 @@
+// src/song-ratings/song-ratings.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -30,6 +31,11 @@ export class RatingsService {
 
   async findAll(): Promise<SongRating[]> {
     return this.ratingsRepository.find();
+  }
+
+  // NEW: Find ratings by userId
+  async findByUserId(userId: string): Promise<SongRating[]> {
+    return this.ratingsRepository.find({ where: { userId } });
   }
 
   async findByTrackId(trackId: number): Promise<SongRating[]> {

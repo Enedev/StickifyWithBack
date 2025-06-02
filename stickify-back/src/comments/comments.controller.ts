@@ -1,3 +1,4 @@
+// src/comments/comments.controller.ts
 import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -15,6 +16,12 @@ export class CommentsController {
   @Get()
   findAll() {
     return this.commentsService.findAll();
+  }
+
+  // NEW: Get comments by user ID (email in your case)
+  @Get('user/:userId') 
+  findCommentsByUser(@Param('userId') userId: string) {
+    return this.commentsService.findCommentsByUser(userId);
   }
 
   @Get(':id')

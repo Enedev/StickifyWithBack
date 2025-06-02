@@ -27,13 +27,13 @@ export class SongsController {
   async findAll(@Query('isUserUpload') isUserUpload?: string): Promise<Song[]> {
     try {
       const filter = isUserUpload ? { isUserUpload: isUserUpload === 'true' } : {};
-      return await this.songsService.findAll(filter);
+      return await this.songsService.findAll(filter); // Now sorting is handled internally
     } catch (error) {
       console.error('Error fetching songs:', error);
       throw new InternalServerErrorException('Failed to fetch songs');
     }
   }
-
+  
   @Get(':trackId')
   findOne(@Param('trackId') trackId: number): Promise<Song | null> {
     return this.songsService.findOne(+trackId);

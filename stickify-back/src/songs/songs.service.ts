@@ -43,7 +43,13 @@ export class SongsService {
   }
 
   findAll(filter: any = {}): Promise<Song[]> {
-    return this.songsRepository.find({ where: filter });
+    return this.songsRepository.find({
+      where: filter,
+      order: {
+        isUserUpload: 'DESC',
+        trackId: 'DESC',
+      },
+    });
   }
 
   findOne(trackId: number): Promise<Song | null> {

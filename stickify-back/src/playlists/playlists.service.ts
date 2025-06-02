@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { Playlist } from './entities/playlist.entity';
 import { CreatePlaylistDto } from './dto/create-playlist.dto';
 import { UpdatePlaylistDto } from './dto/update-playlist.dto';
@@ -37,6 +37,13 @@ export class PlaylistsService {
 
   async remove(id: string): Promise<void> {
     await this.playlistsRepository.delete(id);
+  }
+  async findByName(name: string): Promise<Playlist | null> {
+    return this.playlistsRepository.findOne({ 
+      where: { 
+        name: Like(`%${name}%`) // Búsqueda insensible a mayúsculas/minúsculas y parcial
+      } 
+    });
   }
 
   

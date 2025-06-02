@@ -11,6 +11,7 @@ import { AuthService } from '../../services/auth.service';
 import { User } from '../../shared/interfaces/user.interface';
 import { PlaylistApiService } from '../../services/playlist-api.service';
 import { v4 as uuidv4 } from 'uuid';
+import { UserSavedPlaylist } from '../../shared/interfaces/user-saved-playlist.interface'; // Keep this import for clarity, though its ID is not directly passed to saveUserPlaylist anymore
 
 @Component({
   selector: 'app-playlist',
@@ -25,50 +26,97 @@ export class PlaylistComponent implements OnInit {
   private playlistApiService = inject(PlaylistApiService);
   private authService = inject(AuthService);
 
-  userPlaylists: Playlist[] = [];
+  userPlaylists: Playlist[] = []; // This will now represent playlists created by the user, and saved playlists for display
   autoPlaylists: Playlist[] = [];
   allSongs: Song[] = [];
   showModal = false;
   newPlaylistName = '';
   selectedSongs: Song[] = [];
-  currentUser: User | null = null; 
+  currentUser: User | null = null;
+
+  private savedPlaylistIds: Set<string> = new Set(); // Stores IDs of playlists the user has saved
 
   ngOnInit() {
     this.currentUser = this.authService.currentUser;
-    // Ahora, carga las playlists del usuario desde el backend al inicio
-    this.loadUserPlaylistsFromBackend(); 
+    this.loadAllPlaylistsFromBackend();
+
     this.musicService.songs$.subscribe(songs => {
       this.allSongs = songs;
-      this.autoPlaylists = this.playlistService.generateAutoPlaylists(songs);
+      this.autoPlaylists = this.playlistService.generateAutoPlaylists(songs).map(p => ({
+        ...p,
+        createdBy: 'automatic',
+        type: 'auto'
+      }));
+      this.saveAutoPlaylistsToSupabaseInitially();
     });
   }
 
-  // Nueva función para cargar playlists desde el backend
-  loadUserPlaylistsFromBackend() {
-    const userId = this.currentUser?.email || this.currentUser?.username;
-    if (userId) {
-      this.playlistApiService.getUserPlaylists(userId).subscribe({
-        next: (playlists) => {
-          this.userPlaylists = playlists;
-          console.log('Playlists del usuario cargadas:', this.userPlaylists);
-        },
-        error: (err) => {
-          console.error('Error al cargar las playlists del usuario:', err);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error de Carga',
-            text: 'No se pudieron cargar tus playlists. Inténtalo de nuevo más tarde.',
-            confirmButtonText: 'Entendido'
-          });
-        }
-      });
-    }
+  get userPlaylistsFilteredForDisplay(): Playlist[] {
+    return this.userPlaylists;
   }
 
-  /*
-  loadPlaylists() {
-    this.userPlaylists = this.playlistService.getUserPlaylists();
-  }*/
+  loadAllPlaylistsFromBackend() {
+    this.playlistApiService.getAllPlaylists().subscribe({
+      next: (playlists) => {
+        // Filtrar playlists excluyendo las del usuario 'automatic'
+        this.userPlaylists = playlists.filter(p => 
+          p.createdBy !== 'automatic' && p.createdBy !== null
+        );
+        
+        console.log('Todas las playlists (excepto automáticas):', this.userPlaylists);
+      },
+      error: (err) => {
+        console.error('Error al cargar las playlists:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de Carga',
+          text: 'No se pudieron cargar las playlists. Inténtalo de nuevo más tarde.',
+          confirmButtonText: 'Entendido'
+        });
+      }
+    });
+  }
+
+  saveAutoPlaylistsToSupabaseInitially(): Promise<any> { // Return type can be more specific, like Promise<Array<Playlist | null>>
+    const saveRequests = this.autoPlaylists.map(autoPlaylist => {
+      const isAlreadyCreated = this.userPlaylists.some(p =>
+        p.name === autoPlaylist.name && p.createdBy === 'automatic'
+      );
+
+      if (!isAlreadyCreated) {
+        const playlistToSave: Playlist = {
+          ...autoPlaylist,
+          createdBy: 'automatic',
+          type: 'auto',
+          createdAt: autoPlaylist.createdAt || new Date().toISOString()
+        };
+
+        return this.playlistApiService.createPlaylist(playlistToSave).toPromise()
+          .then(savedPlaylist => {
+            // **Here's the crucial part: check if savedPlaylist is not null/undefined**
+            if (savedPlaylist) { // Type guard: ensures savedPlaylist is of type Playlist here
+              console.log(`Auto-playlist "${savedPlaylist.name}" guardada en Supabase.`);
+              const index = this.autoPlaylists.findIndex(p => p.name === autoPlaylist.name);
+              if (index !== -1) {
+                this.autoPlaylists[index] = savedPlaylist;
+              }
+              return savedPlaylist;
+            } else {
+              console.warn(`createPlaylist for "${autoPlaylist.name}" returned null or undefined.`);
+              return null; // Ensure consistency in return type for this branch
+            }
+          })
+          .catch(err => {
+            console.error(`Error saving auto-playlist "${autoPlaylist.name}":`, err);
+            return null; // Return null on error as you were doing
+          });
+      }
+      return Promise.resolve(null); // Consistent return type for already created playlists
+    });
+
+    // If you intend to wait for all these saves to complete, you'd use Promise.all
+    return Promise.all(saveRequests);
+  }
 
   getPlaylistSongs(playlist: Playlist): Song[] {
     return this.playlistService.getPlaylistSongs(playlist, this.allSongs);
@@ -88,7 +136,7 @@ export class PlaylistComponent implements OnInit {
     index > -1 ? this.selectedSongs.splice(index, 1) : this.selectedSongs.push(song);
   }
 
-  createPlaylist() {
+  createPlaylistAndSaveToSupabase() {
     if (!this.currentUser?.premium) {
       Swal.fire({
         icon: 'info',
@@ -96,7 +144,7 @@ export class PlaylistComponent implements OnInit {
         text: 'Necesitas ser usuario Premium para crear playlists.',
         confirmButtonText: 'Entendido'
       });
-      return; 
+      return;
     }
     if (!this.newPlaylistName || this.newPlaylistName.trim() === '') {
       Swal.fire({
@@ -118,18 +166,33 @@ export class PlaylistComponent implements OnInit {
       return;
     }
 
-    const newPlaylist = this.playlistService.createUserPlaylist(this.newPlaylistName, this.selectedSongs);
+    const newPlaylistBase = this.playlistService.createUserPlaylist(this.newPlaylistName, this.selectedSongs);
 
-    this.playlistApiService.createPlaylist(newPlaylist).subscribe({
+    const currentUserIdentifier = this.currentUser?.email || this.currentUser?.username;
+
+    if (!currentUserIdentifier) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de Usuario',
+        text: 'No se pudo identificar al usuario para crear la playlist.',
+        confirmButtonText: 'Entendido'
+      });
+      return;
+    }
+
+    const playlistToCreate: Playlist = {
+      ...newPlaylistBase,
+      id: uuidv4(),
+      createdBy: currentUserIdentifier,
+      type: 'user',
+      createdAt: newPlaylistBase.createdAt || new Date().toISOString()
+    };
+
+    this.playlistApiService.createPlaylist(playlistToCreate).subscribe({
       next: (savedPlaylist) => {
-        Swal.fire({
-          icon: 'success',
-          title: '¡Playlist Creada y Guardada!',
-          text: `La playlist "${savedPlaylist.name}" ha sido creada y guardada en tu perfil.`,
-          confirmButtonText: '¡Genial!'
-        });
-        this.closeModal();
-        this.loadUserPlaylistsFromBackend();
+        // After creating the playlist (which adds it to the 'playlists' table),
+        // we now save it to the user's profile via the intermediate table.
+        this.savePlaylistToProfile(savedPlaylist, true); // true indicates it's newly created
       },
       error: (err) => {
         console.error('Error al guardar la playlist en el backend:', err);
@@ -143,6 +206,53 @@ export class PlaylistComponent implements OnInit {
     });
   }
 
+  // MODIFIED: This function now uses the correct parameters for the backend's savePlaylist endpoint.
+  async savePlaylistToProfile(playlistToSave: Playlist, isNewlyCreated: boolean = false) {
+    try {
+      // Validaciones básicas
+      if (!this.currentUser?.premium) {
+        Swal.fire('Acceso Restringido', 'Necesitas ser Premium para guardar playlists', 'info');
+        return;
+      }
+
+      const userId = this.currentUser.email || this.currentUser.username;
+      if (!userId) {
+        Swal.fire('Error', 'No se pudo identificar al usuario', 'error');
+        return;
+      }
+
+      // Verificar si ya está guardada
+      if (!isNewlyCreated && this.savedPlaylistIds.has(playlistToSave.id)) {
+        Swal.fire('Info', 'Ya tienes esta playlist guardada', 'info');
+        return;
+      }
+
+      // Enviar al backend (el identificador será el ID o el nombre según el tipo)
+      const identifier = playlistToSave.type === 'auto' ? playlistToSave.name : playlistToSave.id;
+      await this.playlistApiService.saveUserPlaylist(userId, identifier).toPromise();
+
+      // Actualizar estado local
+      this.savedPlaylistIds.add(playlistToSave.id);
+      
+      // Si es nueva playlist creada, cerrar modal
+      if (isNewlyCreated) {
+        this.closeModal();
+      }
+
+      Swal.fire('Éxito', 'Playlist guardada correctamente', 'success');
+      
+      } catch  (err) {
+        console.error('Error al verificar/crear playlist automática:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo preparar la playlist automática para guardar.',
+          confirmButtonText: 'Entendido'
+        });
+        return;
+      }
+    }
+
   openModal() {
     if (!this.currentUser?.premium) {
       Swal.fire({
@@ -151,9 +261,9 @@ export class PlaylistComponent implements OnInit {
         text: 'Necesitas ser usuario Premium para crear playlists.',
         confirmButtonText: 'Entendido'
       });
-      return; 
+      return;
     }
-    
+
     this.showModal = true;
     this.selectedSongs = [];
     this.newPlaylistName = '';
@@ -167,67 +277,13 @@ export class PlaylistComponent implements OnInit {
     const firstSong = this.getPlaylistSongs(playlist)[0];
 
     if (!firstSong) {
-      return '/banner.jpg';
+      return '/assets/banner.jpg';
     }
 
     if (firstSong.artworkUrl100) {
       return firstSong.artworkUrl100;
     }
 
-    return '/banner.jpg';
-  }
-    
-  saveAutoPlaylistAsUserPlaylist(playlistToSave: Playlist) {
-    if (!this.currentUser?.premium) {
-      Swal.fire({
-        icon: 'info',
-        title: 'Acceso Restringido',
-        text: 'Necesitas ser usuario Premium para guardar playlists en tu perfil.',
-        confirmButtonText: 'Entendido'
-      });
-      return;
-    }
-
-    const currentUser = this.authService.currentUser;
-    const userId = currentUser?.email || currentUser?.username;
-
-    if (!userId) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error de Usuario',
-        text: 'No se pudo identificar al usuario para guardar la playlist.',
-        confirmButtonText: 'Entendido'
-      });
-      return;
-    }
-
-    const playlistToSaveInDb: Playlist = {
-      ...playlistToSave, 
-      id: playlistToSave.id || uuidv4(), 
-      type: 'user', 
-      createdBy: userId,
-      createdAt: playlistToSave.createdAt || new Date().toISOString() 
-    };
-
-    this.playlistApiService.createPlaylist(playlistToSaveInDb).subscribe({
-      next: (savedPlaylist) => {
-        Swal.fire({
-          icon: 'success',
-          title: '¡Playlist Guardada!',
-          text: `La playlist "${savedPlaylist.name}" se ha guardado en tu perfil.`,
-          confirmButtonText: '¡Entendido!'
-        });
-        this.loadUserPlaylistsFromBackend(); 
-      },
-      error: (err) => {
-        console.error('Error al guardar la playlist en el backend:', err);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al Guardar',
-          text: `No se pudo guardar la playlist "${playlistToSave.name}". Inténtalo de nuevo.`,
-          confirmButtonText: 'Entendido'
-        });
-      }
-    });
+    return '/assets/banner.jpg';
   }
 }

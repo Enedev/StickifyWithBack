@@ -1,3 +1,4 @@
+// src/comments/comments.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -19,6 +20,14 @@ export class CommentsService {
 
   findAll(): Promise<Comment[]> {
     return this.commentsRepository.find();
+  }
+
+  // NEW: Find comments by user ID (email)
+  // UPDATE findCommentsByUser method
+  findCommentsByUser(user: string): Promise<Comment[]> {
+    return this.commentsRepository.find({ 
+      where: { user } // Changed from 'user' to 'userId'
+    });
   }
 
   findOne(id: string): Promise<Comment| null> {
