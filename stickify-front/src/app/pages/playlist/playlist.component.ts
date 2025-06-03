@@ -12,7 +12,6 @@ import { User } from '../../shared/interfaces/user.interface';
 import { PlaylistApiService } from '../../services/playlist-api.service';
 import { v4 as uuidv4 } from 'uuid';
 import { UserSavedPlaylist } from '../../shared/interfaces/user-saved-playlist.interface'; // Keep this import for clarity, though its ID is not directly passed to saveUserPlaylist anymore
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-playlist',
@@ -26,7 +25,6 @@ export class PlaylistComponent implements OnInit {
   private playlistService = inject(PlaylistService);
   private playlistApiService = inject(PlaylistApiService);
   private authService = inject(AuthService);
-  isSavingPlaylist: boolean = false;
 
   userPlaylists: Playlist[] = []; // This will now represent playlists created by the user, and saved playlists for display
   autoPlaylists: Playlist[] = [];
@@ -35,37 +33,49 @@ export class PlaylistComponent implements OnInit {
   newPlaylistName = '';
   selectedSongs: Song[] = [];
   currentUser: User | null = null;
+  isSavingPlaylist: boolean = false;
 
   private savedPlaylistIds: Set<string> = new Set(); // Stores IDs of playlists the user has saved
-  private subscriptions: Subscription[] = [];
 
   ngOnInit() {
     this.currentUser = this.authService.currentUser;
-    this.playlistService.getUserPlaylists();
+    this.loadAllPlaylistsFromBackend();
 
-    const songsSub = this.musicService.songs$.subscribe(songs => {
+    this.musicService.songs$.subscribe(songs => {
       this.allSongs = songs;
-      this.playlistService.updateAutoPlaylists(songs);
+      this.autoPlaylists = this.playlistService.generateAutoPlaylists(songs).map(p => ({
+        ...p,
+        createdBy: 'automatic',
+        type: 'auto'
+      }));
       this.saveAutoPlaylistsToSupabaseInitially();
     });
-
-    const userPlaylistsSub = this.playlistService.userPlaylists$.subscribe(playlists => {
-      this.userPlaylists = playlists.filter(p => p.createdBy !== 'automatic' && p.createdBy !== null);
-    });
-
-    const autoPlaylistsSub = this.playlistService.autoPlaylists$.subscribe(playlists => {
-      this.autoPlaylists = playlists;
-    });
-
-    this.subscriptions.push(songsSub, userPlaylistsSub, autoPlaylistsSub);
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   get userPlaylistsFilteredForDisplay(): Playlist[] {
     return this.userPlaylists;
+  }
+
+  loadAllPlaylistsFromBackend() {
+    this.playlistApiService.getAllPlaylists().subscribe({
+      next: (playlists) => {
+        // Filtrar playlists excluyendo las del usuario 'automatic'
+        this.userPlaylists = playlists.filter(p => 
+          p.createdBy !== 'automatic' && p.createdBy !== null
+        );
+        
+        console.log('Todas las playlists (excepto automáticas):', this.userPlaylists);
+      },
+      error: (err) => {
+        console.error('Error al cargar las playlists:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de Carga',
+          text: 'No se pudieron cargar las playlists. Inténtalo de nuevo más tarde.',
+          confirmButtonText: 'Entendido'
+        });
+      }
+    });
   }
 
   saveAutoPlaylistsToSupabaseInitially(): Promise<any> { // Return type can be more specific, like Promise<Array<Playlist | null>>
@@ -131,7 +141,7 @@ export class PlaylistComponent implements OnInit {
     if (this.isSavingPlaylist) {
         return;
     }
-    
+
     if (!this.currentUser?.premium) {
       Swal.fire({
         icon: 'info',
@@ -162,6 +172,7 @@ export class PlaylistComponent implements OnInit {
     }
 
     const newPlaylistBase = this.playlistService.createUserPlaylist(this.newPlaylistName, this.selectedSongs);
+
     const currentUserIdentifier = this.currentUser?.email || this.currentUser?.username;
 
     if (!currentUserIdentifier) {
@@ -186,21 +197,15 @@ export class PlaylistComponent implements OnInit {
 
     try {
         const savedPlaylist = await this.playlistApiService.createPlaylist(playlistToCreate).toPromise();
-        
+
         if (!savedPlaylist) {
           throw new Error('No se recibió respuesta al crear la playlist');
+        
         }
-        // Actualizamos las playlists del usuario desde el backend
-        await this.playlistService.getUserPlaylists();
-        await this.savePlaylistToProfile(savedPlaylist, true);
+        this.savePlaylistToProfile(savedPlaylist, true);
         
         this.closeModal();
-        Swal.fire({
-            icon: 'success',
-            title: 'Playlist creada',
-            text: `La playlist "${this.newPlaylistName}" ha sido creada exitosamente.`,
-            confirmButtonText: 'Entendido'
-        });
+        window.location.reload();
     } catch (err) {
         console.error('Error al guardar la playlist en el backend:', err);
         Swal.fire({
