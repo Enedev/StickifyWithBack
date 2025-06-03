@@ -4,6 +4,7 @@ import { Playlist } from '../shared/interfaces/playlist.interface';
 import { AuthService } from './auth.service';
 import { PlaylistApiService } from './playlist-api.service';
 import { v4 as uuidv4 } from 'uuid';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -12,14 +13,20 @@ export class PlaylistService {
   private authService = inject(AuthService);
   private playlistApiService = inject(PlaylistApiService);
   
-  getUserPlaylists(): Playlist[] {
+  private userPlaylistsSubject = new BehaviorSubject<Playlist[]>([]);
+  public userPlaylists$ = this.userPlaylistsSubject.asObservable();
+
+  private autoPlaylistsSubject = new BehaviorSubject<Playlist[]>([]);
+  public autoPlaylists$ = this.autoPlaylistsSubject.asObservable();
+
+  getUserPlaylists(): void {
     const currentUser = this.authService.currentUser;
     const userId = currentUser?.email || currentUser?.username;
 
     if (userId) {
       this.playlistApiService.getUserPlaylists(userId).subscribe({
         next: (playlists) => {
-          console.log('Playlists cargadas desde el backend:', playlists);
+          this.userPlaylistsSubject.next(playlists);
         },
         error: (err) => {
           console.error('Error al cargar las playlists del usuario desde el backend:', err);
@@ -28,7 +35,6 @@ export class PlaylistService {
     } else {
       console.warn('No hay usuario logueado para cargar playlists.');
     }
-    return []; 
   }
   
   createUserPlaylist(name: string, songs: Song[]): Playlist {
@@ -50,6 +56,7 @@ export class PlaylistService {
     };
     return newPlaylist;
   }
+
   // Generate automatic playlists by genre
   generateAutoPlaylists(songs: Song[]): Playlist[] {
     const genres = [...new Set(songs.map(s => s.primaryGenreName))];
@@ -65,10 +72,25 @@ export class PlaylistService {
       createdAt: new Date()
     }));
   }
+
+  updateAutoPlaylists(songs: Song[]): void {
+    const autoPlaylists = this.generateAutoPlaylists(songs);
+    this.autoPlaylistsSubject.next(autoPlaylists);
+  }
+
   // Get full song objects for a playlist
   getPlaylistSongs(playlist: Playlist, allSongs: Song[]): Song[] {
     return playlist.trackIds
       .map(id => allSongs.find(s => s.trackId.toString() === id))
       .filter(s => s) as Song[];
+  }
+
+  addUserPlaylist(playlist: Playlist): void {
+    const currentPlaylists = this.userPlaylistsSubject.value;
+    this.userPlaylistsSubject.next([...currentPlaylists, playlist]);
+  }
+
+  updateAllUserPlaylists(playlists: Playlist[]): void {
+    this.userPlaylistsSubject.next(playlists);
   }
 }

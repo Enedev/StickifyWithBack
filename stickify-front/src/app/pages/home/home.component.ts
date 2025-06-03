@@ -55,6 +55,12 @@ export class HomeComponent implements OnInit {
     this.commentService.commentsMap$.subscribe(map => {
       this.songComments = map;
     });
+
+    this.ratingService.userRatings$.subscribe(() => {
+      if (this.allSongs.length > 0) {
+        this.ratingService.updateTopRatedSongs(this.allSongs);
+      }
+    });
   }
 
   private loadSongs(): void {
@@ -128,7 +134,6 @@ export class HomeComponent implements OnInit {
   async onRateSong(rating: number): Promise<void> {
     if (this.selectedSong && this.currentUser) {
       await this.ratingService.rateSong(this.currentUser, this.selectedSong.trackId, rating);
-      this.ratingService.updateTopRatedSongs(this.allSongs);
     }
   }
 
