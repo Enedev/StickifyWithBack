@@ -3,7 +3,7 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { LoginDto } from './dto/login.dto';
 import { LoginResponse } from './dto/login-response.dto'; // This DTO might need adjustment or can be removed if not strictly used for response structure
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/user/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
@@ -17,8 +17,6 @@ export class AuthService {
     ) { }
 
     async login(loginDto: LoginDto) {
-        // IMPORTANT: Ensure you're finding by email, not username, if loginDto.email is used for login.
-        // Based on your LoginDto, it has 'email', so it should be findOneBy({ email: loginDto.email })
         const user = await this.userRepository.findOneBy({ email: loginDto.email }); 
         if (user) {
             const isValidUser = bcrypt.compareSync(loginDto.password, user.password);
