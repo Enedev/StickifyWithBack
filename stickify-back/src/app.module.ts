@@ -39,7 +39,7 @@ import { UserSavedPlaylistsModule } from './user_saved_playlists/user_saved_play
         SongRating,
         UserSavedPlaylist, // <--- ¡CORRECCIÓN: AÑADIDA LA CLASE DE LA ENTIDAD!
       ],
-      synchronize: true,
+      synchronize: false,
       ssl: true,
       extra: {
         ssl: {
