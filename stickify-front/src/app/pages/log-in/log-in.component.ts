@@ -42,7 +42,7 @@ export class LogInComponent {
       password: this.loginForm.value.password!
     };
 
-    console.log('[Métrica cuantitativa] Credenciales capturadas:', credentials);
+    console.log('[Métrica cualitativa] Credenciales capturadas:', credentials);
 
     this.authService.logIn(credentials).subscribe({
       next: async (success) => {
