@@ -29,7 +29,7 @@ const HomeComponent = {
 
 (function runTests() {
   console.log('Test 1: componente creado');
-  console.assert(HomeComponent !== undefined, '❌ Componente no creado');
+  console.assert(HomeComponent !== undefined, 'Componente no creado');
 
   console.log('\nTest 2: filtrado por año 2023');
   HomeComponent.allSongs = [...MOCK_SONGS];
@@ -43,10 +43,10 @@ const HomeComponent = {
     new Date(song.releaseDate).getFullYear().toString() === filters.year
   );
 
-  console.assert(HomeComponent.filteredSongs.length === expectedSongs.length, '❌ Cantidad incorrecta de canciones filtradas');
-  console.assert(JSON.stringify(HomeComponent.filteredSongs) === JSON.stringify(expectedSongs), '❌ Canciones filtradas incorrectas');
-  console.assert(HomeComponent.currentPage === 1, '❌ Página actual incorrecta');
-  console.assert(HomeComponent.totalFilteredSongs === expectedSongs.length, '❌ Total filtrado incorrecto');
+  console.assert(HomeComponent.filteredSongs.length === expectedSongs.length, 'Cantidad incorrecta de canciones filtradas');
+  console.assert(JSON.stringify(HomeComponent.filteredSongs) === JSON.stringify(expectedSongs), 'Canciones filtradas incorrectas');
+  console.assert(HomeComponent.currentPage === 1, 'Página actual incorrecta');
+  console.assert(HomeComponent.totalFilteredSongs === expectedSongs.length, 'Total filtrado incorrecto');
 
-  console.log('✅ Test de filtrado por año pasó correctamente');
+  console.log('Test de filtrado por año pasó correctamente');
 })();
