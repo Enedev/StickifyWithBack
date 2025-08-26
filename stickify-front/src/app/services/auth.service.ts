@@ -116,10 +116,15 @@ export class AuthService {
   }
 
   logOut(): void {
+    const startTime = performance.now(); // Cuantitativa: inicio de medición
+
     localStorage.removeItem(this.CURRENT_USER_KEY);
     localStorage.removeItem(this.TOKEN_KEY);
     this.currentUser = null;
+    console.log('[Cualitativa] Usuario y token eliminados del localStorage');
+
     this.router.navigate(['/log-in']);
+    console.log('[Cualitativa] Redirección a /log-in ejecutada');
 
     Swal.fire({
       icon: 'info',
@@ -127,6 +132,10 @@ export class AuthService {
       text: 'Has cerrado sesión correctamente.',
       confirmButtonText: 'Aceptar'
     });
+    console.log('[Cualitativa] Alerta de cierre de sesión mostrada');
+
+    const duration = performance.now() - startTime;
+    console.log(`[Cuantitativa] Tiempo de ejecución de logOut(): ${duration.toFixed(2)} ms`);
   }
 
   // --- Methods to interact with backend for user data ---
@@ -188,7 +197,7 @@ export class AuthService {
 
   // Fetches all users *except* the current user
   getAllOtherUsers(currentUserId: string): Observable<User[]> {
-  // Change '/user' to '/users'
+    // Change '/user' to '/users'
     return this.http.get<User[]>(`${environment.backendUrl}/users`).pipe(
       map(users => users.filter(user => user.id !== currentUserId)),
       catchError(error => {

@@ -6,7 +6,7 @@ import { AuthService } from '../../../services/auth.service';
 import { Subject } from 'rxjs';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
-// Creamos un mock del servicio AuthService
+// Crea un mock del servicio AuthService
 class MockAuthService {
   isHomePage: boolean = false;
   logOut() {}
@@ -28,16 +28,16 @@ describe('NavComponent', () => {
         {
           provide: Router,
           useValue: {
-            // Agregamos createUrlTree y serializeUrl para que RouterLink funcione
+            // Agrega createUrlTree y serializeUrl para que RouterLink funcione
             createUrlTree: () => ({}),
             serializeUrl: () => 'fake-url',
             navigate: jasmine.createSpy('navigate'),
             events: routerEventsSubject.asObservable(),
           },
         },
-        // Proveemos un mock para ActivatedRoute para evitar el error de inyección
+        // Mock para ActivatedRoute para evitar el error de inyección
         { provide: ActivatedRoute, useValue: {} },
-        // Proveemos el mock de AuthService
+        // Mock de AuthService
         { provide: AuthService, useClass: MockAuthService },
       ],
     }).compileComponents();
@@ -48,7 +48,7 @@ describe('NavComponent', () => {
     fixture.detectChanges(); // Ejecuta ngOnInit y el constructor
   });
 
-  // Limpiamos los mocks después de cada prueba
+  // Limpia los mocks después de cada prueba
   afterEach(() => {
     routerEventsSubject.complete();
   });

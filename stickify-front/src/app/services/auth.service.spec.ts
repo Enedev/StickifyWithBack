@@ -45,11 +45,11 @@ describe('AuthService', () => {
   
   it('should remove user and token from localStorage, navigate to login, and show an alert', () => {
     // 1. Configura el estado inicial del servicio para la prueba,
-    // simulando que el usuario está autenticado
-    const mockUser: User = { name: 'testUser' } as any; // Usamos 'as any' para simplificar
+    // simula que el usuario está autenticado
+    const mockUser: User = { name: 'testUser' } as any; // 'as any' para simplificar
     service.currentUser = mockUser;
     
-    // 2. Llama al método que estamos probando
+    // 2. Llama al método que se esta probando
     service.logOut();
 
     // 3. Verifica que el currentUser en el servicio se ha establecido en null

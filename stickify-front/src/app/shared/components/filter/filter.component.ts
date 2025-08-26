@@ -21,7 +21,7 @@ export class FilterComponent implements OnInit, OnDestroy {
   private artistsSubscription: Subscription | undefined;
   private activeFilter: string | null = null;
 
-  constructor(private musicService: MusicService, private el: ElementRef) {}
+  constructor(private musicService: MusicService, private el: ElementRef) { }
 
   ngOnInit(): void {
     this.genresSubscription = this.musicService.genres$.subscribe((updatedGenres: string[]) => {
@@ -41,7 +41,7 @@ export class FilterComponent implements OnInit, OnDestroy {
       this.artistsSubscription.unsubscribe();
     }
   }
-  
+
   toggleFilter(type: string) {
     const filters = document.getElementById(`${type}Filters`);
     if (filters) {
@@ -59,8 +59,8 @@ export class FilterComponent implements OnInit, OnDestroy {
       const toggleButton = document.getElementById(`${this.activeFilter}Toggle`);
 
       if (filterElement && toggleButton &&
-          !filterElement.contains(event.target as Node) &&
-          !toggleButton.contains(event.target as Node)) {
+        !filterElement.contains(event.target as Node) &&
+        !toggleButton.contains(event.target as Node)) {
         filterElement.classList.remove('show');
         this.activeFilter = null;
       }
@@ -68,10 +68,25 @@ export class FilterComponent implements OnInit, OnDestroy {
   }
 
   onGenreChange(genre: string, event: any) {
+    console.log('[Cualitativa] Género interactuado:', genre, '| checked:', event.target.checked);
+
+    const startTime = performance.now(); // Cuantitativa: medir duración
+
     event.target.checked ?
       this.selectedGenres.push(genre) :
       this.selectedGenres = this.selectedGenres.filter(g => g !== genre);
+
     this.emitFilters();
+
+    const duration = performance.now() - startTime;
+    console.log(`[Cuantitativa] Tiempo de respuesta en cambio de género: ${duration.toFixed(2)} ms`);
+
+    // Cualitativa: análisis de acción del usuario
+    if (event.target.checked) {
+      console.log(`[Cualitativa] Género agregado: ${genre}`);
+    } else {
+      console.log(`[Cualitativa] Género eliminado: ${genre}`);
+    }
   }
 
   onArtistChange(artist: string, event: any) {

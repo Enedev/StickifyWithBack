@@ -10,14 +10,12 @@ describe('FilterComponent', () => {
     let emitFiltersSpy: jasmine.Spy;
 
     beforeEach(async () => {
-        // Se crea un mock del servicio MusicService más completo.
-        // Esto ayuda a evitar errores de inicialización si el componente
-        // se suscribe a métodos o propiedades en ngOnInit.
+        // Se crea un mock del servicio MusicService.
         const musicServiceMock = {
             getSongs: () => of([]),
             getArtists: () => of([]),
             getGenres: () => of(['Pop', 'Rock', 'Jazz']),
-            // Agregamos propiedades de Observable en caso de que el componente
+            // Se agrega propiedades de Observable en caso de que el componente
             // se suscribiera a ellas en ngOnInit.
             songs$: of([]),
             artists$: of([]),
@@ -35,7 +33,7 @@ describe('FilterComponent', () => {
         component = fixture.componentInstance;
         musicService = TestBed.inject(MusicService);
 
-        // Se crea un spy para el método `emitFilters` para asegurarnos de que se llama
+        // Se crea un spy para el método `emitFilters` para asegurar que se llama
         // cuando la lógica de `onGenreChange` ha terminado.
         emitFiltersSpy = spyOn(component as any, 'emitFilters');
 
