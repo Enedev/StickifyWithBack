@@ -79,101 +79,109 @@ export class SignUpComponent {
   }
 
   async onRegistry(): Promise<void> {
-    if (this.registryForm.invalid) {
-      await Swal.fire({
-        title: "Error",
-        text: "Por favor complete todos los campos correctamente",
-        icon: "error",
-        color: "#716add",
-        backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-      });
+  console.log('[Métrica cualitativa] Inicio de flujo de registro');
+
+  const startTime = performance.now();
+
+  if (this.registryForm.invalid) {
+    await Swal.fire({
+      title: "Error",
+      text: "Por favor complete todos los campos correctamente",
+      icon: "error",
+      color: "#716add",
+      backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+    });
+    return;
+  }
+
+  const { username, email, password, repeatPassword } = this.registryForm.getRawValue();
+
+  console.log(`[Métrica cuantitativa] Longitud de username: ${username.length}, longitud de email: ${email.length}`);
+
+  if (password !== repeatPassword) {
+    console.log('[Métrica cualitativa] Error: contraseñas no coinciden');
+    await Swal.fire({
+      title: "Error",
+      text: "Las contraseñas no coinciden",
+      icon: "error",
+      color: "#716add",
+      backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+    });
+    return;
+  }
+
+  if (!this.isPremium) {
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No has activado el modo Premium. ¿Quieres registrarte sin acceso a las funciones Premium?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Sí, registrarme sin Premium",
+      cancelButtonText: "Cancelar",
+      color: "#716add",
+      backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+    });
+
+    if (!result.isConfirmed) {
       return;
     }
+  }
 
-    const { username, email, password, repeatPassword } = this.registryForm.getRawValue();
+  const userData: User = {
+    username,
+    email,
+    password,
+    premium: this.isPremium
+  };
 
-    if (password !== repeatPassword) {
-      await Swal.fire({
-        title: "Error",
-        text: "Las contraseñas no coinciden",
-        icon: "error",
-        color: "#716add",
-        backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-      });
-      return;
-    }
+  console.log('[Métrica cualitativa] Datos enviados al servicio (sin password):', { username, email, premium: this.isPremium });
 
-    if (!this.isPremium) {
-      const result = await Swal.fire({
-        title: "¿Estás seguro?",
-        text: "No has activado el modo Premium. ¿Quieres registrarte sin acceso a las funciones Premium?",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Sí, registrarme sin Premium",
-        cancelButtonText: "Cancelar",
-        color: "#716add",
-        backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-      });
+  this.authService.signUp(userData).subscribe({
+    next: async (success) => {
+      const duration = performance.now() - startTime;
+      console.log(`[Métrica cuantitativa] Tiempo total de registro: ${duration.toFixed(2)} ms`);
 
-      if (!result.isConfirmed) {
-        return;
-      }
-    }
-
-    const userData: User = {
-      username,
-      email,
-      password,
-      premium: this.isPremium
-    };
-
-    this.authService.signUp(userData).subscribe({
-      next: async (success) => {
-        if (success) {
-          await Swal.fire({
-            title: "Éxito",
-            text: `Registro exitoso! ${this.isPremium ? 'Eres usuario Premium.' : ''} Redirigiendo...`,
-            icon: "success",
-            color: "#716add",
-            backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-          });
-          this.router.navigate(['/log-in']);
-        } else {
-          // This else block might be hit if the service's catchError emits 'false'
-          // This generic message covers cases not specifically caught by HTTP error.
-          await Swal.fire({
-            title: "Error",
-            text: "Error en el registro. Por favor intente nuevamente.",
-            icon: "error",
-            color: "#716add",
-            backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-          });
-        }
-      },
-      error: async (err) => {
-        // Handle specific HTTP errors from the backend
-        console.error('Sign-up component error:', err);
-        let errorMessage = "Error en el registro. Por favor intente nuevamente.";
-
-        // Check if the error object has a detail property (from BadRequestException)
-        if (err.error && err.error.detail) {
-          errorMessage = err.error.detail;
-          // You can add more specific error checks if your backend sends specific codes
-          if (err.status === 400 && err.error.code === '23505') { // Example: PostgreSQL unique violation code
-            errorMessage = "Este correo electrónico ya está registrado.";
-          }
-        } else if (err.message) {
-            errorMessage = err.message;
-        }
-
+      if (success) {
+        console.log('[Métrica cualitativa] Registro exitoso');
+        await Swal.fire({
+          title: "Éxito",
+          text: `Registro exitoso! ${this.isPremium ? 'Eres usuario Premium.' : ''} Redirigiendo...`,
+          icon: "success",
+          color: "#716add",
+          backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+        });
+        this.router.navigate(['/log-in']);
+      } else {
         await Swal.fire({
           title: "Error",
-          text: errorMessage,
+          text: "Error en el registro. Por favor intente nuevamente.",
           icon: "error",
           color: "#716add",
           backdrop: `rgba(0,0,123,0.4) left top no-repeat`
         });
       }
-    });
-  }
+    },
+    error: async (err) => {
+      console.error('Sign-up component error:', err);
+
+      let errorMessage = "Error en el registro. Por favor intente nuevamente.";
+      if (err.error && err.error.detail) {
+        errorMessage = err.error.detail;
+        if (err.status === 400 && err.error.code === '23505') {
+          errorMessage = "Este correo electrónico ya está registrado.";
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+
+      await Swal.fire({
+        title: "Error",
+        text: errorMessage,
+        icon: "error",
+        color: "#716add",
+        backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+      });
+    }
+  });
+}
 }
