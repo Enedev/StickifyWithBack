@@ -34,14 +34,13 @@ export class AuthService {
     }
     
     signUp(signUpDto: SignUpDto): Promise<LoginResponse> {
-        // Ensure that the 'username' from signUpDto is passed correctly to userService.create
         return this.userService.create({
-            username: signUpDto.username!, // Assuming username is provided in signUpDto
+            username: signUpDto.username!, 
             email: signUpDto.email,
             password: signUpDto.password!,
-            premium: signUpDto.premium || false, // Pass premium status
-            followers: [], // Initialize
-            following: []  // Initialize
+            premium: signUpDto.premium || false,
+            followers: [], 
+            following: []  
         });
     }
 }
