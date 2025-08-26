@@ -51,7 +51,9 @@ export class PlaylistComponent implements OnInit {
       this.saveAutoPlaylistsToSupabaseInitially();
     });
   }
-
+  reloadPage() {
+    window.location.reload();
+  }
   get userPlaylistsFilteredForDisplay(): Playlist[] {
     return this.userPlaylists;
   }
@@ -205,7 +207,7 @@ export class PlaylistComponent implements OnInit {
         this.savePlaylistToProfile(savedPlaylist, true);
         
         this.closeModal();
-        window.location.reload();
+        this.reloadPage();
     } catch (err) {
         console.error('Error al guardar la playlist en el backend:', err);
         Swal.fire({
