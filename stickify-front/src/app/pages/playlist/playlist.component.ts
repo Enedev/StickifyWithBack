@@ -140,6 +140,7 @@ export class PlaylistComponent implements OnInit {
   }
 
   async createPlaylistAndSaveToSupabase() {
+    const startTime = performance.now(); // Cuantitativa: medir duración
     if (this.isSavingPlaylist) {
         return;
     }
@@ -207,6 +208,8 @@ export class PlaylistComponent implements OnInit {
         this.savePlaylistToProfile(savedPlaylist, true);
         
         this.closeModal();
+        const duration = performance.now() - startTime;
+        console.log(`[Métrica cuantitativa] Tiempo de creación de playlist: ${duration.toFixed(2)} ms`);
         this.reloadPage();
     } catch (err) {
         console.error('Error al guardar la playlist en el backend:', err);
