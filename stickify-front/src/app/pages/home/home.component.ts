@@ -91,6 +91,10 @@ export class HomeComponent implements OnInit {
   }
 
   onFilterChange(filters: any): void {
+    console.log('[Cualitativa] Filtros recibidos:', filters);
+
+    const startTime = performance.now(); // Cuantitativa: medir duración
+
     let filtered = this.allSongs.filter(song => {
       const yearMatch = !filters.year ||
         new Date(song.releaseDate).getFullYear().toString() === filters.year;
@@ -102,9 +106,20 @@ export class HomeComponent implements OnInit {
       return yearMatch && genreMatch && artistMatch;
     });
 
+    const duration = performance.now() - startTime;
+    console.log(`[Cuantitativa] Tiempo de filtrado: ${duration.toFixed(2)} ms`);
+    console.log(`[Cuantitativa] Total canciones filtradas: ${filtered.length}`);
+
+    // Cualitativa: análisis de filtros activos
+    if (filters.year) console.log(`[Cualitativa] Filtro por año activo: ${filters.year}`);
+    if (filters.genres.length > 0) console.log(`[Cualitativa] Filtro por géneros: ${filters.genres.join(', ')}`);
+    if (filters.artists.length > 0) console.log(`[Cualitativa] Filtro por artistas: ${filters.artists.join(', ')}`);
+
     this.filteredSongs = filtered;
     this.currentPage = 1;
     this.totalFilteredSongs = this.filteredSongs.length;
+
+    console.log('[Cualitativa] Página reiniciada a 1');
   }
 
   onSearchTermChanged(searchTerm: string): void {

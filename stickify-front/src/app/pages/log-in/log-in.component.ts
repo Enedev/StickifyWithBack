@@ -22,6 +22,10 @@ export class LogInComponent {
   });
 
   async onLogin(): Promise<void> {
+
+    console.log('[Métrica cualitativa] Intento de login iniciado');
+
+    const startTime = performance.now(); // Cuantitativa: medir duración
     if (this.loginForm.invalid) {
       await Swal.fire({
         title: "Error",
@@ -38,8 +42,13 @@ export class LogInComponent {
       password: this.loginForm.value.password!
     };
 
+    console.log('[Métrica cuantitativa] Credenciales capturadas:', credentials);
+
     this.authService.logIn(credentials).subscribe({
       next: async (success) => {
+
+        const duration = performance.now() - startTime;
+        console.log(`[Métrica cuantitativa] Tiempo de respuesta: ${duration.toFixed(2)} ms`);
         if (success) {
           await Swal.fire({
             title: "Éxito",
@@ -50,6 +59,7 @@ export class LogInComponent {
           });
           this.router.navigate(['/home']);
         } else {
+          console.log('[Métrica cualitativa] Login fallido: credenciales inválidas');
           // This else block might be hit if the service's catchError emits 'false'
           await Swal.fire({
             title: "Error",
@@ -61,14 +71,17 @@ export class LogInComponent {
         }
       },
       error: async (err) => {
+
+        const duration = performance.now() - startTime;
+        console.log(`[Métrica cuantitativa] Tiempo hasta error: ${duration.toFixed(2)} ms`);
         // Handle specific HTTP errors from the backend
         console.error('Login component error:', err);
         let errorMessage = "Error en el inicio de sesión. Por favor intente nuevamente.";
 
         if (err.status === 404 && err.error && err.error.detail === 'Invalid credentials') {
-            errorMessage = "Correo electrónico o contraseña incorrectos.";
+          errorMessage = "Correo electrónico o contraseña incorrectos.";
         } else if (err.message) {
-            errorMessage = err.message;
+          errorMessage = err.message;
         }
 
         await Swal.fire({
