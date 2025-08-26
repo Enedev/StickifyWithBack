@@ -46,7 +46,7 @@ console.assert(FilterComponent.emitFiltersCalled, 'emitFilters debería haberse 
 console.log('Test 1 completado');
 
 // --- Prueba 2: Eliminar género existente ---
-console.log('\n🧪 Test 2: Eliminar género existente');
+console.log('\nTest 2: Eliminar género existente');
 FilterComponent.reset();
 FilterComponent.selectedGenres = ['Pop', 'Rock', 'Jazz'];
 FilterComponent.onGenreChange('Rock', { target: { checked: false } });
