@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of, throwError } from 'rxjs';
 import Swal from 'sweetalert2';
-import { SignUpComponent } from './sign-up.component'; // Ajusta el nombre del componente según corresponda
+import { SignUpComponent } from './sign-up.component';
 import { AuthService } from '../../services/auth.service';
 
 describe('RegistryComponent', () => {
