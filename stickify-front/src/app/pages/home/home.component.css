@@ -44,7 +44,6 @@ main {
     border-radius: 0;
     box-shadow: none;
     padding: 2rem;
-    min-height: 100vh;
     grid-area: main;
     min-height: auto;
     box-shadow: 10px 0 10px 0 var(--deep-space);
