@@ -3,9 +3,6 @@ import { AuthService } from './auth.service';
 import { UsersService } from '../user/user.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
-import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
-import { NotFoundException } from '@nestjs/common';
 
 describe('AuthService - signUp', () => {
   let authService: AuthService;
