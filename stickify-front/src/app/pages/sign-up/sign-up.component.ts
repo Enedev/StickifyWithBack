@@ -137,22 +137,23 @@ export class SignUpComponent {
   console.log('[Métrica cualitativa] Datos enviados al servicio (sin password):', { username, email, premium: this.isPremium });
 
   this.authService.signUp(userData).subscribe({
-    next: async (success) => {
+    next:  (success) => {
       const duration = performance.now() - startTime;
       console.log(`[Métrica cuantitativa] Tiempo total de registro: ${duration.toFixed(2)} ms`);
 
       if (success) {
         console.log('[Métrica cualitativa] Registro exitoso');
-        await Swal.fire({
+         Swal.fire({
           title: "Éxito",
           text: `Registro exitoso! ${this.isPremium ? 'Eres usuario Premium.' : ''} Redirigiendo...`,
           icon: "success",
           color: "#716add",
           backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-        });
-        this.router.navigate(['/log-in']);
+        }).then(() => {
+            this.router.navigate(['/log-in']);
+      });
       } else {
-        await Swal.fire({
+         Swal.fire({
           title: "Error",
           text: "Error en el registro. Por favor intente nuevamente.",
           icon: "error",
@@ -161,7 +162,7 @@ export class SignUpComponent {
         });
       }
     },
-    error: async (err) => {
+    error:  (err) => {
       console.error('Sign-up component error:', err);
 
       let errorMessage = "Error en el registro. Por favor intente nuevamente.";
@@ -174,7 +175,7 @@ export class SignUpComponent {
         errorMessage = err.message;
       }
 
-      await Swal.fire({
+       Swal.fire({
         title: "Error",
         text: errorMessage,
         icon: "error",
