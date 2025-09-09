@@ -1,8 +1,7 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Query, InternalServerErrorException, ConflictException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, Query, InternalServerErrorException, ConflictException } from '@nestjs/common';
 import { SongsService } from './songs.service';
 import { CreateSongDto } from './dto/create-song.dto';
 import { UpdateSongDto } from './dto/update-song.dto';
-import { AuthGuard } from '../auth/auth.guard';
 import { Song } from './entities/song.entity';
 
 @Controller('songs')
