@@ -45,23 +45,24 @@ export class LogInComponent {
     console.log('[Métrica cualitativa] Credenciales capturadas:', credentials);
 
     this.authService.logIn(credentials).subscribe({
-      next: async (success) => {
+      next: (success) => {
 
         const duration = performance.now() - startTime;
         console.log(`[Métrica cuantitativa] Tiempo de respuesta: ${duration.toFixed(2)} ms`);
         if (success) {
-          await Swal.fire({
+           Swal.fire({
             title: "Éxito",
             text: "Inicio de sesión exitoso!",
             icon: "success",
             color: "#716add",
             backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-          });
-          this.router.navigate(['/home']);
+          }).then(() => {
+            this.router.navigate(['/home']);
+      });
         } else {
           console.log('[Métrica cualitativa] Login fallido: credenciales inválidas');
           // This else block might be hit if the service's catchError emits 'false'
-          await Swal.fire({
+           Swal.fire({
             title: "Error",
             text: "Credenciales inválidas. Por favor verifique su correo y contraseña.",
             icon: "error",
@@ -70,7 +71,7 @@ export class LogInComponent {
           });
         }
       },
-      error: async (err) => {
+      error: (err) => {
 
         const duration = performance.now() - startTime;
         console.log(`[Métrica cuantitativa] Tiempo hasta error: ${duration.toFixed(2)} ms`);
@@ -84,7 +85,7 @@ export class LogInComponent {
           errorMessage = err.message;
         }
 
-        await Swal.fire({
+         Swal.fire({
           title: "Error",
           text: errorMessage,
           icon: "error",
