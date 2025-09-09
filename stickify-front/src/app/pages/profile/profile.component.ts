@@ -213,10 +213,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
       if (result.isConfirmed) {
         this.authService.updateUserPremiumStatus(this.currentUser.email, false).subscribe({
-          next: async (success) => {
+          next: (success) => {
             if (success) {
               this.currentUser!.premium = false;
-              await Swal.fire({
+               Swal.fire({
                 title: "¡Suscripción cancelada!",
                 text: "Tu suscripción Premium ha sido cancelada correctamente.",
                 icon: "success",
@@ -224,7 +224,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
                 backdrop: `rgba(0,0,123,0.4) left top no-repeat`
               });
             } else {
-              await Swal.fire({
+               Swal.fire({
                 title: "Error",
                 text: "No se pudo cancelar el estado Premium. Intenta de nuevo.",
                 icon: "error",
@@ -233,9 +233,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
               });
             }
           },
-          error: async (err) => {
+          error: (err) => {
             console.error('Error canceling premium status:', err);
-            await Swal.fire({
+            Swal.fire({
               title: "Error",
               text: "Hubo un problema al cancelar el estado Premium. Por favor, inténtalo de nuevo.",
               icon: "error",
@@ -260,10 +260,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
     if (isConfirmed) {
       this.authService.updateUserPremiumStatus(this.currentUser.email, true).subscribe({
-        next: async (success) => {
+        next:  (success) => {
           if (success) {
             this.currentUser!.premium = true;
-            await Swal.fire({
+             Swal.fire({
               title: "¡Premium activado!",
               text: "¡Ahora eres usuario Premium y tienes acceso a todas las funciones!",
               icon: "success",
@@ -271,7 +271,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
               backdrop: `rgba(0,0,123,0.4) left top no-repeat`
             });
           } else {
-            await Swal.fire({
+             Swal.fire({
               title: "Error",
               text: "Hubo un problema al activar tu suscripción Premium. Intenta de nuevo.",
               icon: "error",
@@ -280,9 +280,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
             });
           }
         },
-        error: async (err) => {
+        error: (err) => {
           console.error('Error activating premium status:', err);
-          await Swal.fire({
+           Swal.fire({
             title: "Error",
             text: "Hubo un problema al activar tu suscripción Premium. Por favor, inténtalo de nuevo.",
             icon: "error",
@@ -292,7 +292,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      await Swal.fire({
+       Swal.fire({
         title: "Pago cancelado",
         text: "Puedes intentar activar Premium en cualquier momento.",
         icon: "info",

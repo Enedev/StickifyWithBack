@@ -17,9 +17,9 @@ export class PremiumPaymentComponent {
 
   @Output() closeModal = new EventEmitter<boolean>();
 
-  submitPayment(): void {
+  async submitPayment(): Promise<void> {
     if (this.cardNumber && this.expiryDate && this.cvv && this.cardHolder) {
-      Swal.fire({
+       await Swal.fire({
         title: "¡Pago exitoso!",
         text: "Ahora eres usuario Premium",
         icon: "success",
@@ -28,7 +28,7 @@ export class PremiumPaymentComponent {
       });
       this.closeModal.emit(true);
     } else {
-      Swal.fire({
+      await Swal.fire({
         title: "Error",
         text: "Por favor complete todos los campos de pago",
         icon: "error",
