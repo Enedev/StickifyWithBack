@@ -40,8 +40,6 @@ describe('AuthService', () => {
     }).compile();
 
     authService = module.get<AuthService>(AuthService);
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
-    userService = module.get<UsersService>(UsersService);
   });
 
   it('should return token and user data if credentials are valid', async () => {
