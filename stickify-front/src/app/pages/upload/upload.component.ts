@@ -95,20 +95,19 @@ export class UploadComponent implements OnInit { // Implement OnInit
 
       // MODIFIED: Use musicService.addSong instead of songApiService.createSong
       this.musicService.addSong(songToUpload).subscribe({
-        next: async (responseSong) => {
-          await this.showAlert(
+        next: (responseSong) => {
+           this.showAlert(
             'success',
             'Éxito',
             `Canción "${responseSong.trackName}" subida y guardada correctamente`
-          );
-          // The MusicService.addSong already triggers a re-fetch of all songs,
-          // so navigating to home will show the updated, sorted list.
+          ).then(() => {
           this.router.navigate(['/home']);
+        });
         },
-        error: async (err) => {
+        error: (err) => {
           console.error('Error al subir canción al backend:', err);
           const errorMsg = err.error?.message || 'Ocurrió un error al guardar la canción en el servidor.';
-          await this.showAlert('error', 'Error', errorMsg);
+           this.showAlert('error', 'Error', errorMsg);
         },
         complete: () => {
           this.closeCurrentAlert();
