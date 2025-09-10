@@ -1,6 +1,5 @@
 // src/user-saved-playlists/entities/user-saved-playlist.entity.ts
 import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Playlist } from '../../playlists/entities/playlist.entity'; // Ajusta la ruta si es necesario
 import { User } from '../../user/entities/user.entity'; // Asume que tienes una entidad User
 
 @Entity('user_saved_playlists')

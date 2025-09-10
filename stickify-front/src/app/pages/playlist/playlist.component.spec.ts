@@ -5,7 +5,7 @@ import { PlaylistService } from '../../services/playlist.service';
 import { PlaylistApiService } from '../../services/playlist-api.service';
 import { AuthService } from '../../services/auth.service';
 import { ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { Song } from '../../shared/interfaces/song.interface';
 import { Playlist } from '../../shared/interfaces/playlist.interface';
 

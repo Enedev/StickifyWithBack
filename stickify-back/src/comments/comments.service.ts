@@ -10,7 +10,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 export class CommentsService {
   constructor(
     @InjectRepository(Comment)
-    private commentsRepository: Repository<Comment>,
+    private readonly commentsRepository: Repository<Comment>,
   ) {}
 
   create(createCommentDto: CreateCommentDto): Promise<Comment> {

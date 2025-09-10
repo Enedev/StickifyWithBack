@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 })
 export class PlaylistService {
   private authService = inject(AuthService);
-  private playlistApiService = inject(PlaylistApiService);
+  private readonly playlistApiService = inject(PlaylistApiService);
   
   getUserPlaylists(): Playlist[] {
     const currentUser = this.authService.currentUser;

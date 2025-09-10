@@ -12,15 +12,15 @@ import * as bcrypt from 'bcrypt';
 export class AuthService {
 
     constructor(
-        @InjectRepository(User) private userRepository: Repository<User>,
-        private userService: UsersService
+        @InjectRepository(User) private readonly userRepository: Repository<User>,
+        private readonly userService: UsersService
     ) { }
 
     async login(loginDto: LoginDto) {
         const user = await this.userRepository.findOneBy({ email: loginDto.email }); 
         if (user) {
             const isValidUser = bcrypt.compareSync(loginDto.password, user.password);
-            if (!!isValidUser) {
+            if (isValidUser) {
                 // Exclude password from the user object sent to the frontend
                 const { password, ...userWithoutPassword } = user; 
                 return {
@@ -35,7 +35,7 @@ export class AuthService {
     
     signUp(signUpDto: SignUpDto): Promise<LoginResponse> {
         return this.userService.create({
-            username: signUpDto.username!, 
+            username: signUpDto.username, 
             email: signUpDto.email,
             password: signUpDto.password!,
             premium: signUpDto.premium || false,

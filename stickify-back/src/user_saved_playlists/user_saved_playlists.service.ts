@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, ConflictException, Logger, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull, In, Like } from 'typeorm'; // Import IsNull if you need it
+import { Repository, In } from 'typeorm'; // Import IsNull if you need it
 import { UserSavedPlaylist } from './entities/user_saved_playlist.entity';
 import { Playlist } from '../playlists/entities/playlist.entity';
 import { User } from '../user/entities/user.entity';

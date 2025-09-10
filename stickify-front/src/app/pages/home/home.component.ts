@@ -44,8 +44,8 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private musicService: MusicService,
-    private ratingService: RatingService,
-    private commentService: CommentService
+    private readonly ratingService: RatingService,
+    private readonly commentService: CommentService
   ) {}
   private authService = inject(AuthService);
 

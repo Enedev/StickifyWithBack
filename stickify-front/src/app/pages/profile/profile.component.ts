@@ -44,7 +44,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private songsSubscription: Subscription | undefined;
   private usersSubscription: Subscription | undefined;
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   ngOnInit(): void {
     this.loadUserData();

@@ -23,7 +23,7 @@ import { UserSavedPlaylist } from '../../shared/interfaces/user-saved-playlist.i
 export class PlaylistComponent implements OnInit {
   private musicService = inject(MusicService);
   private playlistService = inject(PlaylistService);
-  private playlistApiService = inject(PlaylistApiService);
+  private readonly playlistApiService = inject(PlaylistApiService);
   private authService = inject(AuthService);
 
   userPlaylists: Playlist[] = []; // This will now represent playlists created by the user, and saved playlists for display

@@ -4,7 +4,6 @@ import { Song } from '../shared/interfaces/song.interface';
 import { RatedSong } from '../shared/interfaces/rated-song.interface';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { createClient } from '@supabase/supabase-js';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +15,7 @@ export class RatingService {
   public userRatings$ = this.userRatingsSubject.asObservable();
   public topRatedSongs$ = this.topRatedSongsSubject.asObservable();
 
-  private apiUrl = environment.backendUrl; // ej: http://localhost:3000
+  private readonly apiUrl = environment.backendUrl; // ej: http://localhost:3000
 
   constructor(private http: HttpClient) {
     this.loadRatings();
