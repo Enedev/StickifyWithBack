@@ -72,9 +72,11 @@ export class FilterComponent implements OnInit, OnDestroy {
 
     const startTime = performance.now(); // Cuantitativa: medir duración
 
-    event.target.checked ?
-      this.selectedGenres.push(genre) :
+    if (event.target.checked) {
+      this.selectedGenres.push(genre);
+    } else {
       this.selectedGenres = this.selectedGenres.filter(g => g !== genre);
+    }
 
     this.emitFilters();
 
@@ -90,9 +92,11 @@ export class FilterComponent implements OnInit, OnDestroy {
   }
 
   onArtistChange(artist: string, event: any) {
-    event.target.checked ?
-      this.selectedArtists.push(artist) :
+    if (event.target.checked) {
+      this.selectedArtists.push(artist);
+    } else {
       this.selectedArtists = this.selectedArtists.filter(a => a !== artist);
+    }
     this.emitFilters();
   }
 

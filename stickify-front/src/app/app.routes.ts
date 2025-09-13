@@ -3,7 +3,7 @@ import { WelcomeComponent } from './pages/welcome/welcome.component';
 import { SignUpComponent } from './pages/sign-up/sign-up.component';
 import { LogInComponent } from './pages/log-in/log-in.component';
 import { HomeComponent } from './pages/home/home.component';
-import { authGuard } from './shared/guards/auth.guard';
+import { AuthGuard } from './shared/guards/auth.guard';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { PlaylistComponent } from './pages/playlist/playlist.component';
 import { UploadComponent } from './pages/upload/upload.component';
@@ -27,36 +27,36 @@ export const routes: Routes = [
     {
         path: 'home',
         component: HomeComponent,
-        canActivate: [authGuard]
+        canActivate: [AuthGuard]
     },
     {
         path: 'playlist',
         component: PlaylistComponent,
-        canActivate: [authGuard]
+        canActivate: [AuthGuard]
 
     },
     {
         path: 'profile',
         component: ProfileComponent,
-        canActivate: [authGuard]
+        canActivate: [AuthGuard]
 
     },
     {
         path: 'upload',
         component: UploadComponent,
-        canActivate: [authGuard]
+        canActivate: [AuthGuard]
 
     },
     {
         path: 'user-follows',
         component: UserFollowsComponent,
-        canActivate: [authGuard]
+        canActivate: [AuthGuard]
 
     },
     {
         path: 'authors',
         component: AuthorsComponent,
-        canActivate: [authGuard]
+        canActivate: [AuthGuard]
 
     },
     {

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, shareReplay, tap, catchError, switchMap } from 'rxjs/operators';
-import { BehaviorSubject, Observable, of, forkJoin, throwError } from 'rxjs';
+import { map, tap, catchError, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { Song } from '../shared/interfaces/song.interface';
 import { environment } from '../../environments/environment';
 

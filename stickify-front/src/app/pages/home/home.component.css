@@ -24,10 +24,6 @@ app-header {
     grid-area: header;
 }
 
-main {
-    grid-area: main;
-}
-
 app-aside {
     background: linear-gradient(
     270deg,
@@ -42,7 +38,6 @@ app-aside {
 main {
     background: var(--deep-space);
     border-radius: 0;
-    box-shadow: none;
     padding: 2rem;
     grid-area: main;
     min-height: auto;

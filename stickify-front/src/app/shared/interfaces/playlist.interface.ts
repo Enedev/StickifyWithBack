@@ -5,5 +5,5 @@ export interface Playlist {
   cover?: string;
   type: 'user' | 'auto';
   createdAt: Date;
-  createdBy?: string | null | undefined; // Add this property
+  createdBy?: string | null
 }

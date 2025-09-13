@@ -99,7 +99,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
     forkJoin({
       // MODIFIED: Directly fetch full Playlist objects from the backend's /user/:userId/full endpoint
-      playlists: this.playlistApiService.getUserSavedPlaylists(userId!),
+      playlists: this.playlistApiService.getUserSavedPlaylists(userId),
       ratings: this.http.get<BackendSongRating[]>(`${environment.backendUrl}/ratings/user/${userName}`),
       comments: this.http.get<BackendComment[]>(`${environment.backendUrl}/comments/user/${userName}`)
     }).subscribe({

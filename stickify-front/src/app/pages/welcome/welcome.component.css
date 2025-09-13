@@ -67,7 +67,6 @@ main.hero {
 section.features {
     display: flex;
     justify-content: space-around;
-    padding: 40px 20px;
     background: var(--void);
     padding: 4rem 2rem;
     border-top: 3px solid var(--galaxy-core);
@@ -91,7 +90,6 @@ section.features {
 
 .features .feature img {
     width: 200px;
-    margin-bottom: 20px;
     filter: drop-shadow(0 0 15px var(--quantum-glow));
     margin-bottom: 1.5rem;
 }

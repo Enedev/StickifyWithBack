@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, inject } from '@angular/core';
+import { Component, Output, EventEmitter, inject } from '@angular/core';
 import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { FilterComponent } from '../filter/filter.component';

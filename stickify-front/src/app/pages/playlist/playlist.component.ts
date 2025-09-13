@@ -11,7 +11,6 @@ import { AuthService } from '../../services/auth.service';
 import { User } from '../../shared/interfaces/user.interface';
 import { PlaylistApiService } from '../../services/playlist-api.service';
 import { v4 as uuidv4 } from 'uuid';
-import { UserSavedPlaylist } from '../../shared/interfaces/user-saved-playlist.interface'; // Keep this import for clarity, though its ID is not directly passed to saveUserPlaylist anymore
 
 @Component({
   selector: 'app-playlist',
