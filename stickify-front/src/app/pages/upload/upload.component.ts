@@ -8,7 +8,6 @@ import { Song } from '../../shared/interfaces/song.interface';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../services/auth.service'; // Import AuthService
 import { User } from '../../shared/interfaces/user.interface'; // Import User interface
-import { SongApiService } from '../../services/song-api.service';
 import { v4 as uuidv4 } from 'uuid';
 
 @Component({
@@ -25,10 +24,9 @@ export class UploadComponent implements OnInit { // Implement OnInit
   @ViewChild('primaryGenreName') primaryGenreNameInput!: ElementRef;
   @ViewChild('artworkFile') artworkFileInput!: ElementRef;
 
-  private musicService = inject(MusicService);
-  private router = inject(Router);
-  private authService = inject(AuthService); // Inject AuthService
-  private songApiService = inject(SongApiService);
+  private readonly musicService = inject(MusicService);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService); // Inject AuthService
   private currentSwal: any;
   private readonly MAX_IMAGE_SIZE_MB = 3;
   previewImage: string | ArrayBuffer | null = null;

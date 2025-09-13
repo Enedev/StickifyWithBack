@@ -15,9 +15,9 @@ import { User } from '../../shared/interfaces/user.interface'; // Import User in
   styleUrl: './sign-up.component.css'
 })
 export class SignUpComponent {
-  private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
-  private router = inject(Router);
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   isPremium = false;
   showPremiumModal = false;

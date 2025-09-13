@@ -12,9 +12,9 @@ import { User } from '../../shared/interfaces/user.interface'; // Import User in
   styleUrl: './log-in.component.css'
 })
 export class LogInComponent {
-  private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
-  private router = inject(Router);
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],

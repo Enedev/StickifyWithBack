@@ -15,7 +15,7 @@ export class SongCardComponent {
   @Input() averageRating: number = 0;
   @Output() songSelected = new EventEmitter<Song>();
 
-  constructor(private sanitizer: DomSanitizer) {}
+  constructor(private readonly sanitizer: DomSanitizer) {}
 
   getStarArray(): string[] {
     const fullStars = Math.floor(this.averageRating);

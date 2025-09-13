@@ -15,7 +15,7 @@ export class AsideComponent implements OnInit, OnDestroy {
   topRatedSongs: RatedSong[] = [];
   private topRatedSubscription: Subscription | null = null;
 
-  constructor(private ratingService: RatingService) {}
+  constructor(private readonly ratingService: RatingService) {}
 
   ngOnInit(): void {
     this.subscribeToTopRatedSongs();

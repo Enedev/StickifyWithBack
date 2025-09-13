@@ -21,10 +21,10 @@ import { UserSavedPlaylist } from '../../shared/interfaces/user-saved-playlist.i
   styleUrls: ['./playlist.component.css']
 })
 export class PlaylistComponent implements OnInit {
-  private musicService = inject(MusicService);
-  private playlistService = inject(PlaylistService);
+  private readonly musicService = inject(MusicService);
+  private readonly playlistService = inject(PlaylistService);
   private readonly playlistApiService = inject(PlaylistApiService);
-  private authService = inject(AuthService);
+  private readonly authService = inject(AuthService);
 
   userPlaylists: Playlist[] = []; // This will now represent playlists created by the user, and saved playlists for display
   autoPlaylists: Playlist[] = [];
@@ -35,7 +35,7 @@ export class PlaylistComponent implements OnInit {
   currentUser: User | null = null;
   isSavingPlaylist: boolean = false;
 
-  private savedPlaylistIds: Set<string> = new Set(); // Stores IDs of playlists the user has saved
+  private readonly savedPlaylistIds: Set<string> = new Set(); // Stores IDs of playlists the user has saved
 
   ngOnInit() {
     this.currentUser = this.authService.currentUser;

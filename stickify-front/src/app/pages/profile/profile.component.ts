@@ -26,16 +26,16 @@ import { PlaylistApiService } from '../../services/playlist-api.service';
   styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent implements OnInit, OnDestroy {
-  private authService = inject(AuthService);
-  private musicService = inject(MusicService);
-  private playlistApiService = inject(PlaylistApiService);
+  private readonly authService = inject(AuthService);
+  private readonly musicService = inject(MusicService);
+  private readonly playlistApiService = inject(PlaylistApiService);
   currentUser: User | null = null;
   savedPlaylists: Playlist[] = []; // This will directly receive the full Playlist objects
   userRatings: UserRating[] = [];
   userComments: UserComment[] = [];
   allSongs: Song[] = [];
   showPremiumModal: boolean = false;
-  private allUsersMap: Map<string, string> = new Map();
+  private readonly allUsersMap: Map<string, string> = new Map();
   followersCount: number = 0;
   followingCount: number = 0;
   latestFollowersNames: string[] = [];

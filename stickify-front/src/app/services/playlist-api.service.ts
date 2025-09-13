@@ -8,10 +8,10 @@ import { UserSavedPlaylist } from '../shared/interfaces/user-saved-playlist.inte
   providedIn: 'root'
 })
 export class PlaylistApiService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
-  private baseUrl = 'http://localhost:3000/api/playlists';
-  private userSavedPlaylistsUrl = 'http://localhost:3000/api/user-saved-playlists';
+  private readonly baseUrl = 'http://localhost:3000/api/playlists';
+  private readonly userSavedPlaylistsUrl = 'http://localhost:3000/api/user-saved-playlists';
 
   createPlaylist(playlist: Playlist): Observable<Playlist> {
     return this.http.post<Playlist>(this.baseUrl, playlist);

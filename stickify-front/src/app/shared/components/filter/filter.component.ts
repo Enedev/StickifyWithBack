@@ -21,7 +21,7 @@ export class FilterComponent implements OnInit, OnDestroy {
   private artistsSubscription: Subscription | undefined;
   private activeFilter: string | null = null;
 
-  constructor(private musicService: MusicService, private el: ElementRef) { }
+  constructor(private readonly musicService: MusicService, private readonly el: ElementRef) { }
 
   ngOnInit(): void {
     this.genresSubscription = this.musicService.genres$.subscribe((updatedGenres: string[]) => {

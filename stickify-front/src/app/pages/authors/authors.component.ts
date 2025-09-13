@@ -14,7 +14,7 @@ import { Subscription } from 'rxjs';
 export class AuthorsComponent implements OnInit, OnDestroy {
   authors: string[] = [];
   private artistsSubscription: Subscription | undefined;
-  private musicService = inject(MusicService);
+  private readonly musicService = inject(MusicService);
 
   // Initialize component by subscribing to artists data
   ngOnInit(): void {

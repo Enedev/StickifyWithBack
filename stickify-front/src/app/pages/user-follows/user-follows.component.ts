@@ -15,7 +15,7 @@ import { Subscription } from 'rxjs'; // Import Subscription
   styleUrls: ['./user-follows.component.css']
 })
 export class UserFollowsComponent implements OnInit, OnDestroy {
-  private authService = inject(AuthService);
+  private readonly authService = inject(AuthService);
 
   searchTerm: string = '';
   allUsers: User[] = [];

@@ -13,7 +13,7 @@ export class AuthService {
   private readonly CURRENT_USER_KEY = 'currentUser';
   private readonly TOKEN_KEY = 'authToken';
 
-  constructor(private router: Router, private http: HttpClient) {
+  constructor(private readonly router: Router, private readonly http: HttpClient) {
     // Initialize currentUser from localStorage on service load
     this.currentUser = localStorage.getItem(this.CURRENT_USER_KEY)
       ? JSON.parse(localStorage.getItem(this.CURRENT_USER_KEY)!)

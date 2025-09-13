@@ -34,8 +34,8 @@ export class SongModalComponent implements OnInit, OnChanges {
   }
 
   constructor(
-    private ratingService: RatingService,
-    private authService: AuthService
+    private readonly ratingService: RatingService,
+    private readonly authService: AuthService
   ) {}
 
   ngOnInit(): void {

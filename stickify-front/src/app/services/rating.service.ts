@@ -9,15 +9,15 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class RatingService {
-  private userRatingsSubject = new BehaviorSubject<{ [trackId: number]: { [userId: string]: number } }>({});
-  private topRatedSongsSubject = new BehaviorSubject<RatedSong[]>([]);
+  private readonly userRatingsSubject = new BehaviorSubject<{ [trackId: number]: { [userId: string]: number } }>({});
+  private readonly topRatedSongsSubject = new BehaviorSubject<RatedSong[]>([]);
 
   public userRatings$ = this.userRatingsSubject.asObservable();
   public topRatedSongs$ = this.topRatedSongsSubject.asObservable();
 
   private readonly apiUrl = environment.backendUrl; // ej: http://localhost:3000
 
-  constructor(private http: HttpClient) {
+  constructor(private readonly http: HttpClient) {
     this.loadRatings();
   }
 

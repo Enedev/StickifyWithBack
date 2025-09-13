@@ -9,12 +9,12 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class CommentService {
-  private commentsMapSubject = new BehaviorSubject<{ [trackId: number]: Comment[] }>({});
+  private readonly commentsMapSubject = new BehaviorSubject<{ [trackId: number]: Comment[] }>({});
   public commentsMap$ = this.commentsMapSubject.asObservable();
 
-  private apiUrl = environment.backendUrl; // e.g. http://localhost:3000
+  private readonly apiUrl = environment.backendUrl; // e.g. http://localhost:3000
 
-  constructor(private http: HttpClient) {
+  constructor(private readonly http: HttpClient) {
     this.loadComments();
   }
 

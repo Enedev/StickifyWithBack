@@ -7,8 +7,8 @@ import { Song } from '../shared/interfaces/song.interface';
   providedIn: 'root'
 })
 export class SongApiService {
-  private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:3000/api/songs';
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = 'http://localhost:3000/api/songs';
 
   constructor() { }
 

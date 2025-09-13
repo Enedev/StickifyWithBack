@@ -9,17 +9,17 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class MusicService {
-  private apiUrl = 'https://itunes.apple.com';
-  private songsSubject = new BehaviorSubject<Song[]>([]);
+  private readonly apiUrl = 'https://itunes.apple.com';
+  private readonly songsSubject = new BehaviorSubject<Song[]>([]);
   public songs$ = this.songsSubject.asObservable();
 
-  private allGenresSubject = new BehaviorSubject<string[]>([]);
+  private readonly allGenresSubject = new BehaviorSubject<string[]>([]);
   public genres$ = this.allGenresSubject.asObservable();
   
-  private allArtistsSubject = new BehaviorSubject<string[]>([]);
+  private readonly allArtistsSubject = new BehaviorSubject<string[]>([]);
   public artists$ = this.allArtistsSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(private readonly http: HttpClient) {
     this.loadAllSongs();
   }
 

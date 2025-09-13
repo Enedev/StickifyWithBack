@@ -43,11 +43,11 @@ export class HomeComponent implements OnInit {
   totalFilteredSongs: number = 0;
 
   constructor(
-    private musicService: MusicService,
+    private readonly musicService: MusicService,
     private readonly ratingService: RatingService,
     private readonly commentService: CommentService
   ) {}
-  private authService = inject(AuthService);
+  private readonly authService = inject(AuthService);
 
   ngOnInit(): void {
     this.loadSongs();

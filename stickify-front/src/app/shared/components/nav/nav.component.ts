@@ -15,7 +15,7 @@ export class NavComponent {
   @Output() filterChanged = new EventEmitter<any>();
   isHomePage: boolean = false;
   public authService: AuthService;
-  private router: Router;
+  private readonly router: Router;
 
   constructor() {
     const startTime = performance.now(); // Cuantitativa: inicio de medición
