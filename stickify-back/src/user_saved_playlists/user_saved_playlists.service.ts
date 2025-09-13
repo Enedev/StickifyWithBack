@@ -12,11 +12,11 @@ export class UserSavedPlaylistsService {
 
   constructor(
     @InjectRepository(UserSavedPlaylist)
-    private userSavedPlaylistRepository: Repository<UserSavedPlaylist>,
+    private readonly userSavedPlaylistRepository: Repository<UserSavedPlaylist>,
     @InjectRepository(Playlist)
-    private playlistRepository: Repository<Playlist>,
+    private readonly playlistRepository: Repository<Playlist>,
     @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private readonly userRepository: Repository<User>,
   ) { }
 
   async savePlaylist(userId: string, playlistIdentifier: string): Promise<UserSavedPlaylist> {

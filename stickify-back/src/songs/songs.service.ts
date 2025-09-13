@@ -8,7 +8,7 @@ import { CreateSongDto } from './dto/create-song.dto'; // Import your DTO
 export class SongsService {
   constructor(
     @InjectRepository(Song)
-    private songsRepository: Repository<Song>,
+    private readonly songsRepository: Repository<Song>,
   ) {}
 
   async create(createSongDto: CreateSongDto): Promise<Song | null> { // Use CreateSongDto here

@@ -9,7 +9,7 @@ import { UpdatePlaylistDto } from './dto/update-playlist.dto';
 export class PlaylistsService {
   constructor(
     @InjectRepository(Playlist)
-    private playlistsRepository: Repository<Playlist>,
+    private readonly playlistsRepository: Repository<Playlist>,
   ) {}
 
   create(createPlaylistDto: CreatePlaylistDto): Promise<Playlist> {

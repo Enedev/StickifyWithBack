@@ -9,7 +9,7 @@ import { CreateRatingDto } from './dto/create-song-rating.dto';
 export class RatingsService {
   constructor(
     @InjectRepository(SongRating)
-    private ratingsRepository: Repository<SongRating>,
+    private readonly ratingsRepository: Repository<SongRating>,
   ) {}
 
   async upsert(createRatingDto: CreateRatingDto): Promise<SongRating> {
