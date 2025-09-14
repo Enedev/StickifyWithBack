@@ -50,7 +50,7 @@ export class RatingService {
         },
         error: (err) => {
           console.error('Error rating song:', err);
-          reject(err);
+          reject(err instanceof Error ? err : new Error(String(err)));
         }
       });
     });

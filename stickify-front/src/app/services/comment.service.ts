@@ -47,7 +47,7 @@ export class CommentService {
         },
         error: (err) => {
           console.error('Error posting comment:', err);
-          reject(err);
+          reject(err instanceof Error ? err : new Error(String(err)));
         }
       });
     });
