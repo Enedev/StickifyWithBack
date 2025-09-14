@@ -148,12 +148,12 @@ export class MusicService {
     const allGenres = [...new Set([
       ...this.allGenresSubject.getValue(), 
       ...newSongs.map(s => s.primaryGenreName)
-    ])].sort();
+    ])].sort((a, b) => a.localeCompare(b));
     
     const allArtists = [...new Set([
       ...this.allArtistsSubject.getValue(), 
       ...newSongs.map(s => s.artistName)
-    ])].sort();
+    ])].sort((a, b) => a.localeCompare(b));
     
     this.allGenresSubject.next(allGenres);
     this.allArtistsSubject.next(allArtists);
