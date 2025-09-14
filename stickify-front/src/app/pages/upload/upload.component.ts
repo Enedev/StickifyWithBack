@@ -69,7 +69,6 @@ export class UploadComponent implements OnInit { // Implement OnInit
     await this.showLoader();
 
     try {
-      // Process image and create song
       const artworkUrl = await this.processImage(formData.artworkFile!);
 
       const generateSmallIntId = (): number => {

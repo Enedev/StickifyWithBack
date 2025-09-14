@@ -41,8 +41,4 @@ export class SongCardComponent {
   onSongClick(): void {
     this.songSelected.emit(this.song);
   }
-
-  sanitizeUrl(url: string): SafeUrl {
-    return this.sanitizer.bypassSecurityTrustUrl(url);
-  }
 }
