@@ -31,6 +31,7 @@ export class UploadComponent implements OnInit { // Implement OnInit
   private readonly MAX_IMAGE_SIZE_MB = 3;
   previewImage: string | ArrayBuffer | null = null;
   currentUser: User | null = null; // Property to hold current user info
+  selectedFileName: string | null = null;
 
   ngOnInit(): void {
     // Load current user data on component initialization
@@ -149,7 +150,7 @@ export class UploadComponent implements OnInit { // Implement OnInit
         );
         return;
       }
-
+      this.selectedFileName = file.name;
       const reader = new FileReader();
       reader.onload = () => {
         this.previewImage = reader.result;

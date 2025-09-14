@@ -20,7 +20,7 @@
                class="song-card"
                (click)="toggleSongSelection(song)"
                [class.selected]="selectedSongs.includes(song)">
-            <img [src]="song.artworkUrl100" class="song-thumbnail">
+            <img [alt]="song.trackName" [src]="song.artworkUrl100" class="song-thumbnail">
             <div class="song-info">
               <p class="song-title">{{ song.trackName }}</p>
               <p class="song-artist">{{ song.artistName }}</p>
@@ -42,7 +42,7 @@
     <div class="playlist-grid">
       <div *ngFor="let playlist of userPlaylistsFilteredForDisplay" class="playlist-card">
         <div class="playlist-header">
-          <img [src]="getPlaylistCover(playlist)" class="playlist-cover">
+          <img [alt]="playlist.name" [src]="getPlaylistCover(playlist)" class="playlist-cover">
           <div class="playlist-info">
             <h3>{{ playlist.name }}</h3>
             <p>{{ getPlaylistSongs(playlist).length }} canciones</p>
@@ -57,7 +57,7 @@
             <div *ngFor="let song of getPlaylistSongs(playlist); let idx = index"
                  class="track">
               <span class="track-number">{{ idx + 1 }}.</span>
-              <img [src]="song.artworkUrl100" class="track-artwork">
+              <img [alt]="song.trackName" [src]="song.artworkUrl100" class="track-artwork">
               <div class="track-info">
                 <p class="track-title">{{ song.trackName }}</p>
                 <p class="track-artist">{{ song.artistName }}</p>
@@ -72,7 +72,7 @@
     <div class="playlist-grid">
       <div *ngFor="let playlist of autoPlaylists" class="playlist-card">
         <div class="playlist-header">
-          <img [src]="getPlaylistCover(playlist)" class="playlist-cover">
+          <img [alt]="playlist.name" [src]="getPlaylistCover(playlist)" class="playlist-cover">
           <div class="playlist-info">
             <h3>{{ playlist.name }}</h3>
             <p>{{ getPlaylistSongs(playlist).length }} canciones</p>
@@ -87,7 +87,7 @@
             <div *ngFor="let song of getPlaylistSongs(playlist); let idx = index"
                  class="track">
               <span class="track-number">{{ idx + 1 }}.</span>
-              <img [src]="song.artworkUrl100" class="track-artwork">
+              <img [alt]="song.trackName" [src]="song.artworkUrl100" class="track-artwork">
               <div class="track-info">
                 <p class="track-title">{{ song.trackName }}</p>
                 <p class="track-artist">{{ song.artistName }}</p>

@@ -11,7 +11,7 @@
       <label for="artworkFile" class="file-upload-label">
         <div class="preview-container">
           <span *ngIf="!previewImage">Seleccionar Portada</span>
-          <img *ngIf="previewImage" [src]="previewImage" class="image-preview">
+          <img *ngIf="previewImage" [alt]="selectedFileName" [src]="previewImage" class="image-preview">
         </div>
       </label>
       <input type="file" id="artworkFile" #artworkFile accept="image/*" class="file-upload-input" 
