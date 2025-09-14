@@ -20,6 +20,7 @@ export class AuthGuard implements CanActivate {
         this.jwtService.verify(token);
         return true; // El token es válido
       }catch(error){
+        console.error('Error verificando token:', error);
         // Si el token no es válido o está expirado
         throw new UnauthorizedException({code:'503', detail:'Acceso no autorizado: Token inválido o expirado'});
       }

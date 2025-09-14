@@ -181,7 +181,7 @@ export class AuthService {
   // Helper for updating premium status, uses the general updateUser method
   updateUserPremiumStatus(email: string, isPremium: boolean): Observable<boolean> {
     const currentUser = this.currentUser;
-    if (!currentUser || !currentUser.id) {
+    if (!currentUser?.id) {
       console.error('No current user or user ID available to update premium status.');
       return of(false);
     }
@@ -209,7 +209,7 @@ export class AuthService {
 
   // Toggles follow status via backend
   toggleFollow(targetUserEmail: string, shouldFollow: boolean): Observable<boolean> {
-    if (!this.currentUser || !this.currentUser.id) {
+    if (!this.currentUser?.id) {
       console.error('No user logged in or user ID to perform follow action.');
       return of(false);
     }

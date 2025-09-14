@@ -166,7 +166,7 @@ export class SignUpComponent {
       console.error('Sign-up component error:', err);
 
       let errorMessage = "Error en el registro. Por favor intente nuevamente.";
-      if (err.error && err.error.detail) {
+      if (err.error?.detail) {
         errorMessage = err.error.detail;
         if (err.status === 400 && err.error.code === '23505') {
           errorMessage = "Este correo electrónico ya está registrado.";

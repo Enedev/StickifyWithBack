@@ -81,7 +81,7 @@ export class UserFollowsComponent implements OnInit, OnDestroy {
   }
 
   toggleFollow(userToToggle: User): void {
-    if (!this.currentUser || !this.currentUser.id) {
+    if (!this.currentUser?.id) {
       console.error('No user logged in. Cannot perform follow action.');
       return;
     }
