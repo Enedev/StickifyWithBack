@@ -19,23 +19,29 @@
 
             <form (ngSubmit)="submitPayment()" class="payment-form">
                 <div class="form-group">
-                    <label>Número de tarjeta</label>
-                    <input type="text" [(ngModel)]="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456">
+                    <label>
+                        Número de tarjeta
+                        <input type="text" [(ngModel)]="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456">
+                    </label>
                 </div>
                 
                 <div class="form-group">
-                    <label>Nombre en la tarjeta</label>
-                    <input type="text" [(ngModel)]="cardHolder" name="cardHolder" placeholder="Juan Pérez">
+                    <label>
+                        Nombre en la tarjeta
+                        <input type="text" [(ngModel)]="cardHolder" name="cardHolder" placeholder="Juan Pérez">
+                    </label>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Fecha de expiración</label>
-                        <input type="text" [(ngModel)]="expiryDate" name="expiryDate" placeholder="MM/AA">
+                        <label>Fecha de expiración
+                            <input type="text" [(ngModel)]="expiryDate" name="expiryDate" placeholder="MM/AA">
+                        </label>
                     </div>
                     <div class="form-group">
-                        <label>CVV</label>
-                        <input type="text" [(ngModel)]="cvv" name="cvv" placeholder="123">
+                        <label>CVV
+                            <input type="text" [(ngModel)]="cvv" name="cvv" placeholder="123">
+                        </label>
                     </div>
                 </div>
                 
