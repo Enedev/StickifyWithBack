@@ -29,12 +29,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly musicService = inject(MusicService);
   private readonly playlistApiService = inject(PlaylistApiService);
+
   currentUser: User | null = null;
-  savedPlaylists: Playlist[] = []; // This will directly receive the full Playlist objects
+  savedPlaylists: Playlist[] = [];
   userRatings: UserRating[] = [];
   userComments: UserComment[] = [];
   allSongs: Song[] = [];
   showPremiumModal: boolean = false;
+
   private readonly allUsersMap: Map<string, string> = new Map();
   followersCount: number = 0;
   followingCount: number = 0;
@@ -44,7 +46,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private songsSubscription: Subscription | undefined;
   private usersSubscription: Subscription | undefined;
 
-  constructor(private readonly http: HttpClient) { }
+  constructor(private readonly http: HttpClient) {}
 
   ngOnInit(): void {
     this.loadUserData();
@@ -98,20 +100,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
     const userName = this.currentUser.username;
 
     forkJoin({
-      // MODIFIED: Directly fetch full Playlist objects from the backend's /user/:userId/full endpoint
       playlists: this.playlistApiService.getUserSavedPlaylists(userId),
       ratings: this.http.get<BackendSongRating[]>(`${environment.backendUrl}/ratings/user/${userName}`),
       comments: this.http.get<BackendComment[]>(`${environment.backendUrl}/comments/user/${userName}`)
     }).subscribe({
       next: ({ playlists, ratings, comments }) => {
-        this.savedPlaylists = playlists; // Assign directly as backend returns full Playlist objects
-        console.log('Fetched Saved Playlists:', this.savedPlaylists);
-
+        this.savedPlaylists = playlists;
         this.userRatings = this.processFetchedRatings(ratings);
-        console.log('Processed User Ratings:', this.userRatings);
-
         this.userComments = this.processFetchedComments(comments);
-        console.log('Processed User Comments:', this.userComments);
       },
       error: (err) => {
         console.error('Error loading all profile data:', err);
@@ -136,7 +132,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   private processFetchedComments(comments: BackendComment[]): UserComment[] {
-    console.log('--- DEBUG: Incoming comments to processFetchedComments:', comments);
     return comments.map(comment => {
       const song = this.allSongs.find(s => s.trackId === Number(comment.trackId));
       return {
@@ -148,11 +143,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   getPlaylistCoverForProfile(playlist: Playlist): string {
-    if (this.allSongs.length > 0 && playlist.trackIds && playlist.trackIds.length > 0) {
+    if (this.allSongs.length > 0 && playlist.trackIds?.length > 0) {
       const firstSong = this.allSongs.find(song => song.trackId === parseInt(playlist.trackIds[0], 10));
-      if (firstSong?.artworkUrl100) {
-        return firstSong.artworkUrl100;
-      }
+      return firstSong?.artworkUrl100 || '/assets/banner.jpg';
     }
     return '/assets/banner.jpg';
   }
@@ -171,15 +164,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.followersCount = followers.length;
       this.followingCount = following.length;
 
-      this.latestFollowersNames = followers
-        .slice(-3)
-        .reverse()
-        .map(email => this.getUsernameByEmail(email));
-
-      this.latestFollowingNames = following
-        .slice(-3)
-        .reverse()
-        .map(email => this.getUsernameByEmail(email));
+      this.latestFollowersNames = followers.slice(-3).reverse().map(email => this.getUsernameByEmail(email));
+      this.latestFollowingNames = following.slice(-3).reverse().map(email => this.getUsernameByEmail(email));
     } else {
       this.followersCount = 0;
       this.followingCount = 0;
@@ -192,10 +178,43 @@ export class ProfileComponent implements OnInit, OnDestroy {
     return this.allUsersMap.get(email) || email;
   }
 
+  /** ✅ Método reutilizable para activar/desactivar Premium */
+  private updatePremiumStatus(email: string, enable: boolean, successMsg: string, errorMsg: string): void {
+    this.authService.updateUserPremiumStatus(email, enable).subscribe({
+      next: (success) => {
+        if (success) {
+          this.currentUser!.premium = enable;
+          Swal.fire({
+            title: successMsg,
+            icon: "success",
+            color: "#716add",
+            backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+          });
+        } else {
+          Swal.fire({
+            title: "Error",
+            text: errorMsg,
+            icon: "error",
+            color: "#716add",
+            backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+          });
+        }
+      },
+      error: (err) => {
+        console.error('Error updating premium status:', err);
+        Swal.fire({
+          title: "Error",
+          text: errorMsg,
+          icon: "error",
+          color: "#716add",
+          backdrop: `rgba(0,0,123,0.4) left top no-repeat`
+        });
+      }
+    });
+  }
+
   async togglePremiumStatus(): Promise<void> {
-    if (!this.currentUser?.email || !this.currentUser?.id) {
-      return;
-    }
+    if (!this.currentUser?.email || !this.currentUser?.id) return;
 
     const currentPremiumStatus = this.currentUser.premium || false;
 
@@ -212,38 +231,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
       });
 
       if (result.isConfirmed) {
-        this.authService.updateUserPremiumStatus(this.currentUser.email, false).subscribe({
-          next: (success) => {
-            if (success) {
-              this.currentUser!.premium = false;
-               Swal.fire({
-                title: "¡Suscripción cancelada!",
-                text: "Tu suscripción Premium ha sido cancelada correctamente.",
-                icon: "success",
-                color: "#716add",
-                backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-              });
-            } else {
-               Swal.fire({
-                title: "Error",
-                text: "No se pudo cancelar el estado Premium. Intenta de nuevo.",
-                icon: "error",
-                color: "#716add",
-                backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-              });
-            }
-          },
-          error: (err) => {
-            console.error('Error canceling premium status:', err);
-            Swal.fire({
-              title: "Error",
-              text: "Hubo un problema al cancelar el estado Premium. Por favor, inténtalo de nuevo.",
-              icon: "error",
-              color: "#716add",
-              backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-            });
-          }
-        });
+        this.updatePremiumStatus(
+          this.currentUser.email,
+          false,
+          "¡Suscripción cancelada!",
+          "No se pudo cancelar el estado Premium. Intenta de nuevo."
+        );
       }
     } else {
       this.showPremiumModal = true;
@@ -253,46 +246,17 @@ export class ProfileComponent implements OnInit, OnDestroy {
   async handlePremiumModalClose(isConfirmed: boolean): Promise<void> {
     this.showPremiumModal = false;
 
-    if (!this.currentUser?.email || !this.currentUser?.id) {
-      console.error('No current user or user email/id found after modal closure.');
-      return;
-    }
+    if (!this.currentUser?.email || !this.currentUser?.id) return;
 
     if (isConfirmed) {
-      this.authService.updateUserPremiumStatus(this.currentUser.email, true).subscribe({
-        next:  (success) => {
-          if (success) {
-            this.currentUser!.premium = true;
-             Swal.fire({
-              title: "¡Premium activado!",
-              text: "¡Ahora eres usuario Premium y tienes acceso a todas las funciones!",
-              icon: "success",
-              color: "#716add",
-              backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-            });
-          } else {
-             Swal.fire({
-              title: "Error",
-              text: "Hubo un problema al activar tu suscripción Premium. Intenta de nuevo.",
-              icon: "error",
-              color: "#716add",
-              backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-            });
-          }
-        },
-        error: (err) => {
-          console.error('Error activating premium status:', err);
-           Swal.fire({
-            title: "Error",
-            text: "Hubo un problema al activar tu suscripción Premium. Por favor, inténtalo de nuevo.",
-            icon: "error",
-            color: "#716add",
-            backdrop: `rgba(0,0,123,0.4) left top no-repeat`
-          });
-        }
-      });
+      this.updatePremiumStatus(
+        this.currentUser.email,
+        true,
+        "¡Premium activado!",
+        "Hubo un problema al activar tu suscripción Premium. Intenta de nuevo."
+      );
     } else {
-       Swal.fire({
+      Swal.fire({
         title: "Pago cancelado",
         text: "Puedes intentar activar Premium en cualquier momento.",
         icon: "info",
