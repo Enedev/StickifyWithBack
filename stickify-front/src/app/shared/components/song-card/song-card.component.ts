@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Song } from '../../../shared/interfaces/song.interface';
 import { CommonModule } from '@angular/common';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser'; // Importación corregida
+import { DomSanitizer } from '@angular/platform-browser'; // Importación corregida
 
 @Component({
   selector: 'app-song-card',
