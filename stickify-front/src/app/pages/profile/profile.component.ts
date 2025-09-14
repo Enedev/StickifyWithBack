@@ -193,7 +193,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   async togglePremiumStatus(): Promise<void> {
-    if (!this.currentUser || !this.currentUser.email || !this.currentUser.id) {
+    if (!this.currentUser?.email || !this.currentUser?.id) {
       return;
     }
 
@@ -253,7 +253,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   async handlePremiumModalClose(isConfirmed: boolean): Promise<void> {
     this.showPremiumModal = false;
 
-    if (!this.currentUser || !this.currentUser.email || !this.currentUser.id) {
+    if (!this.currentUser?.email || !this.currentUser?.id) {
       console.error('No current user or user email/id found after modal closure.');
       return;
     }
