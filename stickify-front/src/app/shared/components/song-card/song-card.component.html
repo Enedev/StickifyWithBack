@@ -1,4 +1,4 @@
-<div class="song-container" (click)="onSongClick()">
+<div class="song-container" tabindex="0" (keydown.enter)="onSongClick()" (click)="onSongClick()">
     <div class="song-details">
       <div class="img-container">
         <img [src]="song.artworkUrl100" [alt]="song.trackName" />

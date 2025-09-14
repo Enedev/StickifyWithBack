@@ -8,7 +8,9 @@
 
     <div *ngIf="showModal" class="modal">
       <div class="modal-content">
-        <span class="close" (click)="closeModal()">&times;</span>
+        <span class="close" (click)="closeModal()" tabindex="0"(keydown.enter)="closeModal()">
+          &times;
+        </span>
         <h2>Crear Nueva Playlist</h2>
         <input [(ngModel)]="newPlaylistName"
                type="text"
@@ -18,6 +20,8 @@
         <div class="songs-grid">
           <div *ngFor="let song of allSongs"
                class="song-card"
+               tabindex="0"
+               (keydown.enter)="toggleSongSelection(song)"
                (click)="toggleSongSelection(song)"
                [class.selected]="selectedSongs.includes(song)">
             <img [alt]="song.trackName" [src]="song.artworkUrl100" class="song-thumbnail">
