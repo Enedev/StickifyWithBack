@@ -1,6 +1,6 @@
 @if (song) {
     <div class="modal-content">
-      <span class="close" tabindex="0" (keydown.enter)="onClose()" (click)="onClose()">&times;</span>
+      <button class="close" (click)="onClose()">&times;</button>
       
       <div class="song-details">
         <img [src]="song.artworkUrl100" [alt]="song.trackName">
@@ -19,14 +19,12 @@
             <h4>Tu valoración:</h4>
             <div class="rating-stars">
               @for (star of [1,2,3,4,5]; track star) {
-                <span 
+                <button 
                   (click)="onRate(star)"
-                  tabindex="0"
-                  (keydown.enter)="onRate(star)"
                   [style.color]="star <= userRating ? '#FFD700' : '#ccc'"
                 >
                   ★
-                </span>
+                </button>
               }
             </div>
           </div>
