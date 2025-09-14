@@ -11,16 +11,16 @@
     <div class="profile-content">
       <div class="user-data" id="userData">
         <div class="data-row" *ngIf="currentUser?.username">
-          <label><i class="fa-solid fa-user"></i> Nombre de usuario:</label>
+          <span class="data-label"><i class="fa-solid fa-user"></i> Nombre de usuario:</span>
           <span>{{ currentUser?.username }}</span>
         </div>
         <div class="data-row" *ngIf="currentUser?.email">
-          <label><i class="fa-solid fa-envelope"></i> Correo electrónico:</label>
+          <span class="data-label"><i class="fa-solid fa-envelope"></i> Correo electrónico:</span>
           <span>{{ currentUser?.email }}</span>
         </div>
 
         <div class="data-row">
-          <label><i class="fa-solid fa-users"></i> Seguidores:</label>
+          <span class="data-label"><i class="fa-solid fa-users"></i> Seguidores:</span>
           <div class="follow-info">
             <span>{{ followersCount }} personas te siguen.</span>
             <ul *ngIf="latestFollowersNames.length > 0">
@@ -31,7 +31,7 @@
         </div>
 
         <div class="data-row">
-          <label><i class="fa-solid fa-user-group"></i> Siguiendo:</label>
+          <span class="data-label"><i class="fa-solid fa-user-group"></i> Siguiendo:</span>
           <div class="follow-info">
             <span>Sigues a {{ followingCount }} personas.</span>
             <ul *ngIf="latestFollowingNames.length > 0">
@@ -42,7 +42,7 @@
         </div>
 
         <div class="data-row" *ngIf="userRatings.length > 0">
-          <label><i class="fa-solid fa-star"></i> Mis calificaciones:</label>
+          <span class="data-label"><i class="fa-solid fa-star"></i> Mis calificaciones:</span>
           <ul>
             <li *ngFor="let rating of userRatings">
               <strong>Canción: {{ rating.songName }}</strong>: {{ rating.rating }} estrellas
@@ -50,12 +50,12 @@
           </ul>
         </div>
         <div class="data-row" *ngIf="userRatings.length === 0 && currentUser?.email">
-          <label><i class="fa-solid fa-star"></i> Mis calificaciones:</label>
+          <span class="data-label"><i class="fa-solid fa-star"></i> Mis calificaciones:</span>
           <span>Aún no has calificado ninguna canción.</span>
         </div>
 
         <div class="data-row" *ngIf="userComments.length > 0">
-          <label><i class="fa-solid fa-comments"></i> Mis comentarios:</label>
+          <span class="data-label"><i class="fa-solid fa-comments"></i> Mis comentarios:</span>
           <ul>
             <li *ngFor="let comment of userComments">
               <strong>Canción: {{ comment.songName }}</strong>
@@ -65,12 +65,12 @@
           </ul>
         </div>
         <div class="data-row" *ngIf="userComments.length === 0 && currentUser?.email">
-          <label><i class="fa-solid fa-comments"></i> Mis comentarios:</label>
+          <span class="data-label"><i class="fa-solid fa-comments"></i> Mis comentarios:</span>
           <span>Aún no has dejado ningún comentario.</span>
         </div>
 
         <div class="data-row" *ngIf="savedPlaylists.length > 0">
-          <label><i class="fas fa-music"></i> Playlists Guardadas:</label>
+          <span class="data-label"><i class="fas fa-music"></i> Playlists Guardadas:</span>
           <div class="playlist-grid">
             <div *ngFor="let playlist of savedPlaylists" class="playlist-card">
               <img [src]="getPlaylistCoverForProfile(playlist)" alt="{{ playlist.name }}" class="playlist-cover-sm">
@@ -85,7 +85,7 @@
         </div>
 
         <div class="data-row" *ngIf="savedPlaylists.length === 0">
-          <label><i class="fas fa-music"></i> Playlists Guardadas:</label>
+          <span class="data-label"><i class="fas fa-music"></i> Playlists Guardadas:</span>
           <span>Aún no has guardado ninguna playlist.</span>
         </div>
       </div>

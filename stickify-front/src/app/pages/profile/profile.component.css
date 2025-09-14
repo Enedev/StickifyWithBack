@@ -72,7 +72,8 @@ body {
   box-shadow: 0 4px 15px rgba(90, 24, 154, 0.3);
 }
 
-.data-row label {
+.data-row label,
+.data-row .data-label {
   width: 200px;
   font-weight: 600;
   color: var(--cyber-lavender);
@@ -81,12 +82,12 @@ body {
   gap: 10px;
 }
 
-.data-row label i {
+.data-row label i,.data-row .data-label i  {
   color: var(--quantum-glow);
   font-size: 1.1rem;
 }
 
-.data-row span {
+.data-row span:not(.data-label) {
   flex-grow: 1;
   color: var(--text-secondary);
 }
@@ -188,7 +189,7 @@ pre {
     gap: 0.5rem;
   }
 
-  .data-row label {
+  .data-row label,.data-row .data-label {
     width: auto;
   }
 
