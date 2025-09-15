@@ -1,0 +1,38 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AuthorsComponent } from './authors.component';
+
+import { MusicService } from '../../services/music.service';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Subscription } from 'rxjs';
+
+describe('AuthorsComponent', () => {
+  let component: AuthorsComponent;
+  let fixture: ComponentFixture<AuthorsComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [AuthorsComponent, HttpClientTestingModule, RouterTestingModule]
+    }).compileComponents();
+    fixture = TestBed.createComponent(AuthorsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should subscribe and set authors on init', () => {
+    component.ngOnInit();
+  expect(Array.isArray(component.authors)).toBeTrue();
+  });
+
+  it('should unsubscribe on destroy', () => {
+    const sub = new Subscription();
+    component['artistsSubscription'] = sub;
+    spyOn(sub, 'unsubscribe');
+    component.ngOnDestroy();
+    expect(sub.unsubscribe).toHaveBeenCalled();
+  });
+});

@@ -75,5 +75,18 @@ describe('NavComponent', () => {
 
     // 3. Verifica que la propiedad isHomePage es falsa
     expect(component.isHomePage).toBeFalse();
-  }); 
+  });
+
+  it('should emit filterChanged event on onFilterChange', () => {
+    spyOn(component.filterChanged, 'emit');
+    const filters = { genre: 'Pop' };
+    component.onFilterChange(filters);
+    expect(component.filterChanged.emit).toHaveBeenCalledWith(filters);
+  });
+
+  it('should call authService.logOut on logout', () => {
+    const logOutSpy = spyOn(component.authService, 'logOut');
+    component.logout();
+    expect(logOutSpy).toHaveBeenCalled();
+  });
 });

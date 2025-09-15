@@ -137,4 +137,134 @@ describe('UploadComponent', () => {
       text: 'Error del servidor'
     }));
   });
+  it('should preview image on file selected', async () => {
+    const originalFileReader = window.FileReader;
+    window.FileReader = class {
+      public onload: ((ev: any) => void) | null = null;
+      public result: string | null = null;
+      readAsDataURL(_file: any) {
+        setTimeout(() => {
+          this.result = 'data:image/jpeg;base64,abc';
+          if (typeof this.onload === 'function') {
+            this.onload({ target: { result: this.result } });
+          }
+        }, 0);
+      }
+    } as any;
+    const file = new File([new ArrayBuffer(1024)], 'cover.jpg', { type: 'image/jpeg' });
+    const event = { target: { files: [file] } } as any;
+    component.currentUser = { premium: true } as any;
+    component.previewImage = null;
+    component.onFileSelected(event);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    expect(component.previewImage as any).toBe('data:image/jpeg;base64,abc');
+    window.FileReader = originalFileReader;
+  });
+
+  it('should block file selection if not premium', () => {
+    const file = new File([new ArrayBuffer(1024)], 'cover.jpg', { type: 'image/jpeg' });
+    const event = { target: { files: [file], value: 'cover.jpg' } } as any;
+    component.currentUser = { premium: false } as any;
+    component.previewImage = 'old';
+    spyOn<any>(component, 'showAlert');
+    component.onFileSelected(event);
+    expect((component as any).showAlert).toHaveBeenCalledWith('info', 'Acceso Restringido', jasmine.any(String));
+    expect(event.target.value).toBe('');
+    expect(component.previewImage).toBeNull();
+  });
+
+  it('should show error if selected image is too large', () => {
+    const file = new File([new ArrayBuffer(5 * 1024 * 1024)], 'cover.jpg', { type: 'image/jpeg' });
+    const event = { target: { files: [file] } } as any;
+    component.currentUser = { premium: true } as any;
+    spyOn<any>(component, 'showAlert');
+    component.onFileSelected(event);
+    expect((component as any).showAlert).toHaveBeenCalledWith('error', 'Archivo demasiado grande', jasmine.any(String));
+  });
+
+  it('should validate getFormData for missing fields', () => {
+    component.artistNameInput = new ElementRef({ value: '' });
+    component.trackNameInput = new ElementRef({ value: '' });
+    component.collectionNameInput = new ElementRef({ value: '' });
+    component.primaryGenreNameInput = new ElementRef({ value: '' });
+    component.artworkFileInput = new ElementRef({ files: [new File([new ArrayBuffer(1024)], 'cover.jpg')] });
+    const result = (component as any).getFormData();
+    expect(result.valid).toBeFalse();
+    expect(result.errorMessage).toBe('Por favor completa todos los campos');
+  });
+
+  it('should validate getFormData for missing image', () => {
+    component.artistNameInput = new ElementRef({ value: 'Artista' });
+    component.trackNameInput = new ElementRef({ value: 'Canción' });
+    component.collectionNameInput = new ElementRef({ value: 'Álbum' });
+    component.primaryGenreNameInput = new ElementRef({ value: 'Pop' });
+    component.artworkFileInput = new ElementRef({ files: [] });
+    const result = (component as any).getFormData();
+    expect(result.valid).toBeFalse();
+    expect(result.errorMessage).toBe('Por favor selecciona una imagen');
+  });
+
+  it('should process image and resolve data URL', async () => {
+    const originalFileReader = window.FileReader;
+    window.FileReader = class {
+      public onload: ((ev: any) => void) | null = null;
+      public result: string | null = null;
+      readAsDataURL(_file: any) {
+        setTimeout(() => {
+          this.result = 'data:image/jpeg;base64,abc';
+          if (typeof this.onload === 'function') {
+            this.onload({ target: { result: this.result } });
+          }
+        }, 0);
+      }
+    } as any;
+    const file = new File([new ArrayBuffer(1024)], 'cover.jpg');
+    const result = await (component as any).processImage(file);
+    expect(result).toBe('data:image/jpeg;base64,abc');
+    window.FileReader = originalFileReader;
+  });
+
+  it('should handle error in processImage', async () => {
+    const file = new File([new ArrayBuffer(1024)], 'cover.jpg');
+    spyOn(window.FileReader.prototype, 'readAsDataURL').and.callFake(function(this: any) {
+      this.onerror('error');
+    });
+    try {
+      await (component as any).processImage(file);
+      fail('Should throw error');
+    } catch (e) {
+      if (e instanceof Error) {
+        expect(e.message).toContain('Error procesando imagen');
+      }
+    }
+  });
+
+  it('should call Swal.fire in showLoader', async () => {
+    await (component as any).showLoader();
+    expect(Swal.fire).toHaveBeenCalledWith(jasmine.objectContaining({ title: 'Subiendo canción...' }));
+  });
+
+  it('should call Swal.fire in showAlert', async () => {
+    await (component as any).showAlert('success', 'Test', 'Mensaje');
+    expect(Swal.fire).toHaveBeenCalledWith(jasmine.objectContaining({ icon: 'success', title: 'Test', text: 'Mensaje' }));
+  });
+
+  it('should close current alert in closeCurrentAlert', () => {
+    (component as any).currentSwal = true;
+    (component as any).closeCurrentAlert();
+    expect(Swal.close).toHaveBeenCalled();
+    expect((component as any).currentSwal).toBeNull();
+  });
+
+  it('should return error message for image error in getErrorMessage', () => {
+    const error = new Error('Error procesando imagen');
+    const msg = (component as any).getErrorMessage(error);
+    expect(msg).toBe('Error al procesar la imagen. Intenta con otro archivo.');
+  });
+
+  it('should return default error message in getErrorMessage', () => {
+    const error = new Error('Otro error');
+    const msg = (component as any).getErrorMessage(error);
+    expect(msg).toBe('Ocurrió un error inesperado al subir la canción.');
+  });
 });
