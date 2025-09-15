@@ -111,14 +111,17 @@ describe('UploadComponent', () => {
 
   it('should call musicService.addSong if form is valid and user is premium', async () => {
     setValidFormInputs();
+    // Asegura que el mock retorne éxito para este test
+    mockMusicService.addSong.and.returnValue(of({ trackName: 'Mock Song' }));
 
     await component.uploadSong();
 
     expect(mockMusicService.addSong).toHaveBeenCalled();
-    expect(Swal.fire).toHaveBeenCalledWith(jasmine.objectContaining({
-      icon: 'success',
-      title: 'Éxito'
-    }));
+    // Busca entre las llamadas a Swal.fire una que tenga icon: 'success' y title: 'Éxito'
+    const successCall = (Swal.fire as jasmine.Spy).calls.all().find(call =>
+      call.args[0] && call.args[0].icon === 'success' && call.args[0].title === 'Éxito'
+    );
+    expect(successCall).toBeDefined();
   });
 
   it('should show error if backend fails', async () => {
