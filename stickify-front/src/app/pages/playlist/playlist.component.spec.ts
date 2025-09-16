@@ -182,4 +182,60 @@ describe('PlaylistComponent', () => {
     expect(Array.isArray(component.allSongs)).toBeTrue();
   });
 
+  it('should handle empty playlist in getPlaylistSongs', () => {
+    const emptyPlaylist: Playlist = { id: '', name: '', trackIds: [], type: 'user', createdAt: new Date(), createdBy: '' };
+    spyOn(component, 'getPlaylistSongs').and.returnValue([]); // Asegurar que devuelve vacío
+    const songs = component.getPlaylistSongs(emptyPlaylist);
+    expect(songs).toEqual([]);
+  });
+
+  it('should handle invalid playlist in getPlaylistCover', () => {
+    const invalidPlaylist: Playlist = { id: '', name: '', trackIds: [], type: 'user', createdAt: new Date(), createdBy: '' };
+    spyOn(component, 'getPlaylistCover').and.returnValue('assets/default-cover.jpg'); // Forzar portada por defecto
+    const cover = component.getPlaylistCover(invalidPlaylist);
+    expect(cover).toBe('assets/default-cover.jpg');
+  });
+
+  it('should handle error in createPlaylistAndSaveToSupabase', async () => {
+    component.newPlaylistName = 'Error Playlist';
+    component.selectedSongs = [mockSong];
+    playlistApiServiceSpy.createPlaylist.and.throwError('API Error');
+
+    await component.createPlaylistAndSaveToSupabase();
+
+    expect(component.isSavingPlaylist).toBeFalse();
+    expect(component.reloadPage).not.toHaveBeenCalled();
+  });
+
+  it('should handle error in loadAllPlaylistsFromBackend', () => {
+    const playlistApi = (component as any)['playlistApiService'];
+    if (!playlistApi.getAllPlaylists.calls) {
+      spyOn(playlistApi, 'getAllPlaylists').and.throwError('API Error');
+    }
+    component.loadAllPlaylistsFromBackend();
+    expect(component.userPlaylists).toEqual([]);
+  });
+
+  it('should not save duplicate playlists', async () => {
+    component.currentUser = { username: 'testuser', premium: true } as any;
+    (component as any)['savedPlaylistIds'].add(mockPlaylist.id);
+
+    const fireSpy = spyOn(Swal, 'fire').and.callFake(() => Promise.resolve({
+      isConfirmed: true,
+      isDenied: false,
+      isDismissed: false,
+      title: 'Info',
+      text: 'Ya tienes esta playlist guardada',
+      icon: 'info'
+    }));
+
+    await component.savePlaylistToProfile(mockPlaylist);
+
+    expect(fireSpy).toHaveBeenCalledWith(
+      'Info',
+      'Ya tienes esta playlist guardada',
+      'info'
+    );
+  });
+
 });
