@@ -4,7 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { MusicService } from '../../services/music.service';
 import { PlaylistApiService } from '../../services/playlist-api.service';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { User } from '../../shared/interfaces/user.interface';
 import { Song } from '../../shared/interfaces/song.interface';
 import { BackendSongRating } from '../../shared/interfaces/backend-song-rating.interface';
@@ -187,4 +187,119 @@ describe('ProfileComponent', () => {
   tick();
   expect(Swal.fire).toHaveBeenCalledWith(jasmine.objectContaining({ title: 'Pago cancelado' }));
   }));
+
+  it('should handle error in loadAllUsersForMapping', fakeAsync(() => {
+    spyOn(console, 'error');
+    authServiceSpy.getAllOtherUsers.and.returnValue(throwError(() => new Error('fail')));
+    
+    component.ngOnInit();
+    tick();
+    
+    expect(console.error).toHaveBeenCalledWith('Error loading all users for mapping:', jasmine.any(Error));
+  }));
+
+  it('should handle error in loadAllProfileData', fakeAsync(() => {
+    spyOn(console, 'error');
+    spyOn(Swal, 'fire');
+    
+    // Mock de usuario actual
+    component.currentUser = { ...mockUser };
+    
+    // Mock de servicios que retornan error
+    playlistApiSpy.getUserSavedPlaylists.and.returnValue(throwError(() => new Error('http fail')));
+    
+    // Llamar al método
+    (component as any).loadAllProfileData();
+    tick();
+    
+    // Verificar que se muestra el error
+    expect(Swal.fire).toHaveBeenCalledWith(jasmine.objectContaining({
+      icon: 'error',
+      title: 'Error de Carga',
+      text: 'No se pudieron cargar tus datos de perfil. Inténtalo de nuevo más tarde.'
+    }));
+  }));
+
+  it('should not load profile data if email missing', () => {
+    spyOn(console, 'error');
+    component.currentUser = { ...mockUser, email: '' };
+    (component as any).loadAllProfileData();
+    expect(console.error).toHaveBeenCalledWith('Cannot load profile data: Current user email is missing.');
+  });
+
+  it('should fallback songName if rating song not found', () => {
+    const ratings: BackendSongRating[] = [{ trackId: 999, rating: 5, userId: '1' }];
+    component.allSongs = mockSongs;
+    const result = (component as any).processFetchedRatings(ratings);
+    expect(result[0].songName).toContain('Canción ID: 999');
+  });
+
+  it('should fallback songName if comment song not found', () => {
+    const comments: BackendComment[] = [{ id: 'c1', user: 'x', trackId: 999, text: 'Hello', date: 20230101 }];
+    component.allSongs = mockSongs;
+    const result = (component as any).processFetchedComments(comments);
+    expect(result[0].songName).toContain('Canción ID: 999');
+  });
+
+  it('should return default cover if trackIds is empty', () => {
+    const playlist: Playlist = { id: 'p3', name: 'Empty', trackIds: [], type: 'user', createdAt: new Date(), cover: '', createdBy: 'u' };
+    component.allSongs = mockSongs;
+    const cover = component.getPlaylistCoverForProfile(playlist);
+    expect(cover).toBe('/assets/banner.jpg');
+  });
+
+  it('should cancel premium if user is already premium and confirms', fakeAsync(async () => {
+    spyOn(Swal, 'fire').and.returnValue(Promise.resolve({ isConfirmed: true }) as any);
+    authServiceSpy.updateUserPremiumStatus.and.returnValue(of(true));
+    component.currentUser = { ...mockUser, premium: true };
+    await component.togglePremiumStatus();
+    tick();
+    expect(authServiceSpy.updateUserPremiumStatus).toHaveBeenCalledWith(mockUser.email, false);
+  }));
+
+  it('should not cancel premium if user is already premium and cancels', fakeAsync(async () => {
+    spyOn(Swal, 'fire').and.returnValue(Promise.resolve({ isConfirmed: false }) as any);
+    authServiceSpy.updateUserPremiumStatus.and.returnValue(of(true));
+    component.currentUser = { ...mockUser, premium: true };
+    await component.togglePremiumStatus();
+    tick();
+    expect(authServiceSpy.updateUserPremiumStatus).not.toHaveBeenCalled();
+  }));
+
+  it('should show error if updateUserPremiumStatus returns false', fakeAsync(() => {
+    spyOn(Swal, 'fire');
+    authServiceSpy.updateUserPremiumStatus.and.returnValue(of(false));
+    component.currentUser = { ...mockUser };
+    (component as any).updatePremiumStatus(mockUser.email, true, 'ok', 'fail');
+    tick();
+    expect(Swal.fire).toHaveBeenCalledWith(jasmine.objectContaining({ icon: 'error' }));
+  }));
+
+  it('should show error if updateUserPremiumStatus throws error', fakeAsync(() => {
+    spyOn(console, 'error');
+    spyOn(Swal, 'fire');
+    
+    // Mock del servicio para que lance error
+    authServiceSpy.updateUserPremiumStatus.and.returnValue(throwError(() => new Error('fail')));
+    
+    // Configurar usuario actual
+    component.currentUser = { ...mockUser };
+    
+    // Llamar al método privado
+    (component as any).updatePremiumStatus(
+      mockUser.email,
+      true,
+      'Success message',
+      'Error message'
+    );
+    
+    tick();
+    
+    // Verificar que se muestra el mensaje de error
+    expect(Swal.fire).toHaveBeenCalledWith(jasmine.objectContaining({
+      icon: 'error',
+      text: 'Error message'
+    }));
+  }));
+
 });
