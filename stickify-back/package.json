@@ -82,6 +82,9 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "collectCoverage": true,
-    "coverageReporters": ["json","lcov","text","clover"]
+    "coverageReporters": ["json","lcov","text","clover"],
+    "coveragePathIgnorePatterns": [
+      ".*/dto/.*"
+    ]
   }
 }
