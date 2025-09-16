@@ -5,9 +5,12 @@ import Swal, { SweetAlertResult } from 'sweetalert2';
 import { AuthService } from './auth.service';
 import { User } from '../shared/interfaces/user.interface';
 
-describe('AuthService', () => {
+describe('AuthService - logOut', () => {
   let service: AuthService;
   let router: Router;
+
+  const CURRENT_USER_KEY = 'currentUser';
+  const TOKEN_KEY = 'authToken';
 
   beforeEach(() => {
     // Mock del Router
@@ -15,13 +18,18 @@ describe('AuthService', () => {
       navigate: jasmine.createSpy('navigate')
     };
 
-    // Espías para los métodos de localStorage
+    // Espías para localStorage
     spyOn(localStorage, 'removeItem');
     spyOn(localStorage, 'setItem');
     spyOn(localStorage, 'getItem').and.returnValue(null);
 
     // Mock de Swal.fire
-    spyOn(Swal, 'fire').and.callFake(() => Promise.resolve({ isConfirmed: true } as SweetAlertResult));
+    spyOn(Swal, 'fire').and.callFake(() =>
+      Promise.resolve({ isConfirmed: true } as SweetAlertResult)
+    );
+
+    // Mock de performance.now
+    spyOn(performance, 'now').and.returnValues(100, 120); // duración = 20ms
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
@@ -41,29 +49,29 @@ describe('AuthService', () => {
     (localStorage.getItem as jasmine.Spy).calls.reset();
     (router.navigate as jasmine.Spy).calls.reset();
     (Swal.fire as jasmine.Spy).calls.reset();
+    (performance.now as jasmine.Spy).calls.reset();
   });
-  
-  it('should remove user and token from localStorage, navigate to login, and show an alert', () => {
-    // 1. Configura el estado inicial del servicio para la prueba,
-    // simula que el usuario está autenticado
-    const mockUser: User = { name: 'testUser' } as any; // 'as any' para simplificar
+
+  it('should clear storage, reset user, navigate to login and show alert', () => {
+    // Arrange
+    const mockUser: User = { id: '1', username: 'testUser' } as User;
     service.currentUser = mockUser;
-    
-    // 2. Llama al método que se esta probando
+
+    // Act
     service.logOut();
 
-    // 3. Verifica que el currentUser en el servicio se ha establecido en null
+    // Assert - Estado interno
     expect(service.currentUser).toBeNull();
 
-    // 4. Verifica que el usuario y el token se han eliminado del localStorage
-    expect(localStorage.removeItem).toHaveBeenCalledWith('currentUser');
-    expect(localStorage.removeItem).toHaveBeenCalledWith('authToken');
+    // Assert - Storage
+    expect(localStorage.removeItem).toHaveBeenCalledWith(CURRENT_USER_KEY);
+    expect(localStorage.removeItem).toHaveBeenCalledWith(TOKEN_KEY);
+    expect(localStorage.setItem).not.toHaveBeenCalled();
 
-    // 5. Verifica que la navegación al login ha sido llamada
+    // Assert - Navegación
     expect(router.navigate).toHaveBeenCalledWith(['/log-in']);
 
-    // 6. Verifica que la alerta de SweetAlert2 se ha mostrado
-    expect(Swal.fire).toHaveBeenCalled();
+    // Assert - SweetAlert2
     expect(Swal.fire).toHaveBeenCalledWith(
       jasmine.objectContaining({
         icon: 'info',
@@ -72,5 +80,8 @@ describe('AuthService', () => {
         confirmButtonText: 'Aceptar'
       })
     );
+
+    // Assert - Medición de tiempo
+    expect(performance.now).toHaveBeenCalledTimes(2);
   });
 });
