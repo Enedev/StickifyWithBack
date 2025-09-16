@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MusicService } from './music.service';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { environment } from '../../environments/environment';
@@ -125,4 +125,136 @@ describe('MusicService', () => {
     expect(batchReq.request.method).toBe('POST');
     batchReq.flush({ success: true, data: [] });
   });
+
+  it('debería manejar error en _loadAllSongsFromBackend y devolver []', (done) => {
+    service['_loadAllSongsFromBackend']().subscribe(songs => {
+      expect(songs).toEqual([]);
+      done();
+    });
+    const req = httpMock.expectOne(`${environment.backendUrl}/songs`);
+    req.error(new ErrorEvent('fail'));
+  });
+
+  it('debería guardar canciones en el backend con éxito', (done) => {
+    const mock = [mockSongs[0]];
+    service['saveSongsToBackend'](mock).subscribe(res => {
+      expect(res).toEqual(mock);
+      done();
+    });
+    const req = httpMock.expectOne(`${environment.backendUrl}/songs/batch`);
+    req.flush({ success: true, data: mock });
+  });
+
+  it('debería manejar respuesta fallida de saveSongsToBackend', fakeAsync(() => {
+    const mock = [mockSongs[0]];
+    let responseReceived = false;
+    
+    service['saveSongsToBackend'](mock).subscribe({
+      next: (songs) => {
+        responseReceived = true;
+        // Verificamos que devuelve las canciones originales cuando el backend indica fallo
+        expect(songs).toEqual(mock);
+      },
+      error: () => {
+        fail('No debería entrar en error debido al manejo en catchError');
+      }
+    });
+
+    const req = httpMock.expectOne(`${environment.backendUrl}/songs/batch`);
+    req.flush({ success: false, message: 'fail' });
+    
+    tick();
+    expect(responseReceived).toBeTrue();
+  }));
+
+  it('debería devolver canciones originales si saveSongsToBackend falla', (done) => {
+    const mock = [mockSongs[0]];
+    service['saveSongsToBackend'](mock).subscribe(res => {
+      expect(res).toEqual(mock);
+      done();
+    });
+    const req = httpMock.expectOne(`${environment.backendUrl}/songs/batch`);
+    req.error(new ErrorEvent('fail'));
+  });
+
+  it('debería cargar canciones subidas por usuario', (done) => {
+    service['loadUploadedSongs']().subscribe(res => {
+      expect(res).toEqual(mockSongs);
+      done();
+    });
+    const req = httpMock.expectOne(`${environment.backendUrl}/songs?isUserUpload=true`);
+    req.flush(mockSongs);
+  });
+
+  it('debería devolver [] si loadUploadedSongs falla', (done) => {
+    service['loadUploadedSongs']().subscribe(res => {
+      expect(res).toEqual([]);
+      done();
+    });
+    const req = httpMock.expectOne(`${environment.backendUrl}/songs?isUserUpload=true`);
+    req.error(new ErrorEvent('fail'));
+  });
+
+  it('debería mapear canciones con generateUniqueId si faltan IDs', () => {
+    const raw = [{ artistName: 'A', trackName: 'T', primaryGenreName: 'G', collectionName: 'C', artworkUrl100: '', releaseDate: '2023' }];
+    const mapped = service['mapSongs'](raw, true);
+    expect(mapped[0].isUserUpload).toBeTrue();
+    expect(mapped[0].trackId).toBeTruthy();
+  });
+
+  it('debería actualizar géneros y artistas sin duplicados', () => {
+    service['allGenresSubject'].next(['Rock']);
+    service['allArtistsSubject'].next(['X']);
+    service['updateGenresAndArtists']([mockSongs[0]]);
+    expect(service.getGenres()).toContain('Pop');
+    expect(service.getArtists()).toContain('Artista 1');
+  });
+
+  it('debería añadir canción correctamente', (done) => {
+    service.addSong(mockSongs[0]).subscribe(song => {
+      expect(song).toEqual(mockSongs[0]);
+      done();
+    });
+    const req = httpMock.expectOne(`${environment.backendUrl}/songs`);
+    req.flush(mockSongs[0]);
+  });
+
+  it('debería lanzar error si addSong falla', (done) => {
+    service.addSong(mockSongs[0]).subscribe({
+      error: (err) => {
+        expect(err.message).toBe('Failed to add song');
+        done();
+      }
+    });
+    const req = httpMock.expectOne(`${environment.backendUrl}/songs`);
+    req.error(new ErrorEvent('fail'));
+  });
+
+  it('debería filtrar canciones en fetchSongs', (done) => {
+    service['songsSubject'].next(mockSongs);
+    service.fetchSongs('canción').subscribe(res => {
+      expect(res.length).toBe(1);
+      done();
+    });
+  });
+
+  it('debería devolver todas si no hay searchTerm en fetchSongs', (done) => {
+    service['songsSubject'].next(mockSongs);
+    service.fetchSongs().subscribe(res => {
+      expect(res).toEqual(mockSongs);
+      done();
+    });
+  });
+
+  it('debería añadir canciones al caché sin duplicados', () => {
+    service['songsSubject'].next([mockSongs[0]]);
+    service['addSongsToCache']([mockSongs[0]]);
+    expect(service['songsSubject'].getValue().length).toBe(1);
+  });
+
+  it('debería cubrir loadAllSongs catchError', () => {
+    spyOn(service as any, '_loadAllSongsFromBackend').and.throwError('fail');
+    (service as any).loadAllSongs(); // debería atrapar el error
+  });
+
 });
