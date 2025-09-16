@@ -80,4 +80,39 @@ describe('UserFollowsComponent', () => {
     const user = { ...mockUser, email: 'other@example.com' };
     expect(component.isFollowing(user)).toBeFalse();
   });
+
+  it('should handle error in loadAllOtherUsers', () => {
+    authServiceSpy.getAllOtherUsers.and.returnValue(throwError(() => new Error('Error loading users')));
+    spyOn(console, 'error');
+
+    (component as any).loadAllOtherUsers();
+
+    expect(console.error).toHaveBeenCalledWith('Error loading other users:', jasmine.any(Error));
+    expect(component.allUsers).toEqual([]); // Asegurar que allUsers esté vacío después del error
+  });
+
+  it('should handle empty searchTerm in applyFilter', () => {
+    component.allUsers = mockOtherUsers;
+    component.searchTerm = '';
+    component.applyFilter();
+    expect(component.filteredUsers.length).toBe(mockOtherUsers.length);
+  });
+
+  it('should handle no matches in applyFilter', () => {
+    component.allUsers = mockOtherUsers;
+    component.searchTerm = 'nonexistent';
+    component.applyFilter();
+    expect(component.filteredUsers.length).toBe(0);
+  });
+
+  it('should return false in isFollowing for invalid user', () => {
+    component.currentUser = { ...mockUser, following: ['other@example.com'] };
+    const invalidUser = null as unknown as User; // Simular usuario inválido
+    expect(component.isFollowing(invalidUser)).toBeFalse();
+  });
+
+  it('should call getAllOtherUsers from AuthService', () => {
+    (component as any).loadAllOtherUsers();
+    expect(authServiceSpy.getAllOtherUsers).toHaveBeenCalled();
+  });
 });

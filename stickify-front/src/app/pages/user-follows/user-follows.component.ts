@@ -53,6 +53,7 @@ export class UserFollowsComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error loading other users:', err);
+        this.allUsers = []; // Asegurar que allUsers esté vacío en caso de error
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -75,9 +76,11 @@ export class UserFollowsComponent implements OnInit, OnDestroy {
     }
   }
 
-  isFollowing(user: User): boolean {
-    // Check if currentUser exists and has a 'following' array that includes the target user's email
-    return !!this.currentUser?.following?.includes(user.email);
+  isFollowing(user: User | null): boolean {
+    if (!user || !this.currentUser || !this.currentUser.following) {
+      return false; // Manejar usuarios nulos o currentUser nulo o sin following
+    }
+    return this.currentUser.following.includes(user.email);
   }
 
   toggleFollow(userToToggle: User): void {
