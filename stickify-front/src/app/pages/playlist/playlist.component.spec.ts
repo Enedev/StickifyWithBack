@@ -37,6 +37,29 @@ describe('PlaylistComponent', () => {
     createdBy: 'testuser'
   };
 
+  const mockUser = {
+
+
+    id: '1',
+
+
+    email: 'test@example.com',
+
+
+    username: 'testuser',
+
+
+    password: 'testpass', // Agregado para cumplir con la interfaz User
+
+
+    premium: false,
+
+
+    following: []
+
+
+  };
+
   beforeEach(async () => {
     const playlistApiSpy = jasmine.createSpyObj('PlaylistApiService', ['createPlaylist', 'getAllPlaylists']);
     playlistApiSpy.getAllPlaylists.and.returnValue(of([]));
@@ -236,6 +259,198 @@ describe('PlaylistComponent', () => {
       'Ya tienes esta playlist guardada',
       'info'
     );
+  });
+
+  it('should handle empty autoPlaylists in saveAutoPlaylistsToSupabaseInitially', async () => {
+
+
+
+    component.autoPlaylists = [];
+
+
+    const result = await component.saveAutoPlaylistsToSupabaseInitially();
+
+
+    expect(result).toEqual([]);
+
+
+  });
+
+
+
+
+
+  it('should toggle song selection for premium user', () => {
+
+
+    component.currentUser = { ...mockUser, premium: true };
+
+
+    component.selectedSongs = [];
+
+
+    component.toggleSongSelection(mockSong);
+
+
+    expect(component.selectedSongs).toContain(mockSong);
+
+
+    component.toggleSongSelection(mockSong);
+
+
+    expect(component.selectedSongs).not.toContain(mockSong);
+
+
+  });
+
+
+
+
+
+  it('should not toggle song selection for non-premium user', () => {
+
+
+    component.currentUser = { ...mockUser, premium: false };
+
+
+    const swalSpy = spyOn(Swal, 'fire');
+
+
+    component.toggleSongSelection(mockSong);
+
+
+    expect(swalSpy).toHaveBeenCalledWith(
+
+
+      jasmine.objectContaining({
+
+
+        title: 'Acceso Restringido',
+
+
+        text: 'Necesitas ser usuario Premium para seleccionar canciones para una playlist.'
+
+
+      })
+
+
+    );
+
+
+  });
+
+
+
+
+
+  it('should return default cover for empty playlist in getPlaylistCover', () => {
+
+
+    const emptyPlaylist: Playlist = { ...mockPlaylist, trackIds: [] };
+
+
+    const cover = component.getPlaylistCover(emptyPlaylist);
+
+
+    expect(cover).toBe('/assets/banner.jpg');
+
+
+  });
+
+
+
+
+
+  it('should return default cover if first song has no artwork in getPlaylistCover', () => {
+
+
+    spyOn(component, 'getPlaylistSongs').and.returnValue([{ ...mockSong, artworkUrl100: '' }]);
+
+
+    const cover = component.getPlaylistCover(mockPlaylist);
+
+
+    expect(cover).toBe('/assets/banner.jpg');
+
+
+  });
+
+
+
+
+
+  it('should open modal for premium user', () => {
+
+
+    component.currentUser = { ...mockUser, premium: true };
+
+
+    component.openModal();
+
+
+    expect(component.showModal).toBeTrue();
+
+
+    expect(component.selectedSongs).toEqual([]);
+
+
+    expect(component.newPlaylistName).toBe('');
+
+
+  });
+
+
+
+
+
+  it('should not open modal for non-premium user', () => {
+
+
+    component.currentUser = { ...mockUser, premium: false };
+
+
+    const swalSpy = spyOn(Swal, 'fire');
+
+
+    component.openModal();
+
+
+    expect(swalSpy).toHaveBeenCalledWith(
+
+
+      jasmine.objectContaining({
+
+
+        title: 'Acceso Restringido',
+
+
+        text: 'Necesitas ser usuario Premium para crear playlists.'
+
+
+      })
+
+
+    );
+
+
+  });
+
+
+
+
+
+  it('should close modal', () => {
+
+
+    component.showModal = true;
+
+
+    component.closeModal();
+
+
+    expect(component.showModal).toBeFalse();
+
+
   });
 
 });

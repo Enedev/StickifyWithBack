@@ -1,7 +1,0 @@
-organization=enedev
-projectKey=Enedev_StickifyWithBack
-serverUrl=https://sonarcloud.io
-serverVersion=8.0.0.67173
-dashboardUrl=https://sonarcloud.io/dashboard?id=Enedev_StickifyWithBack
-ceTaskId=AZlLE0O6GnwLVKo9dfz1
-ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZlLE0O6GnwLVKo9dfz1
