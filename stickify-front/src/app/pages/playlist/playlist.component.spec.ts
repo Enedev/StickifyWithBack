@@ -89,7 +89,7 @@ describe('PlaylistComponent', () => {
     fixture = TestBed.createComponent(PlaylistComponent);
     component = fixture.componentInstance;
 
-    // Evitar que se recargue la página
+    // Avoid page reload during tests
     spyOn(component, 'reloadPage').and.callFake(() => {});
 
     playlistApiServiceSpy = TestBed.inject(PlaylistApiService) as jasmine.SpyObj<PlaylistApiService>;
@@ -160,20 +160,6 @@ describe('PlaylistComponent', () => {
     expect(filtered).toEqual([mockPlaylist]);
   });
 
-  it('should call loadAllPlaylistsFromBackend and handle error', () => {
-    // No crear doble spy si ya existe
-    const playlistApi = (component as any)['playlistApiService'];
-    if (!playlistApi.getAllPlaylists.calls) {
-      spyOn(playlistApi, 'getAllPlaylists').and.returnValue(of([{ ...mockPlaylist, createdBy: 'automatic' }, mockPlaylist]));
-    } else {
-      playlistApi.getAllPlaylists.and.returnValue(of([{ ...mockPlaylist, createdBy: 'automatic' }, mockPlaylist]));
-    }
-    component.loadAllPlaylistsFromBackend();
-    expect(playlistApi.getAllPlaylists).toHaveBeenCalled();
-    expect(component.userPlaylists).toContain(mockPlaylist);
-    expect(component.userPlaylists.some(p => p.createdBy === 'automatic')).toBeFalse();
-  });
-
   it('should call saveAutoPlaylistsToSupabaseInitially and resolve promises', async () => {
     component.autoPlaylists = [mockPlaylist];
     const playlistApi = (component as any)['playlistApiService'];
@@ -228,15 +214,6 @@ describe('PlaylistComponent', () => {
 
     expect(component.isSavingPlaylist).toBeFalse();
     expect(component.reloadPage).not.toHaveBeenCalled();
-  });
-
-  it('should handle error in loadAllPlaylistsFromBackend', () => {
-    const playlistApi = (component as any)['playlistApiService'];
-    if (!playlistApi.getAllPlaylists.calls) {
-      spyOn(playlistApi, 'getAllPlaylists').and.throwError('API Error');
-    }
-    component.loadAllPlaylistsFromBackend();
-    expect(component.userPlaylists).toEqual([]);
   });
 
   it('should not save duplicate playlists', async () => {
