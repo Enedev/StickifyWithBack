@@ -178,7 +178,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     return this.allUsersMap.get(email) || email;
   }
 
-  /** ✅ Método reutilizable para activar/desactivar Premium */
   private updatePremiumStatus(email: string, enable: boolean, successMsg: string, errorMsg: string): void {
     this.authService.updateUserPremiumStatus(email, enable).subscribe({
       next: (success) => {
