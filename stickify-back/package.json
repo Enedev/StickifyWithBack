@@ -84,7 +84,8 @@
     "collectCoverage": true,
     "coverageReporters": ["json","lcov","text","clover"],
     "coveragePathIgnorePatterns": [
-      ".*/dto/.*"
+      ".*/dto/.*",
+      "main.ts$"
     ]
   }
 }
