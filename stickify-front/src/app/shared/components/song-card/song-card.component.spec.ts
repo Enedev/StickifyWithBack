@@ -34,27 +34,43 @@ describe('SongCardComponent', () => {
   });
 
   it('should create', () => {
+    //Assert
     expect(component).toBeTruthy();
   });
 
   it('should return correct stars for integer rating', () => {
+    //Arrange
     component.averageRating = 3;
-    expect(component.getStarArray()).toEqual(['★', '★', '★', '☆', '☆']);
+    //Act
+    const result = component.getStarArray()
+    //Assert
+    expect(result).toEqual(['★', '★', '★', '☆', '☆']);
   });
 
   it('should return correct stars for half rating', () => {
+    //Arrange
     component.averageRating = 2.5;
-    expect(component.getStarArray()).toEqual(['★', '★', '½', '☆', '☆']);
+    //Act
+    const result = component.getStarArray()
+    //Assert
+    expect(result).toEqual(['★', '★', '½', '☆', '☆']);
   });
 
   it('should return all empty stars for zero rating', () => {
+    //Arrange
     component.averageRating = 0;
-    expect(component.getStarArray()).toEqual(['☆', '☆', '☆', '☆', '☆']);
+    //Act
+    const result = component.getStarArray()
+    //Assert
+    expect(result).toEqual(['☆', '☆', '☆', '☆', '☆']);
   });
 
   it('should emit songSelected event on click', () => {
+    //Arrange
     spyOn(component.songSelected, 'emit');
+    //Act
     component.onSongClick();
+    //Assert
     expect(component.songSelected.emit).toHaveBeenCalledWith(mockSong);
   });
 });

@@ -55,38 +55,50 @@ describe('NavComponent', () => {
 
   it('should set isHomePage to true when navigating to /home', () => {
     // 1. Simula un evento de navegación a la ruta '/home'
+    //Arrange
     const navigationEndEvent = new NavigationEnd(1, '/home', '/home');
     routerEventsSubject.next(navigationEndEvent);
 
     // 2. Ejecuta la detección de cambios para que el componente reaccione al evento
+    //Act
     fixture.detectChanges();
 
     // 3. Verifica que la propiedad isHomePage es verdadera
+    //Assert
     expect(component.isHomePage).toBeTrue();
   });
 
   it('should set isHomePage to false when navigating to a different page', () => {
     // 1. Simula un evento de navegación a una ruta diferente
+    // Arrange
     const navigationEndEvent = new NavigationEnd(1, '/other-page', '/other-page');
     routerEventsSubject.next(navigationEndEvent);
 
     // 2. Ejecuta la detección de cambios para que el componente reaccione al evento
+    //Act
     fixture.detectChanges();
 
     // 3. Verifica que la propiedad isHomePage es falsa
+    //Assert
     expect(component.isHomePage).toBeFalse();
   });
 
   it('should emit filterChanged event on onFilterChange', () => {
+    //Arrange
     spyOn(component.filterChanged, 'emit');
     const filters = { genre: 'Pop' };
+    //Act
     component.onFilterChange(filters);
+    //Assert
     expect(component.filterChanged.emit).toHaveBeenCalledWith(filters);
   });
 
   it('should call authService.logOut on logout', () => {
+    //Arrange
     const logOutSpy = spyOn(component.authService, 'logOut');
+    //Act
     component.logout();
+    //Assert
     expect(logOutSpy).toHaveBeenCalled();
   });
 });

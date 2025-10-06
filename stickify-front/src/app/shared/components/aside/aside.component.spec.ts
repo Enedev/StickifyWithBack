@@ -58,24 +58,54 @@ describe('AsideComponent', () => {
   });
 
   it('should create', () => {
+    //Assert
     expect(component).toBeTruthy();
   });
 
   it('should subscribe and set topRatedSongs on init', () => {
+    //Assert
     expect(component.topRatedSongs).toEqual(mockRatedSongs);
   });
 
   it('should unsubscribe on destroy', () => {
     // Simulate a subscription
+    //Arrange
     const fakeSub = jasmine.createSpyObj('Subscription', ['unsubscribe']);
     (component as any).topRatedSubscription = fakeSub;
+    //Act
     component.ngOnDestroy();
+
+    //Assert
     expect(fakeSub.unsubscribe).toHaveBeenCalled();
   });
 
   it('should return correct star array for full, half, and empty stars', () => {
-    expect(component.getStarArray(4.5)).toEqual(['★', '★', '★', '★', '½']);
-    expect(component.getStarArray(3)).toEqual(['★', '★', '★', '☆', '☆']);
-    expect(component.getStarArray(0)).toEqual(['☆', '☆', '☆', '☆', '☆']);
-  });
+  // Arrange
+  const rating1 = 4.5;
+
+  // Act
+  const result1 = component.getStarArray(rating1);
+
+  // Assert
+  expect(result1).toEqual(['★', '★', '★', '★', '½']);
+
+  // Arrange
+  const rating2 = 3;
+
+  // Act
+  const result2 = component.getStarArray(rating2);
+
+  // Assert
+  expect(result2).toEqual(['★', '★', '★', '☆', '☆']);
+
+  // Arrange
+  const rating3 = 0;
+
+  // Act
+  const result3 = component.getStarArray(rating3);
+
+  // Assert
+  expect(result3).toEqual(['☆', '☆', '☆', '☆', '☆']);
+});
+
 });
