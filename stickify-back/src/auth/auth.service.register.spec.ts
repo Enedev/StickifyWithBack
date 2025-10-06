@@ -17,14 +17,15 @@ describe('AuthService - signUp', () => {
     followers: [],
     following: [],
   };
-
+  //Mock servicio de usuarios (simula la lógica de creación de usuarios)
   const mockUserService = {
     create: jest.fn(),
   };
-
+  //Mock 
   const mockUserRepository = {};
 
   beforeEach(async () => {
+    //Arrange crea un modulo e inyecta los mocks
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -38,15 +39,17 @@ describe('AuthService - signUp', () => {
   });
 
   it('should call userService.create with correct data and return the created user', async () => {
+    //Arrange configura el mock para que devuelva un usuario cuando se llame al servicio create
     mockUserService.create.mockResolvedValue(mockUser);
 
+    //Act con datos del usuario
     const result = await authService.signUp({
       username: 'NewUser',
       email: 'newuser@example.com',
       password: 'password123',
       premium: false,
     });
-
+    //Assert 
     expect(userService.create).toHaveBeenCalledWith({
       username: 'NewUser',
       email: 'newuser@example.com',
@@ -55,7 +58,7 @@ describe('AuthService - signUp', () => {
       followers: [],
       following: [],
     });
-
+    //Assert resultado final
     expect(result).toEqual(mockUser);
   });
 });

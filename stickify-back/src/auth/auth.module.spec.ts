@@ -12,6 +12,7 @@ describe('AuthModule', () => {
   let module: TestingModule;
 
   beforeEach(async () => {
+    //Arrange crea un modulo de prueba e importa AuthModule y JwtModule
     module = await Test.createTestingModule({
       imports: [
         AuthModule,
@@ -22,27 +23,35 @@ describe('AuthModule', () => {
         }),
       ],
     })
+      //Mock repositorio de usuarios 
       .overrideProvider(getRepositoryToken(User))
       .useValue({}) // mock vacío del repositorio
       .compile();
   });
 
   it('should be defined', () => {
+    //Assert
     expect(module).toBeDefined();
   });
 
   it('should provide AuthService', () => {
+    //Arrange
     const service = module.get<AuthService>(AuthService);
+    //Assert
     expect(service).toBeDefined();
   });
 
   it('should provide UsersService', () => {
+    //Arrange
     const service = module.get<UsersService>(UsersService);
+    //Assert
     expect(service).toBeDefined();
   });
 
   it('should register AuthController', () => {
+    //Arrange
     const controller = module.get<AuthController>(AuthController);
+    //Assert
     expect(controller).toBeDefined();
   });
 });

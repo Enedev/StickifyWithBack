@@ -7,7 +7,7 @@ import { SignUpDto } from './dto/sign-up.dto';
 describe('AuthController', () => {
   let controller: AuthController;
   let service: jest.Mocked<AuthService>;
-
+  //Arrange datos de prueba para login y registro
   const loginDto1: LoginDto = { email: 'user1@mail.com', password: 'pass1' };
   const loginDto2: LoginDto = { email: 'user2@mail.com', password: 'pass2' };
   const loginDto3: LoginDto = { email: 'user3@mail.com', password: 'pass3' };
@@ -17,6 +17,7 @@ describe('AuthController', () => {
   const signUpDto3: SignUpDto = { username: 'user3', email: 'user3@mail.com', password: 'pass3' };
 
   beforeEach(async () => {
+    //Mock del servicio de autenticación
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
@@ -29,6 +30,7 @@ describe('AuthController', () => {
         },
       ],
     }).compile();
+    //Arrange inicializa controller y servicio
     controller = module.get<AuthController>(AuthController);
     service = module.get(AuthService);
     jest.clearAllMocks();
@@ -36,6 +38,7 @@ describe('AuthController', () => {
 
   describe('login', () => {
     it('should login with 3 different users', async () => {
+      //Arrange datos para el login
       for (const dto of [loginDto1, loginDto2, loginDto3]) {
         const user = {
           id: dto.email.split('@')[0],
@@ -46,7 +49,9 @@ describe('AuthController', () => {
           following: [],
         };
         const result = { success: true, token: `${dto.email}-token`, user };
+        //Mock simula login
         service.login.mockResolvedValueOnce(result);
+        //Assert
         expect(await controller.login(dto)).toEqual(result);
       }
     });
@@ -54,9 +59,12 @@ describe('AuthController', () => {
 
   describe('signUp', () => {
     it('should sign up 3 different users', async () => {
+      //Arrange datos para el registro
       for (const dto of [signUpDto1, signUpDto2, signUpDto3]) {
         const result = { success: true, token: `${dto.username}-token` };
+        //Mock simula signUp
         service.signUp.mockResolvedValueOnce(result);
+        //Assert
         expect(await controller.signUp(dto)).toEqual(result);
       }
     });
