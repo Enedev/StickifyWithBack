@@ -84,22 +84,29 @@ describe('PlaylistService', () => {
   });
 
   it('debería crearse', () => {
+    //Assert
     expect(service).toBeTruthy();
   });
 
   it('debería obtener playlists del usuario correctamente', () => {
+    //Act
     const result = service.getUserPlaylists();
     
+    //Assert
     expect(playlistApiService.getUserPlaylists).toHaveBeenCalledWith(mockUser.email);
+    //Assert
     expect(result).toEqual([]); // La función retorna [] mientras carga async
   });
 
   it('debería manejar error al obtener playlists del usuario', () => {
+    //Arrange
     playlistApiService.getUserPlaylists.and.returnValue(throwError(() => new Error('Error')));
     spyOn(console, 'error');
     
+    //Act
     service.getUserPlaylists();
     
+    //Assert
     expect(console.error).toHaveBeenCalledWith(
       'Error al cargar las playlists del usuario desde el backend:',
       jasmine.any(Error)
@@ -107,44 +114,62 @@ describe('PlaylistService', () => {
   });
 
   it('debería advertir si no hay usuario logueado al obtener playlists', () => {
+    //Arrange
     // Simular que no hay usuario
     Object.defineProperty(authService, 'currentUser', { get: () => null });
     spyOn(console, 'warn');
     
+    //Act
     service.getUserPlaylists();
     
+    //Assert
     expect(console.warn).toHaveBeenCalledWith('No hay usuario logueado para cargar playlists.');
   });
 
   it('debería crear una playlist de usuario correctamente', () => {
+    //Arrange
     const playlistName = 'Nueva Playlist';
+    //Act
     const playlist = service.createUserPlaylist(playlistName, mockSongs);
     
+    //Assert
     expect(playlist).toBeDefined();
+    //Assert
     expect(playlist.name).toBe(playlistName);
+    //Assert
     expect(playlist.trackIds).toEqual(mockSongs.map(s => s.trackId.toString()));
+    //Assert
     expect(playlist.type).toBe('user');
+    //Assert
     expect(playlist.createdBy).toBe(mockUser.email);
   });
 
   it('debería lanzar error al crear playlist sin usuario logueado', () => {
+    //Arrange
     // Simular que no hay usuario
     Object.defineProperty(authService, 'currentUser', { get: () => null });
     
+    //Act y Assert
     expect(() => service.createUserPlaylist('Test', mockSongs))
       .toThrowError('Usuario no identificado.');
   });
 
   it('debería generar playlists automáticas por género', () => {
+    //Arrange y Act
     const autoPlaylists = service.generateAutoPlaylists(mockSongs);
     
+    //Assert
     expect(autoPlaylists.length).toBe(2); // Pop y Rock
+    //Assert
     expect(autoPlaylists[0].type).toBe('auto');
+    //Assert
     expect(autoPlaylists[0].trackIds).toContain('1'); // Pop song
+    //Assert
     expect(autoPlaylists[1].trackIds).toContain('2'); // Rock song
   });
 
   it('debería obtener canciones de una playlist', () => {
+    //Arrange
     const playlist: Playlist = {
       id: '1',
       name: 'Test Playlist',
@@ -154,10 +179,14 @@ describe('PlaylistService', () => {
       createdBy: mockUser.email
     };
     
+    //Act
     const songs = service.getPlaylistSongs(playlist, mockSongs);
     
+    //Assert
     expect(songs.length).toBe(2);
+    //Assert
     expect(songs[0]).toEqual(mockSongs[0]);
+    //Assert
     expect(songs[1]).toEqual(mockSongs[1]);
   });
 });

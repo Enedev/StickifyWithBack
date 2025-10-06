@@ -51,95 +51,126 @@ describe('PlaylistApiService', () => {
   });
 
   it('debería crearse', () => {
+    //Assert
     expect(service).toBeTruthy();
   });
 
   it('debería crear una playlist', () => {
-    service.createPlaylist(mockPlaylist).subscribe(playlist => {
+    //Arrange
+    service.createPlaylist(mockPlaylist).subscribe(playlist => { //Act
+      //Assert
       expect(playlist).toEqual(mockPlaylist);
     });
 
     const req = httpMock.expectOne('http://localhost:3000/api/playlists');
+    //Assert
     expect(req.request.method).toBe('POST');
+    //Assert
     expect(req.request.body).toEqual(mockPlaylist);
     req.flush(mockPlaylist);
   });
 
   it('debería obtener todas las playlists', () => {
-    service.getAllPlaylists().subscribe(playlists => {
+    //Arrange
+    service.getAllPlaylists().subscribe(playlists => {//Act
+      //Assert
       expect(playlists).toEqual(mockPlaylists);
     });
 
     const req = httpMock.expectOne('http://localhost:3000/api/playlists');
+    //Assert
     expect(req.request.method).toBe('GET');
     req.flush(mockPlaylists);
   });
 
   it('debería guardar una playlist para un usuario', () => {
+    //Arrange
     const userId = 'test@user.com';
     const playlistId = '1';
 
+    //Act
     service.saveUserPlaylist(userId, playlistId).subscribe(savedPlaylist => {
+      //Assert
       expect(savedPlaylist).toEqual(mockUserSavedPlaylist);
     });
 
     const req = httpMock.expectOne('http://localhost:3000/api/user-saved-playlists');
+    //Assert
     expect(req.request.method).toBe('POST');
+    //Assert
     expect(req.request.body).toEqual({ userId, playlistId });
     req.flush(mockUserSavedPlaylist);
   });
 
   it('debería obtener las playlists guardadas de un usuario', () => {
+    //Arrange
     const userId = 'test@user.com';
 
+    //Act
     service.getUserSavedPlaylists(userId).subscribe(playlists => {
+      //Assert
       expect(playlists).toEqual(mockPlaylists);
     });
 
     const req = httpMock.expectOne(`http://localhost:3000/api/user-saved-playlists/user/${userId}/full`);
+    //Assert
     expect(req.request.method).toBe('GET');
     req.flush(mockPlaylists);
   });
 
   it('debería obtener una playlist por nombre', () => {
+    //Arrange
     const playlistName = 'Test Playlist';
 
+    //Act
     service.getPlaylistByName(playlistName).subscribe(playlist => {
+      //Assert
       expect(playlist).toEqual(mockPlaylist);
     });
 
     const req = httpMock.expectOne(`http://localhost:3000/api/playlists/by-name/${encodeURIComponent(playlistName)}`);
+    //Assert
     expect(req.request.method).toBe('GET');
     req.flush(mockPlaylist);
   });
 
   it('debería obtener las playlists de un usuario', () => {
+    //Arrange
     const userId = 'test@user.com';
 
+    //Act
     service.getUserPlaylists(userId).subscribe(playlists => {
+      //Assert
       expect(playlists).toEqual(mockPlaylists);
     });
 
     const req = httpMock.expectOne(`http://localhost:3000/api/playlists/user/${userId}`);
+    //Assert
     expect(req.request.method).toBe('GET');
     req.flush(mockPlaylists);
   });
 
   it('debería obtener las playlists de todos los usuarios', () => {
+    //Arrange
     const userId = 'test@user.com';
 
+    //Act
     service.getAllUsersPlaylists(userId).subscribe(playlists => {
+      //Assert
       expect(playlists).toEqual(mockPlaylists);
     });
 
     const req = httpMock.expectOne(`http://localhost:3000/api/playlists/user`);
+    //Assert
     expect(req.request.method).toBe('GET');
     req.flush(mockPlaylists);
   });
 
   it('debería manejar errores al crear una playlist', () => {
-    service.createPlaylist(mockPlaylist).subscribe({
+    //Arrange
+    service.createPlaylist(mockPlaylist).subscribe({//Act
       error: (error) => {
+        //Assert
         expect(error.status).toBe(500);
       }
     });
@@ -152,8 +183,10 @@ describe('PlaylistApiService', () => {
   });
 
   it('debería manejar errores al obtener playlists', () => {
-    service.getAllPlaylists().subscribe({
+    //Arrange
+    service.getAllPlaylists().subscribe({ //Act
       error: (error) => {
+        //Assert
         expect(error.status).toBe(500);
       }
     });

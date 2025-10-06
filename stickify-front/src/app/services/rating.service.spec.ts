@@ -52,40 +52,57 @@ describe('RatingService', () => {
   });
 
   it('debería crearse', () => {
+    //Assert
     expect(service).toBeTruthy();
   });
 
   it('debería cargar ratings desde el backend', () => {
+    //Arrange
     (service as any).__originalLoadRatings.call(service);
+    //Act 
     const req = httpMock.expectOne(`${environment.backendUrl}/ratings`);
+    //Assert
     expect(req.request.method).toBe('GET');
     req.flush(mockRatings);
+    //Assert
     expect(service.currentRatings[1]['user1']).toBe(5);
+    //Assert
     expect(service.currentRatings[1]['user2']).toBe(3);
   });
 
   it('debería manejar error al cargar ratings', () => {
+    //Arrange
     (service as any).__originalLoadRatings.call(service);
     const req = httpMock.expectOne(`${environment.backendUrl}/ratings`);
+    //Act
     req.error(new ErrorEvent('Error'));
   });
 
   it('debería calcular el promedio de rating de una canción', () => {
+    //Arrange
     service['userRatingsSubject'].next({ 1: { user1: 5, user2: 3 } });
+    //Act
     const avg = service.getAverageRatingForSong(1);
+    //Assert
     expect(avg).toBe(4);
   });
 
   it('debería actualizar las canciones mejor calificadas', () => {
+    //Arrange
     service['userRatingsSubject'].next({ 1: { user1: 5, user2: 3 } });
+    //Act
     service.updateTopRatedSongs(mockSongs);
+    //Assert
     expect(service.topRatedSongs$).toBeTruthy();
   });
 
   it('debería calificar una canción', (done) => {
+    //Arrange
     service.rateSong('user1', 1, 5);
     // Consumir el POST inmediatamente
+    //Act
     const postReq = httpMock.expectOne(`${environment.backendUrl}/ratings`);
+    //Assert
     expect(postReq.request.method).toBe('POST');
     postReq.flush({});
     
@@ -95,6 +112,7 @@ describe('RatingService', () => {
       (service as any).__originalLoadRatings.call(service);
       const getReq = httpMock.expectOne(`${environment.backendUrl}/ratings`);
       getReq.flush(mockRatings);
+      //Assert
       done();
     });
   });

@@ -83,44 +83,58 @@ describe('ProfileComponent', () => {
   });
 
   it('should create component', () => {
+    // Assert
     expect(component).toBeTruthy();
   });
 
   it('should load user data and subscribe to songs$', () => {
+  // Arrange
   spyOn(component as any, 'loadAllProfileData');
   component.currentUser = { ...mockUser };
+  // Act
   component.ngOnInit();
+  // Assert
   expect(component.currentUser).toEqual(mockUser);
   expect((component as any).loadAllProfileData).toHaveBeenCalled();
   });
 
   it('should unsubscribe on destroy', () => {
+    // Arrange
     const songSub = new Subject<Song[]>().subscribe();
     const userSub = new Subject<User[]>().subscribe();
     (component as any).songsSubscription = songSub;
     (component as any).usersSubscription = userSub;
     spyOn(songSub, 'unsubscribe');
     spyOn(userSub, 'unsubscribe');
+    // Act
     component.ngOnDestroy();
+    // Assert
     expect(songSub.unsubscribe).toHaveBeenCalled();
     expect(userSub.unsubscribe).toHaveBeenCalled();
   });
 
   it('should process fetched ratings correctly', () => {
+  // Arrange
   const ratings: BackendSongRating[] = [{ trackId: 1, rating: 4, userId: '1' }];
     component.allSongs = mockSongs;
+  // Act
     const result = (component as any).processFetchedRatings(ratings);
+  // Assert
     expect(result[0].songName).toBe('Song One');
   });
 
   it('should process fetched comments correctly', () => {
+  // Arrange
   const comments: BackendComment[] = [{ id: 'c1', user: 'testuser', trackId: 2, text: 'Nice', date: 20230101 }];
     component.allSongs = mockSongs;
+  // Act
     const result = (component as any).processFetchedComments(comments);
+  // Assert
     expect(result[0].songName).toBe('Song Two');
   });
 
   it('should return playlist cover from song', () => {
+    // Arrange
     component.allSongs = mockSongs;
     const playlist: Playlist = {
       id: 'p1',
@@ -131,11 +145,14 @@ describe('ProfileComponent', () => {
       cover: 'cover1.jpg',
       createdBy: 'testuser'
     };
+    // Act
     const cover = component.getPlaylistCoverForProfile(playlist);
+    // Assert
     expect(cover).toBe('cover1.jpg');
   });
 
   it('should return default cover if no match', () => {
+    // Arrange
     const playlist: Playlist = {
       id: 'p2',
       name: 'Empty Playlist',
@@ -146,59 +163,79 @@ describe('ProfileComponent', () => {
       createdBy: 'testuser'
     };
     component.allSongs = mockSongs;
+    // Act
     const cover = component.getPlaylistCoverForProfile(playlist);
+    // Assert
     expect(cover).toBe('/assets/banner.jpg');
   });
 
   it('should call logout method', () => {
+    // Arrange
     component.logout();
+    // Assert
     expect(authServiceSpy.logOut).toHaveBeenCalled();
   });
 
   it('should update follow data correctly', () => {
+    // Arrange
     (component as any).allUsersMap.set('a@example.com', 'UserA');
     (component as any).allUsersMap.set('b@example.com', 'UserB');
     (component as any).allUsersMap.set('c@example.com', 'UserC');
+    // Act
     (component as any).updateFollowData();
+    // Assert
     expect(component.followersCount).toBe(2);
     expect(component.latestFollowersNames).toEqual(['UserB', 'UserA']);
     expect(component.latestFollowingNames).toEqual(['UserC']);
   });
 
   it('should toggle premium status and show modal if not premium', fakeAsync(() => {
+  // Arrange
   component.currentUser = { ...mockUser, premium: false };
+  // Act
   component.togglePremiumStatus();
   tick();
+  // Assert
   expect(component.showPremiumModal).toBeTrue();
   }));
 
   it('should handle premium modal confirmation', fakeAsync(() => {
+  // Arrange
   authServiceSpy.updateUserPremiumStatus.and.returnValue(of(true));
   component.currentUser = { ...mockUser, premium: false };
+  // Act
   component.handlePremiumModalClose(true);
   tick();
+  // Assert
   expect(component.currentUser!.premium).toBeTrue();
   }));
 
   it('should handle premium modal cancellation', fakeAsync(() => {
+  // Arrange
   spyOn(Swal, 'fire');
   component.currentUser = { ...mockUser };
+  // Act
   component.handlePremiumModalClose(false);
   tick();
+  // Assert
   expect(Swal.fire).toHaveBeenCalledWith(jasmine.objectContaining({ title: 'Pago cancelado' }));
   }));
 
   it('should handle error in loadAllUsersForMapping', fakeAsync(() => {
+  // Arrange
     spyOn(console, 'error');
     authServiceSpy.getAllOtherUsers.and.returnValue(throwError(() => new Error('fail')));
     
+  // Act
     component.ngOnInit();
     tick();
     
+  // Assert
     expect(console.error).toHaveBeenCalledWith('Error loading all users for mapping:', jasmine.any(Error));
   }));
 
   it('should handle error in loadAllProfileData', fakeAsync(() => {
+  // Arrange
     spyOn(console, 'error');
     spyOn(Swal, 'fire');
     
@@ -209,9 +246,11 @@ describe('ProfileComponent', () => {
     playlistApiSpy.getUserSavedPlaylists.and.returnValue(throwError(() => new Error('http fail')));
     
     // Llamar al método
+  // Act
     (component as any).loadAllProfileData();
     tick();
     
+  // Assert
     // Verificar que se muestra el error
     expect(Swal.fire).toHaveBeenCalledWith(jasmine.objectContaining({
       icon: 'error',
@@ -221,61 +260,83 @@ describe('ProfileComponent', () => {
   }));
 
   it('should not load profile data if email missing', () => {
+    // Arrange
     spyOn(console, 'error');
     component.currentUser = { ...mockUser, email: '' };
+    // Act
     (component as any).loadAllProfileData();
+    // Assert
     expect(console.error).toHaveBeenCalledWith('Cannot load profile data: Current user email is missing.');
   });
 
   it('should fallback songName if rating song not found', () => {
+    // Arrange
     const ratings: BackendSongRating[] = [{ trackId: 999, rating: 5, userId: '1' }];
     component.allSongs = mockSongs;
+    // Act
     const result = (component as any).processFetchedRatings(ratings);
+    // Assert
     expect(result[0].songName).toContain('Canción ID: 999');
   });
 
   it('should fallback songName if comment song not found', () => {
+    // Arrange
     const comments: BackendComment[] = [{ id: 'c1', user: 'x', trackId: 999, text: 'Hello', date: 20230101 }];
     component.allSongs = mockSongs;
+    // Act
     const result = (component as any).processFetchedComments(comments);
+    // Assert
     expect(result[0].songName).toContain('Canción ID: 999');
   });
 
   it('should return default cover if trackIds is empty', () => {
+    // Arrange
     const playlist: Playlist = { id: 'p3', name: 'Empty', trackIds: [], type: 'user', createdAt: new Date(), cover: '', createdBy: 'u' };
     component.allSongs = mockSongs;
+    // Act
     const cover = component.getPlaylistCoverForProfile(playlist);
+    // Assert
     expect(cover).toBe('/assets/banner.jpg');
   });
 
   it('should cancel premium if user is already premium and confirms', fakeAsync(async () => {
+    // Arrange
     spyOn(Swal, 'fire').and.returnValue(Promise.resolve({ isConfirmed: true }) as any);
     authServiceSpy.updateUserPremiumStatus.and.returnValue(of(true));
     component.currentUser = { ...mockUser, premium: true };
+    // Act
     await component.togglePremiumStatus();
     tick();
+    // Assert
     expect(authServiceSpy.updateUserPremiumStatus).toHaveBeenCalledWith(mockUser.email, false);
   }));
 
   it('should not cancel premium if user is already premium and cancels', fakeAsync(async () => {
+    // Arrange
     spyOn(Swal, 'fire').and.returnValue(Promise.resolve({ isConfirmed: false }) as any);
     authServiceSpy.updateUserPremiumStatus.and.returnValue(of(true));
     component.currentUser = { ...mockUser, premium: true };
+    // Act
     await component.togglePremiumStatus();
     tick();
+    // Assert
     expect(authServiceSpy.updateUserPremiumStatus).not.toHaveBeenCalled();
   }));
 
   it('should show error if updateUserPremiumStatus returns false', fakeAsync(() => {
+    // Arrange
     spyOn(Swal, 'fire');
     authServiceSpy.updateUserPremiumStatus.and.returnValue(of(false));
     component.currentUser = { ...mockUser };
+    // Act
     (component as any).updatePremiumStatus(mockUser.email, true, 'ok', 'fail');
     tick();
+    // Assert
     expect(Swal.fire).toHaveBeenCalledWith(jasmine.objectContaining({ icon: 'error' }));
   }));
 
   it('should show error if updateUserPremiumStatus throws error', fakeAsync(() => {
+    // Arrange
     spyOn(console, 'error');
     spyOn(Swal, 'fire');
     
@@ -286,6 +347,7 @@ describe('ProfileComponent', () => {
     component.currentUser = { ...mockUser };
     
     // Llamar al método privado
+    // Act
     (component as any).updatePremiumStatus(
       mockUser.email,
       true,
@@ -295,6 +357,7 @@ describe('ProfileComponent', () => {
     
     tick();
     
+    // Assert
     // Verificar que se muestra el mensaje de error
     expect(Swal.fire).toHaveBeenCalledWith(jasmine.objectContaining({
       icon: 'error',

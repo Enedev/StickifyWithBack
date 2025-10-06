@@ -9,14 +9,20 @@ describe('AppComponent', () => {
   });
 
   it('should create the app', () => {
+    //Arrange
     const fixture = TestBed.createComponent(AppComponent);
+    //Act
     const app = fixture.componentInstance;
+    //Assert
     expect(app).toBeTruthy();
   });
 
   it(`should have the 'stickify-app' title`, () => {
+    //Arrange
     const fixture = TestBed.createComponent(AppComponent);
+    //Act
     const app = fixture.componentInstance;
+    //Assert
     expect(app.title).toEqual('stickify-app');
   });
 });

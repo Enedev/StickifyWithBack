@@ -37,20 +37,23 @@ describe('SongApiService', () => {
   });
 
   it('should be created', () => {
+    //Assert
     expect(service).toBeTruthy();
   });
 
   describe('createSong', () => {
     it('should make a POST request to create a song', () => {
-      // Act
-      service.createSong(mockSong).subscribe(response => {
-        // Assert response
+      //Arrange
+      
+      service.createSong(mockSong).subscribe(response => { //Act
+        //Assert
         expect(response).toEqual(mockSong);
       });
 
-      // Assert request
       const req = httpMock.expectOne('http://localhost:3000/api/songs');
+      //Assert
       expect(req.request.method).toBe('POST');
+      //Assert
       expect(req.request.body).toEqual(mockSong);
 
       // Respond with mock data
@@ -58,15 +61,15 @@ describe('SongApiService', () => {
     });
 
     it('should handle errors when creating a song', () => {
-      // Act
-      service.createSong(mockSong).subscribe({
+      //Arrange
+      service.createSong(mockSong).subscribe({ //Act
         error: (error) => {
-          // Assert error handling
+          //Assert
           expect(error.status).toBe(500);
         }
       });
 
-      // Assert request and simulate error
+      //Assert request and simulate error
       const req = httpMock.expectOne('http://localhost:3000/api/songs');
       req.flush('Error creating song', {
         status: 500,
@@ -77,9 +80,11 @@ describe('SongApiService', () => {
 
   // Test base URL configuration
   it('should use correct base URL for API requests', () => {
+    //Arrange
     service.createSong(mockSong).subscribe();
-    
+    // Act
     const req = httpMock.expectOne('http://localhost:3000/api/songs');
+    //Assert
     expect(req.request.url).toBe('http://localhost:3000/api/songs');
     req.flush({});
   });
