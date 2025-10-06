@@ -30,6 +30,7 @@ describe('LogInComponent', () => {
       ],
     }).compileComponents();
 
+    // Arrange (configuración e inicialización común para todos los tests)
     fixture = TestBed.createComponent(LogInComponent);
     component = fixture.componentInstance;
     authService = TestBed.inject(AuthService);
@@ -43,48 +44,53 @@ describe('LogInComponent', () => {
   });
 
   it('should create', () => {
+    //Assert
     expect(component).toBeTruthy();
   });
 
   it('should not call authService.logIn with an invalid form', async () => {
     // El formulario está vacío, por lo que es inválido por defecto
+
+    // Act
     await component.onLogin();
 
+    // Assert
     expect(swalSpy).toHaveBeenCalledWith(jasmine.objectContaining({ icon: 'error' }));
-
-    // Verificamos que el método de login del servicio no haya sido llamado
-    expect(authServiceSpy).not.toHaveBeenCalled();
+    expect(authServiceSpy).not.toHaveBeenCalled(); // Verificamos que el método de login del servicio no haya sido llamado
   });
 
   it('should call authService.logIn and navigate on valid credentials', async () => {
+    // Arrange
     authServiceSpy.and.returnValue(of(true));
-
     // Establecemos valores válidos en el formulario
     component.loginForm.get('email')?.setValue('test@example.com');
     component.loginForm.get('password')?.setValue('password123');
 
+    // Act
     await component.onLogin();
 
-    // Verificamos que se haya llamado al método de login del servicio
+    // Assert
+    
     expect(authServiceSpy).toHaveBeenCalledWith({
       email: 'test@example.com',
       password: 'password123',
-    });
+    }); // Verificamos que se haya llamado al método de login del servicio
 
     expect(swalSpy).toHaveBeenCalledWith(jasmine.objectContaining({ icon: 'success' }));
-
-    // Verificamos que se haya navegado a la página de inicio ('/home')
-    expect(routerSpy).toHaveBeenCalledWith(['/home']);
+    expect(routerSpy).toHaveBeenCalledWith(['/home']); // Verificamos que se haya navegado a la página de inicio ('/home')
   });
 
   it('should show an error message on login failure', async () => {
+    // Arrange
     authServiceSpy.and.returnValue(throwError(() => ({ message: 'Login failed' })));
 
     component.loginForm.get('email')?.setValue('test@example.com');
     component.loginForm.get('password')?.setValue('password123');
 
+    // Act
     await component.onLogin();
 
+    // Assert
     expect(authServiceSpy).toHaveBeenCalled();
 
     expect(swalSpy).toHaveBeenCalledWith(
