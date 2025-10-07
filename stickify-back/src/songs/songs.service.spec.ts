@@ -5,6 +5,7 @@ import { Song } from './entities/song.entity';
 import { Repository } from 'typeorm';
 import { CreateSongDto } from './dto/create-song.dto';
 
+//Mocks de canciones
 const mockSong1: Song = {
   trackId: 1,
   artistName: 'Artist 1',
@@ -51,6 +52,7 @@ describe('SongsService', () => {
       providers: [
         SongsService,
         {
+          //Mock del repositorio TypeORM
           provide: getRepositoryToken(Song),
           useValue: {
             create: jest.fn(),
@@ -70,26 +72,32 @@ describe('SongsService', () => {
 
   describe('create', () => {
     it('should create a song (3 times)', async () => {
+      //Arrange para probar los 3 mocks
       for (const song of [mockSong1, mockSong2, mockSong3]) {
         repo.create.mockReturnValue(song);
         repo.save.mockResolvedValue(song);
+        //Assert
         expect(await service.create(song)).toEqual(song);
       }
     });
     it('should return existing song if unique violation (3 times)', async () => {
+      //Arrange para probar los 3 mocks
       for (const song of [mockSong1, mockSong2, mockSong3]) {
         repo.create.mockReturnValue(song);
         const error: any = { code: '23505' };
         repo.save.mockRejectedValue(error);
         repo.findOne.mockResolvedValue(song);
+        //Assert
         expect(await service.create(song)).toEqual(song);
       }
     });
     it('should throw error for other exceptions (3 times)', async () => {
+      //Arrange para probar los 3 mocks
       for (const song of [mockSong1, mockSong2, mockSong3]) {
         repo.create.mockReturnValue(song);
         const error: any = { code: 'OTHER', message: 'fail' };
         repo.save.mockRejectedValue(error);
+        //Assert
         await expect(service.create(song)).rejects.toEqual(error);
       }
     });
@@ -97,33 +105,44 @@ describe('SongsService', () => {
 
   describe('createBatch', () => {
     it('should create all songs in batch', async () => {
+      //Arrange simula que create funcione para todas las canciones
       jest.spyOn(service, 'create').mockImplementation(song => Promise.resolve(song));
+      //Act
       const result = await service.createBatch([mockSong1, mockSong2, mockSong3]);
+      //Assert
       expect(result).toEqual([mockSong1, mockSong2, mockSong3]);
     });
     it('should handle partial failures in batch', async () => {
+      //Arrange simula que create falle para la segunda canción
       jest.spyOn(service, 'create')
         .mockResolvedValueOnce(mockSong1)
         .mockRejectedValueOnce(new Error('fail'))
         .mockResolvedValueOnce(mockSong3);
+      //Act
       const result = await service.createBatch([mockSong1, mockSong2, mockSong3]);
+      //Assert
       expect(result).toEqual([mockSong1, mockSong3]);
     });
     it('should return empty array if all fail', async () => {
+      //Arrange simula que create falle para todas las canciones
       jest.spyOn(service, 'create').mockRejectedValue(new Error('fail'));
+      //Act
       const result = await service.createBatch([mockSong1, mockSong2, mockSong3]);
+      //Assert
       expect(result).toEqual([]);
     });
   });
 
   describe('findAll', () => {
     it('should return all songs (3 times)', async () => {
+      //Arrange para probar los 3 mocks
       for (const arr of [
         [mockSong1],
         [mockSong2],
         [mockSong1, mockSong2, mockSong3],
       ]) {
         repo.find.mockResolvedValue(arr);
+        //Assert
         expect(await service.findAll()).toEqual(arr);
       }
     });
@@ -131,8 +150,10 @@ describe('SongsService', () => {
 
   describe('findOne', () => {
     it('should return a song by trackId (3 times)', async () => {
+      //Arrange para probar los 3 mocks
       for (const song of [mockSong1, mockSong2, mockSong3]) {
         repo.findOne.mockResolvedValue(song);
+        //Assert
         expect(await service.findOne(song.trackId)).toEqual(song);
       }
     });
@@ -140,15 +161,19 @@ describe('SongsService', () => {
 
   describe('update', () => {
     it('should update a song and return it (3 times)', async () => {
+      //Arrange para probar los 3 mocks
       for (const song of [mockSong1, mockSong2, mockSong3]) {
         repo.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] });
         repo.findOne.mockResolvedValue(song);
+        //Assert
         expect(await service.update(song.trackId, { trackName: 'Updated' })).toEqual(song);
       }
     });
     it('should return null if not found (3 times)', async () => {
+      //Arrange para probar los 3 mocks 
       for (const song of [mockSong1, mockSong2, mockSong3]) {
         repo.update.mockResolvedValue({ affected: 0, raw: {}, generatedMaps: [] });
+        //Assert
         expect(await service.update(song.trackId, { trackName: 'Updated' })).toBeNull();
       }
     });
@@ -156,10 +181,11 @@ describe('SongsService', () => {
 
   describe('remove', () => {
     it('should call delete 3 times', async () => {
-      // DeleteResult mock
+      //Arrange simula un resultado exitoso de delete
       const deleteResult = { raw: {}, affected: 1 };
       repo.delete.mockResolvedValue(deleteResult);
       for (const song of [mockSong1, mockSong2, mockSong3]) {
+        //Assert
         await expect(service.remove(song.trackId)).resolves.toBeUndefined();
         expect(repo.delete).toHaveBeenCalledWith(song.trackId);
       }
