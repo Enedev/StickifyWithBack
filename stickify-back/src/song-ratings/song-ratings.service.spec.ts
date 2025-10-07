@@ -37,9 +37,8 @@ describe('RatingsService', () => {
   });
 
   it('should insert a new rating if none exists', async () => {
-    //Arrange - Mock
     mockRepository.findOne.mockResolvedValue(null);
-
+    //Arrange
     const dto: CreateRatingDto = {
       userId: 'user123',
       trackId: 42,
@@ -57,10 +56,9 @@ describe('RatingsService', () => {
   });
 
   it('should update existing rating if found', async () => {
-    //Arrange - Mock
     const existing = { ...mockRating, rating: 3 };
     mockRepository.findOne.mockResolvedValue(existing);
-
+    //Arrange
     const dto: CreateRatingDto = {
       userId: 'user123',
       trackId: 42,
@@ -99,7 +97,7 @@ describe('RatingsService', () => {
   });
 
   it('should return average rating for a track', async () => {
-    //Arrange - Mock
+    //Arrange
     mockRepository.find.mockResolvedValue([
       { userId: 'u1', trackId: 42, rating: 4 },
       { userId: 'u2', trackId: 42, rating: 5 },
@@ -112,7 +110,7 @@ describe('RatingsService', () => {
   });
 
   it('should return 0 if no ratings found for track', async () => {
-    //Arrange - Mock
+    //Arrange
     mockRepository.find.mockResolvedValue([]);
     //Act
     const result = await service.getAverageRating(999);

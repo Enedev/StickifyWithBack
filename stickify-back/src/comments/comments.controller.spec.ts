@@ -39,7 +39,7 @@ describe('CommentsController', () => {
   describe('create', () => {
     it('should create a comment (3 times)', async () => {
       for (const comment of [mockComment1, mockComment2, mockComment3]) {
-        //Mock simula la creación del comentario
+        //Act simula la creación del comentario
         service.create.mockResolvedValueOnce(comment);
         //Arrange dto de creación
         const dto: CreateCommentDto = { user: comment.user, text: comment.text, date: comment.date, trackId: comment.trackId };
@@ -56,7 +56,7 @@ describe('CommentsController', () => {
         [mockComment2],
         [mockComment1, mockComment2, mockComment3],
       ]) {
-        //Mock simula la obtención de todos los comentarios
+        //Act simula la obtención de todos los comentarios
         service.findAll.mockResolvedValueOnce(arr);
         //Assert
         expect(await controller.findAll()).toEqual(arr);
@@ -71,7 +71,7 @@ describe('CommentsController', () => {
         [mockComment2],
         [mockComment1, mockComment2, mockComment3],
       ]) {
-        //Mock
+        //Act
         service.findCommentsByUser.mockResolvedValueOnce(arr);
         //Assert
         expect(await controller.findCommentsByUser(arr[0].user)).toEqual(arr);
@@ -82,7 +82,7 @@ describe('CommentsController', () => {
   describe('findOne', () => {
     it('should return a comment by id (3 times)', async () => {
       for (const comment of [mockComment1, mockComment2, mockComment3]) {
-        //Mock
+        //Act
         service.findOne.mockResolvedValueOnce(comment);
         //Assert
         expect(await controller.findOne(comment.id)).toEqual(comment);
@@ -93,7 +93,7 @@ describe('CommentsController', () => {
   describe('update', () => {
     it('should update a comment (3 times)', async () => {
       for (const comment of [mockComment1, mockComment2, mockComment3]) {
-        //Mock
+        //Act
         service.update.mockResolvedValueOnce(comment);
         //Assert
         expect(await controller.update(comment.id, { text: 'Actualizado' } as UpdateCommentDto)).toEqual(comment);
@@ -103,7 +103,7 @@ describe('CommentsController', () => {
 
   describe('remove', () => {
     it('should remove a comment (3 times)', async () => {
-      //Mock
+      //Act
       service.remove.mockResolvedValue(undefined);
       for (const comment of [mockComment1, mockComment2, mockComment3]) {
         //Assert

@@ -7,7 +7,7 @@ import { User } from '../user/entities/user.entity';
 describe('AuthService - signUp', () => {
   let authService: AuthService;
   let userService: UsersService;
-
+  //Mock datos de un usuario
   const mockUser: User = {
     id: '1234-5678',
     email: 'newuser@example.com',

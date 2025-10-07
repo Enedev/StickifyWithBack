@@ -61,7 +61,7 @@ describe('PlaylistsController', () => {
   describe('create', () => {
     it('should create a playlist (3 times)', async () => {
       for (const playlist of [mockPlaylist1, mockPlaylist2, mockPlaylist3]) {
-        //Mock
+        //Act
         service.create.mockResolvedValueOnce(playlist);
         //Arrange dto de creación
         const dto: CreatePlaylistDto = {
@@ -85,7 +85,7 @@ describe('PlaylistsController', () => {
         [mockPlaylist2],
         [mockPlaylist1, mockPlaylist2, mockPlaylist3],
       ]) {
-        //Mock
+        //Act
         service.findAll.mockResolvedValueOnce(arr);
         //Assert
         expect(await controller.findAll()).toEqual(arr);
@@ -100,7 +100,7 @@ describe('PlaylistsController', () => {
         [mockPlaylist2],
         [mockPlaylist1, mockPlaylist2, mockPlaylist3],
       ]) {
-        //Mock
+        //Act
         service.findAllPlaylistsByUserId.mockResolvedValueOnce(arr);
         //Assert
         expect(await controller.findUserPlaylists(arr[0].createdBy!)).toEqual(arr);
@@ -111,7 +111,7 @@ describe('PlaylistsController', () => {
   describe('findOne', () => {
     it('should return a playlist by id (3 times)', async () => {
       for (const playlist of [mockPlaylist1, mockPlaylist2, mockPlaylist3]) {
-        //Mock
+        //Act
         service.findOne.mockResolvedValueOnce(playlist);
         //Assert
         expect(await controller.findOne(playlist.id)).toEqual(playlist);
@@ -122,7 +122,7 @@ describe('PlaylistsController', () => {
   describe('update', () => {
     it('should update a playlist (3 times)', async () => {
       for (const playlist of [mockPlaylist1, mockPlaylist2, mockPlaylist3]) {
-        //Mock
+        //Act
         service.update.mockResolvedValueOnce(playlist);
         //Assert
         expect(await controller.update(playlist.id, { name: 'Actualizada' } as UpdatePlaylistDto)).toEqual(playlist);
@@ -132,7 +132,7 @@ describe('PlaylistsController', () => {
 
   describe('remove', () => {
     it('should remove a playlist (3 times)', async () => {
-      //Mock
+      //Act
       service.remove.mockResolvedValue(undefined);
       for (const playlist of [mockPlaylist1, mockPlaylist2, mockPlaylist3]) {
         //Assert
@@ -145,7 +145,7 @@ describe('PlaylistsController', () => {
   describe('findByName', () => {
     it('should find playlist by name (3 times)', async () => {
       for (const playlist of [mockPlaylist1, mockPlaylist2, mockPlaylist3]) {
-        //Mock
+        //Act
         service.findByName.mockResolvedValueOnce(playlist);
         //Assert
         expect(await controller.findByName(encodeURIComponent(playlist.name))).toEqual(playlist);

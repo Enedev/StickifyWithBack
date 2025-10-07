@@ -61,7 +61,7 @@ describe('AuthGuard', () => {
       //Arrange token inválido
       const token = 'invalid-token';
       const context = mockExecutionContext(`Bearer ${token}`);
-      //Mock para error en la verificación del token
+      //Act para error en la verificación del token
       jwtService.verify.mockImplementationOnce(() => {
         throw new Error('Invalid token');
       });

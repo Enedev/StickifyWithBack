@@ -35,7 +35,7 @@ describe('RatingsController', () => {
   describe('upsertRating', () => {
     it('should upsert a rating (3 times)', async () => {
       for (const rating of [mockRating1, mockRating2, mockRating3]) {
-        //Arrenge dto de creación
+        //Arrange dto de creación
         service.upsert.mockResolvedValueOnce(rating);
         //Act llama al metodo del controller
         const dto: CreateRatingDto = { userId: rating.userId, trackId: rating.trackId, rating: rating.rating };

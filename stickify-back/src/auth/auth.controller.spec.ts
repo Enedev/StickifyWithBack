@@ -7,7 +7,7 @@ import { SignUpDto } from './dto/sign-up.dto';
 describe('AuthController', () => {
   let controller: AuthController;
   let service: jest.Mocked<AuthService>;
-  //Arrange datos de prueba para login y registro
+  //Mock datos de prueba para login y registro
   const loginDto1: LoginDto = { email: 'user1@mail.com', password: 'pass1' };
   const loginDto2: LoginDto = { email: 'user2@mail.com', password: 'pass2' };
   const loginDto3: LoginDto = { email: 'user3@mail.com', password: 'pass3' };
@@ -49,7 +49,7 @@ describe('AuthController', () => {
           following: [],
         };
         const result = { success: true, token: `${dto.email}-token`, user };
-        //Mock simula login
+        //Act simula login
         service.login.mockResolvedValueOnce(result);
         //Assert
         expect(await controller.login(dto)).toEqual(result);
@@ -62,7 +62,7 @@ describe('AuthController', () => {
       //Arrange datos para el registro
       for (const dto of [signUpDto1, signUpDto2, signUpDto3]) {
         const result = { success: true, token: `${dto.username}-token` };
-        //Mock simula signUp
+        //Act simula signUp
         service.signUp.mockResolvedValueOnce(result);
         //Assert
         expect(await controller.signUp(dto)).toEqual(result);
