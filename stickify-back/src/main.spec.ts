@@ -8,6 +8,7 @@ describe('App (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
+    //Arrange
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -29,7 +30,9 @@ describe('App (e2e)', () => {
   });
 
   it('/ (GET) should return "Hello World!"', async () => {
+    //Act
     const res = await request(app.getHttpServer()).get('/api');
+    //Assert
     expect(res.status).toBe(200);
     expect(res.text).toBe('Hello World!');
   });

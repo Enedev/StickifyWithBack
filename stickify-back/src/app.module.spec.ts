@@ -6,6 +6,7 @@ describe('AppModule', () => {
   let appModule: AppModule;
 
   beforeEach(async () => {
+    //Arrange
     const module: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -14,6 +15,7 @@ describe('AppModule', () => {
   });
 
   it('should be defined', () => {
+    //Assert
     expect(appModule).toBeDefined();
   });
 });
