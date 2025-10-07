@@ -5,6 +5,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
+//Mock de usuarios
 const mockUser1: User = {
   id: '1',
   username: 'user1',
@@ -42,6 +43,7 @@ describe('UsersController', () => {
       controllers: [UsersController],
       providers: [
         {
+          //Mock del servicio de usuarios
           provide: UsersService,
           useValue: {
             create: jest.fn(),
@@ -63,8 +65,11 @@ describe('UsersController', () => {
   describe('create', () => {
     it('should create a user (3 times)', async () => {
       for (const user of [mockUser1, mockUser2, mockUser3]) {
+        //Arrange dto de creación
         const result = { success: true, token: `${user.username}-token` };
+        //Act simula la creación del usuario
         service.create.mockResolvedValueOnce(result);
+        //Assert
         expect(await controller.create(user as CreateUserDto)).toEqual(result);
       }
     });
@@ -77,7 +82,9 @@ describe('UsersController', () => {
         [mockUser2],
         [mockUser1, mockUser2, mockUser3],
       ]) {
+        //Act
         service.findAll.mockResolvedValueOnce(arr);
+        //Assert
         expect(await controller.findAll()).toEqual(arr);
       }
     });
@@ -86,7 +93,9 @@ describe('UsersController', () => {
   describe('findOne', () => {
     it('should return a user by id (3 times)', async () => {
       for (const user of [mockUser1, mockUser2, mockUser3]) {
+        //Act
         service.findOne.mockResolvedValueOnce(user);
+        //Assert
         expect(await controller.findOne(user.id)).toEqual(user);
       }
     });
@@ -95,7 +104,9 @@ describe('UsersController', () => {
   describe('update', () => {
     it('should update a user (3 times)', async () => {
       for (const user of [mockUser1, mockUser2, mockUser3]) {
+        //Act
         service.update.mockResolvedValueOnce(user);
+        //Assert
         expect(await controller.update(user.id, { username: 'updated' } as UpdateUserDto)).toEqual(user);
       }
     });
@@ -104,7 +115,9 @@ describe('UsersController', () => {
   describe('findByEmail', () => {
     it('should find user by email (3 times)', async () => {
       for (const user of [mockUser1, mockUser2, mockUser3]) {
+        //Act
         service.findByEmail.mockResolvedValueOnce(user);
+        //Assert
         expect(await controller.findByEmail(user.email)).toEqual(user);
       }
     });
@@ -112,8 +125,10 @@ describe('UsersController', () => {
 
   describe('remove', () => {
     it('should remove a user (3 times)', async () => {
+      //Act 
       service.remove.mockResolvedValue(undefined);
       for (const user of [mockUser1, mockUser2, mockUser3]) {
+        //Assert
         await expect(controller.remove(user.id)).resolves.toBeUndefined();
         expect(service.remove).toHaveBeenCalledWith(user.id);
       }
@@ -127,8 +142,10 @@ describe('UsersController', () => {
         [mockUser2, mockUser3],
         [mockUser3, mockUser1],
       ]) {
+        //Act 
         service.toggleFollow.mockResolvedValueOnce(user);
         const body = { targetEmail: target.email, follow: true };
+        //Assert
         expect(await controller.toggleFollow(user.id, body)).toEqual(user);
       }
     });

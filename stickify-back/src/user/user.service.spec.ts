@@ -6,6 +6,7 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
+//Mocks de usuarios
 const mockUser1: User = {
   id: '1',
   username: 'user1',
@@ -44,6 +45,7 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         {
+          //Mock del repositorio de usuarios TypeORM
           provide: getRepositoryToken(User),
           useValue: {
             create: jest.fn(),
@@ -55,6 +57,7 @@ describe('UsersService', () => {
           },
         },
         {
+          //Mock del servicio JWT
           provide: JwtService,
           useValue: { sign: jest.fn().mockReturnValue('token') },
         },
@@ -70,8 +73,10 @@ describe('UsersService', () => {
     it('should create a user and return token (3 times)', async () => {
       jest.spyOn(bcrypt, 'hashSync').mockReturnValue('hashed');
       for (const user of [mockUser1, mockUser2, mockUser3]) {
+        //Arrange
         repo.create.mockReturnValue(user);
         repo.save.mockResolvedValue(user);
+        //Assert
         expect(await service.create({ ...user, password: 'plain' })).toEqual({
           success: true,
           token: 'token',
@@ -81,8 +86,10 @@ describe('UsersService', () => {
     it('should throw BadRequestException on error (3 times)', async () => {
       jest.spyOn(bcrypt, 'hashSync').mockReturnValue('hashed');
       for (const user of [mockUser1, mockUser2, mockUser3]) {
+        //Arrange
         repo.create.mockReturnValue(user);
         repo.save.mockRejectedValue({ code: 'fail', detail: 'fail' });
+        //Assert
         await expect(service.create({ ...user, password: 'plain' })).rejects.toMatchObject({ response: { code: 'fail', detail: 'fail' } });
       }
     });
@@ -91,7 +98,9 @@ describe('UsersService', () => {
   describe('findByUsername', () => {
     it('should find user by username (3 times)', async () => {
       for (const user of [mockUser1, mockUser2, mockUser3]) {
+        //Act
         repo.findOne.mockResolvedValue(user);
+        //Assert
         expect(await service.findByUsername(user.username)).toEqual(user);
       }
     });
@@ -100,7 +109,9 @@ describe('UsersService', () => {
   describe('findOne', () => {
     it('should find user by id (3 times)', async () => {
       for (const user of [mockUser1, mockUser2, mockUser3]) {
+        //Act
         repo.findOne.mockResolvedValue(user);
+        //Assert
         expect(await service.findOne(user.id)).toEqual(user);
       }
     });
@@ -110,8 +121,10 @@ describe('UsersService', () => {
     it('should update user and return updated (3 times)', async () => {
       jest.spyOn(bcrypt, 'hashSync').mockReturnValue('hashed');
       for (const user of [mockUser1, mockUser2, mockUser3]) {
+        //Arrange
         repo.update.mockResolvedValue({ affected: 1, raw: {}, generatedMaps: [] });
         repo.findOne.mockResolvedValue(user);
+        //Assert
         expect(await service.update(user.id, { password: 'new' })).toEqual(user);
       }
     });
@@ -119,9 +132,11 @@ describe('UsersService', () => {
 
   describe('remove', () => {
     it('should call delete 3 times', async () => {
+      //Arrange simula un resultado exitoso de delete
       const deleteResult = { raw: {}, affected: 1 };
       repo.delete.mockResolvedValue(deleteResult);
       for (const user of [mockUser1, mockUser2, mockUser3]) {
+        //Assert
         await expect(service.remove(user.id)).resolves.toBeUndefined();
         expect(repo.delete).toHaveBeenCalledWith(user.id);
       }
@@ -131,7 +146,9 @@ describe('UsersService', () => {
   describe('findByEmail', () => {
     it('should find user by email (3 times)', async () => {
       for (const user of [mockUser1, mockUser2, mockUser3]) {
+        //Act
         repo.findOne.mockResolvedValue(user);
+        //Assert
         expect(await service.findByEmail(user.email)).toEqual(user);
       }
     });
@@ -144,6 +161,7 @@ describe('UsersService', () => {
         [mockUser2, mockUser3],
         [mockUser3, mockUser1],
     ]) {
+        //Arrange
         // Clonar para evitar efectos colaterales
         const user = { ...origUser, followers: [...origUser.followers], following: [...origUser.following] };
         const target = { ...origTarget, followers: [...origTarget.followers], following: [...origTarget.following] };
@@ -151,16 +169,18 @@ describe('UsersService', () => {
         repo.findOne.mockImplementationOnce(() => Promise.resolve(user))
                     .mockImplementationOnce(() => Promise.resolve(target));
         repo.save.mockResolvedValue(user);
-        // Follow
+        //Act Follow
         user.following = [];
         target.followers = [];
+        //Assert
         expect(await service.toggleFollow(user.id, target.email, true)).toEqual(user);
-        // Unfollow
+        //Act  Unfollow
         user.following = [target.email];
         target.followers = [user.email];
         // Mockear de nuevo para la segunda llamada
         repo.findOne.mockImplementationOnce(() => Promise.resolve(user))
                     .mockImplementationOnce(() => Promise.resolve(target));
+        //Assert
         expect(await service.toggleFollow(user.id, target.email, false)).toEqual(user);
     }
     });
@@ -173,7 +193,9 @@ describe('UsersService', () => {
         [mockUser2],
         [mockUser1, mockUser2, mockUser3],
       ]) {
+        //Act
         repo.find.mockResolvedValue(arr);
+        //Assert
         expect(await service.findAll()).toEqual(arr);
       }
     });
@@ -182,6 +204,7 @@ describe('UsersService', () => {
   describe('getToken', () => {
     it('should return a token (3 times)', () => {
       for (const user of [mockUser1, mockUser2, mockUser3]) {
+        //Assert
         expect(service.getToken(user)).toBe('token');
       }
     });
