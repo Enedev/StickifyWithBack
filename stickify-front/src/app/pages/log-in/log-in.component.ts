@@ -54,7 +54,7 @@ export class LogInComponent {
             title: "Éxito",
             text: "Inicio de sesión exitoso!",
             icon: "success",
-            color: "#716add",
+            color: "#22204b54",
             backdrop: `rgba(0,0,123,0.4) left top no-repeat`
           }).then(() => {
             this.router.navigate(['/home']);
