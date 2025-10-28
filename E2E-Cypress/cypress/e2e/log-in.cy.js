@@ -1,4 +1,3 @@
-//Credenciales de prueba
 const VALID_EMAIL = 'test@stickify.com';
 const VALID_PASSWORD = 'password123';
 const INVALID_EMAIL = 'bad@email.com';
