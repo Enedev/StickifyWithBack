@@ -8,41 +8,53 @@ const LOGIN_API_PATH = '/api/auth/login';
 
 describe('Flujo de Inicio de Sesión (Log In)', () => {
   beforeEach(() => {
-    cy.visit('/log-in'); 
+    cy.visit('/log-in');
   });
 
   // Caso de prueba 1, inicio de sesión exitoso
   it('debería permitir el login con credenciales válidas y navegar a /home', () => {
     cy.intercept('POST', LOGIN_API_PATH, {
-      statusCode: 200,
-      body: { 
-        token: 'mock-jwt-token', 
-        user: { id: 1, email: VALID_EMAIL } 
-      },
-    }).as('successfulLogin');
+    statusCode: 200,
+    body: {
+      success: true,
+      token: 'mock-jwt-token',
+      user: {
+        id: 1,
+        email: VALID_EMAIL,
+        username: 'testuser',
+        name: 'Test User',
+        premium: false,
+        followers: [],
+        following: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    },
+  }).as('successfulLogin');
 
-    //Ingresa credenciales válidas
-    cy.get('input[type="email"]').type(VALID_EMAIL);
-    cy.get('input[type="password"]').type(VALID_PASSWORD);
+  //Ingresa credenciales válidas
+  cy.get('input[type="email"]').type(VALID_EMAIL);
+  cy.get('input[type="password"]').type(VALID_PASSWORD);
 
-    cy.get('button[type="submit"]').click(); //clic en el botón de inicio de sesión
+  cy.get('button[type="submit"]').click(); //clic en el botón de inicio de sesión
 
-    cy.wait('@successfulLogin'); //Espera que la solicitud API se complete
-    cy.get('.swal2-popup').should('be.visible');
-    cy.get('.swal2-title').should('contain', 'Éxito');
-    cy.get('.swal2-html-container').should('contain', 'Inicio de sesión exitoso!');
-
-    //Hace clic en el botón 'OK' de la alerta para que SweetAlert desaparezca y se complete la navegación
-    cy.get('.swal2-confirm').click();
-    
-    cy.url().should('include', '/home'); //navega a /home
+  cy.wait('@successfulLogin').its('response.body').then((body) => {
+    expect(body).to.have.property('success', true);
+    expect(body).to.have.property('token');
+    expect(body).to.have.nested.property('user.email', VALID_EMAIL);
+  });
+  cy.get('.swal2-popup', { timeout: 10000 }).should('be.visible');
+  cy.get('.swal2-title').should('have.text', 'Éxito');
+  cy.get('.swal2-html-container').should('have.text', 'Inicio de sesión exitoso!');
+  cy.get('.swal2-confirm').click();
+  cy.url().should('include', '/home');
   });
 
   //Caso de Prueba 2, rechazo de credenciales inválidas
   it('debería mostrar un error con credenciales inválidas', () => {
     cy.intercept('POST', LOGIN_API_PATH, {
       statusCode: 404, //error de credenciales inválidas
-      body: { 
+      body: {
         detail: 'Invalid credentials'
       },
     }).as('failedLogin');
@@ -59,7 +71,7 @@ describe('Flujo de Inicio de Sesión (Log In)', () => {
     cy.get('.swal2-title').should('contain', 'Error');
     //Verifica el texto que se muestra el error 404
     cy.get('.swal2-html-container').should('contain', 'Correo electrónico o contraseña incorrectos.');
-    
+
     cy.get('.swal2-confirm').click(); //cierra la alerta
   });
 
@@ -69,14 +81,14 @@ describe('Flujo de Inicio de Sesión (Log In)', () => {
     //Asegurar de que los campos están vacíos
     cy.get('input[type="email"]').should('have.value', '');
     cy.get('input[type="password"]').should('have.value', '');
-    
+
     cy.get('button[type="submit"]').click(); //clic en el botón de iniciar sesión
 
     //Verifica el mensaje de validación de SweetAlert2
     cy.get('.swal2-popup').should('be.visible');
     cy.get('.swal2-title').should('contain', 'Error');
     cy.get('.swal2-html-container').should('contain', 'Por favor complete todos los campos correctamente');
-    
+
     cy.get('.swal2-confirm').click(); //Cierra la alerta
   });
 });
