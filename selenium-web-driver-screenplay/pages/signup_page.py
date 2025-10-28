@@ -1,11 +1,12 @@
 from screenpy import See
-from screenpy_selenium.actions import Click, Enter
+from screenpy_selenium.actions import Click, Enter, Wait
 from screenpy_selenium.questions import Text
 from screenpy_selenium.target import Target
 from screenpy.resolutions import IsEqualTo, ContainsTheText
 from selenium.webdriver.common.by import By
 
 from questions.browser_url import BrowserURL
+from questions.element_is_visible import ElementIsVisible
 
 
 class SignUpPage:
@@ -21,6 +22,11 @@ class SignUpPage:
     LOGIN_LINK = Target.the("login link").located_by("a[routerlink='/log-in']")
     BACK_BUTTON = Target.the("back button").located_by("a.button.secondary")
     TITLE_TEXT = Target.the("signup title").located_by("h1")
+    # SweetAlert2 modal's content appears in .swal2-html-container
+    SUCCESS_MESSAGE = Target.the("success message").located_by(".swal2-html-container")
+    # SweetAlert2 is used for error messages as well, so target the modal container
+    ERROR_MESSAGE = Target.the("error message").located_by(".swal2-html-container")
+    SWEET_ALERT_OK_BUTTON = Target.the("sweet alert OK button").located_by(".swal2-confirm")
 
     # --- ACCIONES ---
     @staticmethod
@@ -63,6 +69,11 @@ class SignUpPage:
         """Click the 'Volver' button."""
         return Click.on(SignUpPage.BACK_BUTTON)
 
+    @staticmethod
+    def click_sweet_alert_ok():
+        """Click the 'OK' button on a SweetAlert modal."""
+        return Click.on(SignUpPage.SWEET_ALERT_OK_BUTTON)
+
     # --- VALIDACIONES ---
     @staticmethod
     def title_is(expected_text: str):
@@ -78,3 +89,13 @@ class SignUpPage:
     def url_is(expected_url: str):
         """Verify that the current URL matches the expected sign-up route."""
         return See.the(BrowserURL(), IsEqualTo(expected_url))
+
+    @staticmethod
+    def success_message_visible():
+        """Verify that the success message is visible."""
+        return See.the(ElementIsVisible(SignUpPage.SUCCESS_MESSAGE), IsEqualTo(True))
+
+    @staticmethod
+    def error_message_visible():
+        """Verify that the error message is visible."""
+        return See.the(ElementIsVisible(SignUpPage.ERROR_MESSAGE), IsEqualTo(True))

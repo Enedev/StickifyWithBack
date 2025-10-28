@@ -57,3 +57,8 @@ def create_premium_user() -> Actor:
             UploadSongs.granted(),  # habilidad exclusiva
         )
     )
+
+def create_actor_named(name: str) -> Actor:
+    """Creates a new actor with the given name and standard abilities."""
+    browser = _create_browser()
+    return Actor.named(name).who_can(BrowseTheWeb.using(browser))

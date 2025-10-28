@@ -1,11 +1,14 @@
 from screenpy import See
-from screenpy_selenium.actions import Click
+from screenpy_selenium.actions import Click, Wait
 from screenpy_selenium.questions import Text
 from screenpy_selenium.target import Target
 from screenpy.resolutions import IsEqualTo, ContainsTheText
 from selenium.webdriver.common.by import By
 
 from questions.browser_url import BrowserURL
+from questions.element_is_visible import ElementIsVisible
+from questions.element_text import ElementText
+from questions.user_role import UserRole
 
 
 class ProfilePage:
@@ -59,44 +62,49 @@ class ProfilePage:
     @staticmethod
     def title_is(expected_text: str):
         """Verify the title matches the expected text."""
-        return See.the(Text.of(ProfilePage.TITLE), IsEqualTo(expected_text.strip()))
+        return See.the(ElementText(ProfilePage.TITLE), IsEqualTo(expected_text.strip()))
 
     @staticmethod
     def title_contains(partial_text: str):
         """Verify the title contains the expected phrase."""
-        return See.the(Text.of(ProfilePage.TITLE), ContainsTheText(partial_text.strip()))
+        return See.the(ElementText(ProfilePage.TITLE), ContainsTheText(partial_text.strip()))
 
     @staticmethod
     def verified_badge_is_visible():
         """Check if the verified account badge is visible."""
-        return See.the(Text.of(ProfilePage.VERIFIED_BADGE), ContainsTheText("Cuenta verificada"))
+        return See.the(ElementIsVisible(ProfilePage.VERIFIED_BADGE), IsEqualTo(True))
 
     @staticmethod
     def username_is(expected_username: str):
         """Verify that the displayed username matches the expected one."""
-        return See.the(Text.of(ProfilePage.USERNAME), IsEqualTo(expected_username.strip()))
+        return See.the(ElementText(ProfilePage.USERNAME), IsEqualTo(expected_username.strip()))
 
     @staticmethod
     def email_is(expected_email: str):
         """Verify that the displayed email matches the expected one."""
-        return See.the(Text.of(ProfilePage.EMAIL), IsEqualTo(expected_email.strip()))
+        return See.the(ElementText(ProfilePage.EMAIL), IsEqualTo(expected_email.strip()))
 
     @staticmethod
     def saved_playlists_are_visible():
         """Verify that saved playlists are displayed on the profile."""
-        return See.the(Text.of(ProfilePage.SAVED_PLAYLIST_CARD), ContainsTheText(""))
+        return See.the(ElementIsVisible(ProfilePage.SAVED_PLAYLIST_CARD), IsEqualTo(True))
 
     @staticmethod
     def no_saved_playlists_message(expected_text: str):
         """Verify the message when no playlists are saved."""
-        return See.the(Text.of(ProfilePage.SAVED_PLAYLISTS_TITLE), ContainsTheText(expected_text.strip()))
+        return See.the(ElementText(ProfilePage.SAVED_PLAYLISTS_TITLE), ContainsTheText(expected_text.strip()))
 
     @staticmethod
     def premium_modal_is_visible():
         """Check if the Premium modal is displayed."""
-        return See.the(Text.of(ProfilePage.PREMIUM_MODAL), ContainsTheText(""))
+        return See.the(ElementIsVisible(ProfilePage.PREMIUM_MODAL), IsEqualTo(True))
 
     @staticmethod
     def url_is(expected_url: str):
         """Verify the profile page URL is correct."""
         return See.the(BrowserURL(), IsEqualTo(expected_url))
+
+    @staticmethod
+    def user_has_role(expected_role: str):
+        """Verify the user's role."""
+        return See.the(UserRole(), ContainsTheText(expected_role))
