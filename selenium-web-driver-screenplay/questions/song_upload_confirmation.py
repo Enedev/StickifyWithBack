@@ -1,16 +1,15 @@
-from screenpy.protocols import Answerable
-from screenpy_selenium.abilities import BrowseTheWeb
-from selenium.webdriver.common.by import By
+# questions/song_upload_confirmation.py
+from screenpy_selenium.questions import Text
+from screenpy_selenium.target import Target
 
-class SongUploadConfirmation(Answerable):
-    """Question to verify if the upload success message appears."""
 
-    SUCCESS_MESSAGE = (By.CLASS_NAME, "upload-success")
+class SongUploadConfirmation:
+    """Question that returns the text from the SweetAlert success message."""
+
+    CONFIRMATION_MESSAGE = Target.the(
+        "SweetAlert upload success message"
+    ).located_by("#swal2-html-container")
 
     def answered_by(self, actor):
-        browser = actor.ability_to(BrowseTheWeb)
-        elements = browser.browser.find_elements(*self.SUCCESS_MESSAGE)
-        return len(elements) > 0
-
-    def __str__(self):
-        return "whether the upload success message is visible"
+        """Retrieve the confirmation message text."""
+        return Text.of(self.CONFIRMATION_MESSAGE).answered_by(actor)

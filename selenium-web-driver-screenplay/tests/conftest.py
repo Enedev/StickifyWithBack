@@ -14,7 +14,7 @@ def actor(request):
     """Provee un actor con capacidad de navegar con Selenium."""
     options = Options()
     options.add_argument("--window-size=1920,1080")
-    options.add_argument("--headless=new")  # Comenta esta línea si deseas ver el navegador
+    #options.add_argument("--headless=new")  # Comenta esta línea si deseas ver el navegador
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
 
