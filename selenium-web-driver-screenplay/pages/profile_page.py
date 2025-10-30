@@ -9,6 +9,7 @@ from questions.browser_url import BrowserURL
 from questions.element_is_visible import ElementIsVisible
 from questions.element_text import ElementText
 from questions.user_role import UserRole
+from screenpy_selenium.questions import Text
 
 
 class ProfilePage:
@@ -31,6 +32,7 @@ class ProfilePage:
 
     SAVED_PLAYLISTS_TITLE = Target.the("saved playlists title").located_by(".data-row i.fas.fa-music")
     SAVED_PLAYLIST_CARD = Target.the("saved playlist card").located_by(".playlist-grid .playlist-card")
+    #SAVED_PLAYLIST_NAME = Target.the("saved playlist name").located_by(".playlist-card h4")
 
     # Botones de acción
     PREMIUM_BUTTON = Target.the("premium button").located_by("#premiumBtn")
@@ -39,6 +41,13 @@ class ProfilePage:
 
     # Modal Premium
     PREMIUM_MODAL = Target.the("premium modal").located_by("app-premium-payment")
+
+    
+    SAVED_PLAYLIST_GRID = Target.the("grid of saved playlists").located_by(".playlist-grid")
+    SAVED_PLAYLIST_CARDS = Target.the("playlist cards").located_by(".playlist-card")
+    #SAVED_PLAYLIST_NAMES = Target.the("playlist names").located_by(".playlist-card .playlist-info h4")
+    SAVED_PLAYLIST_NAME = Target.the("saved playlist name").located_by(".playlist-card .playlist-info h4")
+    SAVED_PLAYLIST_NAMES = Target.the("playlist names").located_by(".playlist-card .playlist-info h4")
 
     # --- ACCIONES ---
 
@@ -73,6 +82,12 @@ class ProfilePage:
     def verified_badge_is_visible():
         """Check if the verified account badge is visible."""
         return See.the(ElementIsVisible(ProfilePage.VERIFIED_BADGE), IsEqualTo(True))
+    
+
+    @staticmethod
+    def saved_playlist_name():
+        """Return the text of the saved playlist names."""
+        return Text.of(ProfilePage.SAVED_PLAYLIST_NAMES)
 
     @staticmethod
     def username_is(expected_username: str):
@@ -86,13 +101,20 @@ class ProfilePage:
 
     @staticmethod
     def saved_playlists_are_visible():
-        """Verify that saved playlists are displayed on the profile."""
-        return See.the(ElementIsVisible(ProfilePage.SAVED_PLAYLIST_CARD), IsEqualTo(True))
+        """Check if the saved playlists grid is visible."""
+        return See.the(ElementIsVisible(ProfilePage.SAVED_PLAYLIST_GRID), IsEqualTo(True))
+
 
     @staticmethod
     def no_saved_playlists_message(expected_text: str):
         """Verify the message when no playlists are saved."""
         return See.the(ElementText(ProfilePage.SAVED_PLAYLISTS_TITLE), ContainsTheText(expected_text.strip()))
+
+
+    @staticmethod
+    def saved_playlists_are_visible():
+        """Check if the saved playlists grid is visible."""
+        return See.the(ElementIsVisible(ProfilePage.SAVED_PLAYLIST_GRID), IsEqualTo(True))
 
     @staticmethod
     def premium_modal_is_visible():
@@ -108,3 +130,10 @@ class ProfilePage:
     def user_has_role(expected_role: str):
         """Verify the user's role."""
         return See.the(UserRole(), ContainsTheText(expected_role))
+    
+    @staticmethod
+    def saved_playlist_with_name(playlist_name: str):
+        """Return a Target for a saved playlist card with the specific name."""
+        return Target.the(f"saved playlist '{playlist_name}'").located_by(
+            (By.XPATH, f"//div[contains(@class, 'playlist-card')]//div[contains(@class, 'playlist-info')]//h4[contains(text(), '{playlist_name}')]")
+        )

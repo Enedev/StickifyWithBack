@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 from questions.browser_url import BrowserURL
 from questions.element_is_visible import ElementIsVisible
 from questions.playlist_count import PlaylistCount
-
+from actions.scroll_to_element import ScrollToElement
 
 class PlaylistsPage:
     """Page Object representing the Stickify Playlists Page."""
@@ -24,12 +24,19 @@ class PlaylistsPage:
 
     # User Playlists Section
     USER_PLAYLIST_TITLE = Target.the("user playlists section title").located_by("h1.playlist-title:nth-of-type(1)")
-    USER_PLAYLIST_CARD = Target.the("user playlist card").located_by(".playlist-grid:nth-of-type(1) .playlist-card")
-    SAVE_TO_PROFILE_BUTTON = Target.the("save playlist to profile button").located_by(".save-playlist-profile")
+    USER_PLAYLIST_CARD = Target.the("second user playlist card").located_by(
+        ".playlist-grid:nth-of-type(1) .playlist-card:nth-of-type(2)"
+    )
+    SAVE_TO_PROFILE_BUTTON = Target.the("save second playlist to profile button").located_by(
+        ".playlist-grid:nth-of-type(1) .playlist-card:nth-of-type(2) .save-playlist-profile"
+    )
     DELETE_PLAYLIST_BUTTON = Target.the("delete playlist button").located_by(".delete-playlist")
     CONFIRM_DELETE_BUTTON = Target.the("confirm delete button").located_by(".confirm-delete")
-    PLAYLIST_NAME = Target.the("playlist name").located_by(".playlist-name")
+    PLAYLIST_NAME = Target.the("second playlist name inside playlist card").located_by(
+    ".playlist-grid:nth-of-type(1) .playlist-card:nth-of-type(2) h3"
+)
 
+    
     # Automatic Playlists Section
     AUTO_PLAYLIST_TITLE = Target.the("automatic playlists section title").located_by("h1.playlist-title:nth-of-type(2)")
     AUTO_PLAYLIST_CARD = Target.the("automatic playlist card").located_by(".playlist-grid:nth-of-type(2) .playlist-card")
@@ -62,8 +69,13 @@ class PlaylistsPage:
 
     @staticmethod
     def click_save_playlist_to_profile():
-        """Click the 'Save to Profile' button on a playlist card."""
+        """Scroll and click the save playlist button."""
         return Click.on(PlaylistsPage.SAVE_TO_PROFILE_BUTTON)
+        
+    @staticmethod
+    def scroll_to_playlist_save():
+        """Scroll to the second user playlist card."""
+        return ScrollToElement(PlaylistsPage.SAVE_TO_PROFILE_BUTTON)    
 
     @staticmethod
     def select_playlist(name: str):
@@ -115,3 +127,9 @@ class PlaylistsPage:
     def get_playlist_count():
         """Get the current number of playlists."""
         return See.the(PlaylistCount())
+    
+    @staticmethod
+    def get_first_playlist_name():
+        """Return the text of the first playlist displayed."""
+        from questions.element_text import ElementText
+        return ElementText(PlaylistsPage.PLAYLIST_NAME)

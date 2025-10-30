@@ -14,10 +14,19 @@ def actor(request):
     """Provee un actor con capacidad de navegar con Selenium."""
     options = Options()
     options.add_argument("--window-size=1920,1080")
-    #options.add_argument("--headless=new")  # Comenta esta línea si deseas ver el navegador
+    options.add_argument("--headless=new")  # Comenta esta línea si deseas ver el navegador
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
-
+    options.add_argument("--incognito")  # evita usar cuenta de Google del perfil
+    options.add_argument("--disable-save-password-bubble")
+    options.add_argument("--disable-password-manager-reauthentication")
+    options.add_argument("--disable-extensions")
+    options.add_argument("--disable-popup-blocking")
+    options.add_experimental_option("prefs", {
+    "credentials_enable_service": False,
+    "profile.password_manager_enabled": False,
+    "profile.default_content_setting_values.notifications": 2
+    })
     driver = webdriver.Chrome(service=Service(), options=options)
     test_actor = Actor.named("User").who_can(BrowseTheWeb.using(driver))
 
