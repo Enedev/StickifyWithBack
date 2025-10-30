@@ -3,7 +3,6 @@ from screenpy_selenium.abilities import BrowseTheWeb
 from selenium.webdriver import ActionChains
 
 class HoverOver(Action):
-    """Allows the actor to hover the mouse over an element."""
 
     def __init__(self, locator: tuple):
         self.locator = locator

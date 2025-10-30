@@ -3,7 +3,6 @@ from screenpy_selenium.abilities import BrowseTheWeb
 from selenium.webdriver.common.by import By
 
 class CommentVisible(Answerable):
-    """Question to verify if a specific comment is visible."""
 
     def __init__(self, comment_text: str):
         self.comment_text = comment_text

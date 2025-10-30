@@ -3,7 +3,6 @@ from screenpy_selenium.abilities import BrowseTheWeb
 from selenium.common.exceptions import NoSuchElementException
 
 class ElementIsVisible(Answerable):
-    """Question to verify if an element is visible."""
 
     def __init__(self, locator: tuple):
         self.locator = locator

@@ -2,7 +2,6 @@ from screenpy import Action
 from screenpy_selenium.abilities import BrowseTheWeb
 
 class ClearField(Action):
-    """Allows the actor to clear the text of an input field."""
 
     def __init__(self, locator: tuple):
         self.locator = locator

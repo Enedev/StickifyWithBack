@@ -10,7 +10,6 @@ from time import sleep
 
 
 def login_and_go_to_follows(actor):
-    """Helper to log in and open the user follows page."""
     actor.attempts_to(
         Open.browser_on("http://localhost:4200/log-in"),
         LoginPage.enter_email("pol@correo.com"),
@@ -27,11 +26,9 @@ def login_and_go_to_follows(actor):
 
 
 def test_search_and_follow_user(actor):
-    """Test following a user successfully."""
     login_and_go_to_follows(actor)
     target_email = "poorpol@correo.com"
 
-    # 🔍 Search for the user first
     actor.attempts_to(UserFollowsPage.search_for_user(target_email))
     actor.attempts_to(Wait(10).for_the(UserFollowsPage.USER_CARD).to_appear())
 
@@ -41,7 +38,6 @@ def test_search_and_follow_user(actor):
         actor.should(UserFollowsPage.no_users_message_is("No se encontraron otros usuarios."))
         return
 
-    # Click follow
     actor.attempts_to(
         Wait(5).for_the(UserFollowsPage.get_follow_button_for_email(target_email)).to_appear(),
         Click.on(UserFollowsPage.get_follow_button_for_email(target_email))
@@ -55,11 +51,9 @@ def test_search_and_follow_user(actor):
 
 
 def test_unfollow_user(actor):
-    """Test unfollowing a user successfully."""
     login_and_go_to_follows(actor)
     target_email = "poorpol@correo.com"
 
-    # 🔍 Search for the user first
     actor.attempts_to(UserFollowsPage.search_for_user(target_email))
     actor.attempts_to(Wait(10).for_the(UserFollowsPage.USER_CARD).to_appear())
 
@@ -69,13 +63,11 @@ def test_unfollow_user(actor):
         actor.should(UserFollowsPage.no_users_message_is("No se encontraron otros usuarios."))
         return
 
-    # Click unfollow
     actor.attempts_to(
         Wait(5).for_the(UserFollowsPage.get_follow_button_for_email(target_email)).to_appear(),
         Click.on(UserFollowsPage.get_follow_button_for_email(target_email))
     )
 
-    # ✅ Wait for button to switch back to .follow
     actor.attempts_to(
         Wait(10).for_the(UserFollowsPage.get_follow_button_only_for_email(target_email)).to_appear()
     )

@@ -7,7 +7,6 @@ from screenpy import See
 
 
 def test_home_page_components(actor):
-    """Verify main components on home page load."""
     actor.attempts_to(
         Open.browser_on("http://localhost:4200/log-in"),
         LoginPage.enter_email("pol@correo.com"),
@@ -28,7 +27,6 @@ def test_home_page_components(actor):
 
 
 def test_song_search_functionality(actor):
-    """Test searching for a song."""
     actor.attempts_to(
         Open.browser_on("http://localhost:4200/log-in"),
         LoginPage.enter_email("pol@correo.com"),
@@ -46,7 +44,6 @@ def test_song_search_functionality(actor):
 
     search_term = "lose yourself"
 
-    # ✅ Use * to unpack the list of actions
     actor.attempts_to(
         *HomePage.enter_search_term(search_term),
         Wait(10).for_the(HomePage.SONG_CARD).to_appear()
@@ -56,7 +53,6 @@ def test_song_search_functionality(actor):
 
 
 def test_song_modal_interaction(actor):
-    """Test opening a song modal and interacting with it."""
     actor.attempts_to(
         Open.browser_on("http://localhost:4200/log-in"),
         LoginPage.enter_email("pol@correo.com"),
@@ -72,7 +68,6 @@ def test_song_modal_interaction(actor):
     actor.should(See.the(BrowserURL(), ContainsTheText("home")))
     actor.attempts_to(Wait(15).for_the(HomePage.MUSIC_RESULTS).to_appear())
 
-    # ✅ Use * before open_first_song() if it returns a list
     actor.attempts_to(
         *HomePage.open_first_song()
     )
@@ -88,7 +83,6 @@ def test_song_modal_interaction(actor):
 
 
 def test_song_filtering(actor):
-    """Test applying filters on the home page."""
     actor.attempts_to(
         Open.browser_on("http://localhost:4200/log-in"),
         LoginPage.enter_email("pol@correo.com"),
@@ -104,7 +98,6 @@ def test_song_filtering(actor):
     actor.should(See.the(BrowserURL(), ContainsTheText("home")))
     actor.attempts_to(Wait(15).for_the(HomePage.MUSIC_RESULTS).to_appear())
 
-    # ✅ Use * to unpack both filter lists
     actor.attempts_to(
         *HomePage.select_year("2024"),
         *HomePage.select_genre("Drama"),

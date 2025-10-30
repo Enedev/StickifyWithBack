@@ -2,7 +2,6 @@ from screenpy.protocols import Answerable
 from screenpy_selenium.abilities import BrowseTheWeb
 
 class ElementText(Answerable):
-    """Question to get the text content of an element."""
 
     def __init__(self, locator: tuple):
         self.locator = locator

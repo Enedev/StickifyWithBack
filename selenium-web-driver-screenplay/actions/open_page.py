@@ -4,7 +4,6 @@ from screenpy_selenium.actions import Visit
 
 
 class OpenPage:
-    """Una tarea personalizada para abrir una página web directamente por URL."""
 
     def __init__(self, url: str):
         self.url = url

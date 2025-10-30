@@ -14,7 +14,6 @@ from abilities.save_playlist_to_profile import SavePlaylistToProfile
 
 
 def _create_browser():
-    """Crea un driver configurado con opciones estándar."""
     options = Options()
     options.add_argument("--headless=new")
     options.add_argument("--disable-gpu")
@@ -27,7 +26,6 @@ def _create_browser():
 
 
 def create_standard_user() -> Actor:
-    """Crea un usuario estándar con habilidades básicas."""
     browser = _create_browser()
     return (
         Actor.named("StandardUser")
@@ -42,7 +40,6 @@ def create_standard_user() -> Actor:
 
 
 def create_premium_user() -> Actor:
-    """Crea un usuario premium con habilidades adicionales."""
     browser = _create_browser()
     return (
         Actor.named("PremiumUser")
@@ -59,6 +56,5 @@ def create_premium_user() -> Actor:
     )
 
 def create_actor_named(name: str) -> Actor:
-    """Creates a new actor with the given name and standard abilities."""
     browser = _create_browser()
     return Actor.named(name).who_can(BrowseTheWeb.using(browser))

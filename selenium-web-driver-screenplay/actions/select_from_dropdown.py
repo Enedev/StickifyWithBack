@@ -3,7 +3,6 @@ from screenpy import Action
 from screenpy_selenium.abilities import BrowseTheWeb
 
 class SelectFromDropdown(Action):
-    """Allows the actor to select an option from a dropdown by visible text."""
 
     def __init__(self, locator: tuple, option_text: str):
         self.locator = locator

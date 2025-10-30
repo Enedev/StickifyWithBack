@@ -2,7 +2,6 @@ from screenpy.protocols import Answerable
 from screenpy_selenium.abilities import BrowseTheWeb
 
 class PlaylistCount(Answerable):
-    """Question to get the number of playlists shown in the UI."""
 
     def __init__(self, locator: tuple):
         self.locator = locator  # locator que selecciona todas las playlists

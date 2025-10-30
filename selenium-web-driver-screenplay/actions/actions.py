@@ -6,7 +6,6 @@ from screenpy_selenium.actions import Visit, Click
 
 
 class EnterText(Action):
-    """Permite que el actor escriba texto en un campo identificado por un localizador."""
 
     def __init__(self, text: str, locator: tuple):
         self.text = text

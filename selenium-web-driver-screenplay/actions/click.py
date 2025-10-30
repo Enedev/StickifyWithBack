@@ -5,7 +5,6 @@ from selenium.webdriver.common.by import By
 
 
 class ClickElement:
-    """Una tarea personalizada para hacer clic en un elemento."""
 
     def __init__(self, target: tuple):
         self.target = target

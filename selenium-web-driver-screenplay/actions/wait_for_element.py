@@ -4,7 +4,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 class WaitForElement(Action):
-    """Wait until an element is visible."""
 
     def __init__(self, locator: tuple, timeout: int = 10):
         self.locator = locator
