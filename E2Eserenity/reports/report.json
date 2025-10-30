@@ -1,0 +1,427 @@
+[
+  {
+    "description": "  Como usuario\n  Quiero seguir a otro usuario\n  Para ver su contenido",
+    "elements": [
+      {
+        "description": "",
+        "id": "follow-users;seguir-a-un-usuario",
+        "keyword": "Scenario",
+        "line": 6,
+        "name": "Seguir a un usuario",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 4001599
+            }
+          },
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 108000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "que el usuario está autenticado",
+            "match": {
+              "location": "steps\\common.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1793027600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 8,
+            "name": "el usuario sigue a \"bighead@bighead\"",
+            "match": {
+              "location": "steps\\follow.steps.ts:7"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 893610799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 9,
+            "name": "el usuario debería ver un mensaje de éxito al seguir",
+            "match": {
+              "location": "steps\\follow.steps.ts:36"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 235299
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 367500
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "follow-users",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Follow users",
+    "tags": [],
+    "uri": "features\\follow.feature"
+  },
+  {
+    "description": "  Como usuario\n  Quiero iniciar sesión\n  Para acceder a funciones protegidas",
+    "elements": [
+      {
+        "description": "",
+        "id": "autenticación;inicio-de-sesión-con-credenciales-válidas",
+        "keyword": "Scenario",
+        "line": 6,
+        "name": "Inicio de sesión con credenciales válidas",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 207899
+            }
+          },
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 53799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "que el usuario tiene credenciales válidas",
+            "match": {
+              "location": "steps\\login.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 170000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 8,
+            "name": "el usuario intenta iniciar sesión",
+            "match": {
+              "location": "steps\\login.steps.ts:12"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 197509899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 9,
+            "name": "el usuario debería ver un mensaje de éxito",
+            "match": {
+              "location": "steps\\login.steps.ts:23"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 313899
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 173699
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "autenticación",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Autenticación",
+    "tags": [],
+    "uri": "features\\login.feature"
+  },
+  {
+    "description": "  Como usuario\n  Quiero crear una playlist\n  Para guardar canciones favoritas",
+    "elements": [
+      {
+        "description": "",
+        "id": "playlists;crear-una-playlist-nueva",
+        "keyword": "Scenario",
+        "line": 6,
+        "name": "Crear una playlist nueva",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 119599
+            }
+          },
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 30999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "que el usuario está autenticado",
+            "match": {
+              "location": "steps\\common.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 722011800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 8,
+            "name": "el usuario crea una lista de reproducción llamada \"Mi Playlist\"",
+            "match": {
+              "location": "steps\\playlists.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 548109199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 9,
+            "name": "la respuesta debería tener código 201 o 200",
+            "match": {
+              "location": "steps\\common.steps.ts:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 257900
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 287200
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "playlists",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Playlists",
+    "tags": [],
+    "uri": "features\\playlists.feature"
+  },
+  {
+    "description": "  Como usuario\n  Quiero calificar una canción\n  Para expresar mi opinión",
+    "elements": [
+      {
+        "description": "",
+        "id": "calificar-canción;calificar-una-canción",
+        "keyword": "Scenario",
+        "line": 6,
+        "name": "Calificar una canción",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 518099
+            }
+          },
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 53799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "que el usuario está autenticado",
+            "match": {
+              "location": "steps\\common.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 784365400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 8,
+            "name": "el usuario califica la canción \"123\" con 5",
+            "match": {
+              "location": "steps\\rating.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 663906600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 9,
+            "name": "la respuesta debería tener código 201 o 200",
+            "match": {
+              "location": "steps\\common.steps.ts:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 345000
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 234800
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "calificar-canción",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Calificar canción",
+    "tags": [],
+    "uri": "features\\rating.feature"
+  },
+  {
+    "description": "  Como usuario\n  Quiero buscar canciones\n  Para encontrar música por texto",
+    "elements": [
+      {
+        "description": "",
+        "id": "buscar-canciones;buscar-por-texto",
+        "keyword": "Scenario",
+        "line": 6,
+        "name": "Buscar por texto",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 287000
+            }
+          },
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 35600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "que el usuario está autenticado",
+            "match": {
+              "location": "steps\\common.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 816431900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 8,
+            "name": "el usuario busca la canción \"rock\"",
+            "match": {
+              "location": "steps\\search.steps.ts:7"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1603999400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 9,
+            "name": "la respuesta debería contener una lista de canciones",
+            "match": {
+              "location": "steps\\search.steps.ts:20"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 260099
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 123999
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "buscar-canciones",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Buscar canciones",
+    "tags": [],
+    "uri": "features\\search.feature"
+  }
+]
