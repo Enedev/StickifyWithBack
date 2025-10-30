@@ -1,0 +1,307 @@
+[
+  {
+    "description": "  Como usuario\n  Quiero seguir a otro usuario\n  Para ver su contenido",
+    "elements": [
+      {
+        "description": "",
+        "id": "follow-users;seguir-a-un-usuario",
+        "keyword": "Scenario",
+        "line": 6,
+        "name": "Seguir a un usuario",
+        "steps": [
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "que el usuario está autenticado",
+            "match": {
+              "location": "steps\\common.steps.ts:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1361158100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 8,
+            "name": "intenta seguir al usuario",
+            "match": {
+              "location": "steps\\follow.steps.ts:7"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1072767499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 9,
+            "name": "la respuesta debería tener código 201 o 200",
+            "match": {
+              "location": "steps\\common.steps.ts:64"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1244599
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "follow-users",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Follow users",
+    "tags": [],
+    "uri": "features\\follow.feature"
+  },
+  {
+    "description": "  Como usuario\n  Quiero iniciar sesión\n  Para acceder a funciones protegidas",
+    "elements": [
+      {
+        "description": "",
+        "id": "autenticación;inicio-de-sesión-con-credenciales-válidas",
+        "keyword": "Scenario",
+        "line": 6,
+        "name": "Inicio de sesión con credenciales válidas",
+        "steps": [
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "que el usuario tiene credenciales válidas",
+            "match": {
+              "location": "steps\\auth.steps.ts:7"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 59299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 8,
+            "name": "el usuario intenta iniciar sesión",
+            "match": {
+              "location": "steps\\auth.steps.ts:14"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 651878400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 9,
+            "name": "el usuario debería ver un mensaje de éxito",
+            "match": {
+              "location": "steps\\auth.steps.ts:26"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 233900
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "autenticación",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Autenticación",
+    "tags": [],
+    "uri": "features\\login.feature"
+  },
+  {
+    "description": "  Como usuario\n  Quiero crear una playlist\n  Para guardar canciones favoritas",
+    "elements": [
+      {
+        "description": "",
+        "id": "playlists;crear-una-playlist-nueva",
+        "keyword": "Scenario",
+        "line": 6,
+        "name": "Crear una playlist nueva",
+        "steps": [
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "que el usuario está autenticado",
+            "match": {
+              "location": "steps\\common.steps.ts:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 690508199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 8,
+            "name": "crea una playlist con título \"Mi Playlist\"",
+            "match": {
+              "location": "steps\\playlists.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 374663000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 9,
+            "name": "la respuesta debería tener código 201 o 200",
+            "match": {
+              "location": "steps\\common.steps.ts:64"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 246600
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "playlists",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Playlists",
+    "tags": [],
+    "uri": "features\\playlists.feature"
+  },
+  {
+    "description": "  Como usuario\n  Quiero calificar una canción\n  Para expresar mi opinión",
+    "elements": [
+      {
+        "description": "",
+        "id": "calificar-canción;calificar-una-canción",
+        "keyword": "Scenario",
+        "line": 6,
+        "name": "Calificar una canción",
+        "steps": [
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "que el usuario está autenticado",
+            "match": {
+              "location": "steps\\common.steps.ts:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 691956799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 8,
+            "name": "califica la canción con id \"123\" con 5 estrellas",
+            "match": {
+              "location": "steps\\rating.steps.ts:6"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1119372199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 9,
+            "name": "la respuesta debería tener código 201 o 200",
+            "match": {
+              "location": "steps\\common.steps.ts:64"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 152399
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "calificar-canción",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Calificar canción",
+    "tags": [],
+    "uri": "features\\rating.feature"
+  },
+  {
+    "description": "  Como usuario\n  Quiero buscar canciones\n  Para encontrar música por texto",
+    "elements": [
+      {
+        "description": "",
+        "id": "buscar-canciones;buscar-por-texto",
+        "keyword": "Scenario",
+        "line": 6,
+        "name": "Buscar por texto",
+        "steps": [
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "que el usuario está autenticado",
+            "match": {
+              "location": "steps\\common.steps.ts:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 691279299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 8,
+            "name": "busca por \"rock\"",
+            "match": {
+              "location": "steps\\search.steps.ts:7"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1347778099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 9,
+            "name": "la respuesta debería contener una lista de canciones",
+            "match": {
+              "location": "steps\\search.steps.ts:27"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 423399
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "buscar-canciones",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Buscar canciones",
+    "tags": [],
+    "uri": "features\\search.feature"
+  }
+]

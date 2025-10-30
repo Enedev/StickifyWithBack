@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test": "cucumber-js"
+    "test": "cucumber-js --require-module ts-node/register --require ./steps/**/*.ts --require ./support/**/*.ts --format json:reports/cucumber.json --format progress --publish-quiet",
+    "report": "node ./scripts/generate-report.js",
+    "test:report": "npm test && npm run report"
   },
   "devDependencies": {
     "@cucumber/cucumber": "^9.0.0",
@@ -13,6 +15,7 @@
     "@types/node": "^20.4.2",
     "@types/chai": "^4.3.0",
     "uuid": "^9.0.0",
-    "@types/uuid": "^9.0.1"
+    "@types/uuid": "^9.0.1",
+    "cucumber-html-reporter": "^5.5.0"
   }
 }
